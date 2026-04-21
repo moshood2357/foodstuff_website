@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+<main class="">
+    {% include 'includes/hero.html' %}
+    {% include 'includes/trust_section.html' %}
+
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Best Selling Products</h2>
+                <a href="{{ url_for('main.shop') }}" class="btn btn-success">Shop All</a>
+            </div>
+    
+            <div class="row g-4">
+                {% for product in featured_products %}
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    {% include 'includes/product_card.html' %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Featured Categories</h2>
+                <a href="{{ url_for('main.shop') }}" class="btn btn-outline-success">View All</a>
+            </div>
+    
+            <div class="row g-4">
+                {% for category in categories %}
+                <div class="col-md-3 col-sm-6">
+                    {% include 'includes/category_card.html' %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        </section>
+
+
+        
+
+</main>
+
+
+
+
+
+
+{% endblock %}

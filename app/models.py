@@ -1,0 +1,364 @@
+from datetime import datetime
+import enum
+from flask_login import UserMixin
+from .extensions import db
+
+
+# =========================
+# ENUMS
+# =========================
+
+class OrderStatus(enum.Enum):
+    pending = "pending"
+    processing = "processing"
+    shipped = "shipped"
+    delivered = "delivered"
+    cancelled = "cancelled"
+
+
+class PaymentStatus(enum.Enum):
+    unpaid = "unpaid"
+    paid = "paid"
+    failed = "failed"
+
+
+
+# =========================
+# USERS
+# =========================
+
+class User(db.Model, UserMixin):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    first_name = db.Column(db.String(100), nullable=False)
+    last_name = db.Column(db.String(100), nullable=False)
+
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+    password_hash = db.Column(db.String(255), nullable=False)
+    phone = db.Column(db.String(20))
+
+    role = db.Column(db.String(20), default="customer")
+    is_admin = db.Column(db.Boolean, default=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # relationships
+    addresses = db.relationship("Address", backref="user", lazy=True)
+    orders = db.relationship("Order", backref="user", lazy=True)
+    cart = db.relationship("Cart", backref="user", uselist=False)
+    wishlist_items = db.relationship("Wishlist", backref="user", lazy=True)
+
+
+# =========================
+# ADDRESS
+# =========================
+
+class Address(db.Model):
+    __tablename__ = "address"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+
+    full_name = db.Column(db.String(150), nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
+
+    address_line_1 = db.Column(db.String(255), nullable=False)
+    address_line_2 = db.Column(db.String(255))
+    city = db.Column(db.String(100), nullable=False)
+    state = db.Column(db.String(100), nullable=False)
+    country = db.Column(db.String(100), nullable=False)
+    postal_code = db.Column(db.String(20))
+
+    is_default = db.Column(db.Boolean, default=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# =========================
+# CATEGORY
+# =========================
+
+class Category(db.Model):
+    __tablename__ = "category"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    slug = db.Column(db.String(150), unique=True, nullable=False)
+
+    description = db.Column(db.Text)
+    image = db.Column(db.String(255))
+
+    products = db.relationship("Product", backref="category", lazy=True)
+
+
+# =========================
+# PRODUCT
+# =========================
+
+class Product(db.Model):
+    __tablename__ = "product"
+
+    id = db.Column(db.Integer, primary_key=True)
+    category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
+
+    name = db.Column(db.String(200), nullable=False)
+    slug = db.Column(db.String(255), unique=True, nullable=False)
+
+    description = db.Column(db.Text, nullable=False)
+    short_description = db.Column(db.String(255))
+
+    price = db.Column(db.Numeric(10, 2), nullable=False)
+    discount_price = db.Column(db.Numeric(10, 2))
+
+    sku = db.Column(db.String(100), unique=True)
+    stock_quantity = db.Column(db.Integer, default=0)
+
+    brand = db.Column(db.String(100))
+    image = db.Column(db.String(255))
+
+    is_active = db.Column(db.Boolean, default=True)
+    is_featured = db.Column(db.Boolean, default=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# =========================
+# CART
+# =========================
+
+class Cart(db.Model):
+    __tablename__ = "cart"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    items = db.relationship(
+        "CartItem",
+        backref="cart",
+        cascade="all, delete-orphan",
+        lazy=True
+    )
+    
+    user_key = db.Column(db.String(100), index=True)
+
+class CartItem(db.Model):
+    __tablename__ = "cart_item"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    cart_id = db.Column(db.Integer, db.ForeignKey("cart.id"), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
+
+    quantity = db.Column(db.Integer, default=1)
+
+    # snapshot data (important for order integrity)
+    unit_price = db.Column(db.Numeric(10, 2))
+    product_name = db.Column(db.String(200))
+    product_image = db.Column(db.String(255))
+
+    from_wishlist = db.Column(db.Boolean, default=False)
+    user_key = db.Column(db.String(100), index=True)
+
+    product = db.relationship("Product")
+
+
+# =========================
+# WISHLIST
+# =========================
+
+class Wishlist(db.Model):
+    __tablename__ = "wishlist"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user_key = db.Column(db.String(100), index=True)
+
+
+
+# =========================
+# ORDER
+# =========================
+
+class Order(db.Model):
+    __tablename__ = "orders"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    address_id = db.Column(db.Integer, db.ForeignKey("address.id"), nullable=False)
+
+    order_number = db.Column(db.String(100), unique=True, nullable=False)
+
+    subtotal = db.Column(db.Numeric(10, 2), nullable=False)
+    shipping_fee = db.Column(db.Numeric(10, 2), default=0)
+    tax = db.Column(db.Numeric(10, 2), default=0)
+    total_amount = db.Column(db.Numeric(10, 2), nullable=False)
+
+    status = db.Column(db.Enum(OrderStatus), default=OrderStatus.pending, nullable=False)
+    payment_status = db.Column(db.Enum(PaymentStatus), default=PaymentStatus.unpaid, nullable=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # relationships
+    address = db.relationship("Address", backref="orders")
+    items = db.relationship(
+        "OrderItem",
+        backref="order",
+        cascade="all, delete-orphan",
+        lazy=True
+    )
+    payment = db.relationship("Payment", backref="order", uselist=False)
+
+
+# =========================
+# ORDER ITEM
+# =========================
+
+class OrderItem(db.Model):
+    __tablename__ = "order_item"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
+
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Numeric(10, 2), nullable=False)
+
+    # snapshot (important for historical accuracy)
+    product_name = db.Column(db.String(200))
+    product_image = db.Column(db.String(255))
+
+    product = db.relationship("Product")
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+
+# =========================
+# PAYMENT
+# =========================
+
+class Payment(db.Model):
+    __tablename__ = "payment"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"), nullable=False)
+
+    payment_method = db.Column(db.String(50), nullable=False)
+    transaction_id = db.Column(db.String(255), unique=True)
+
+    amount = db.Column(db.Numeric(10, 2), nullable=False)
+
+    status = db.Column(db.Enum(PaymentStatus), default=PaymentStatus.unpaid, nullable=False)
+
+    reference = db.Column(db.String(255), unique=True)
+    gateway_response = db.Column(db.Text)
+
+    paid_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+
+# =========================
+# REVIEW
+# =========================
+
+class Review(db.Model):
+    __tablename__ = "review"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
+
+    rating = db.Column(db.Integer, nullable=False)
+    comment = db.Column(db.Text)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# =========================
+# COUPON
+# =========================
+
+class Coupon(db.Model):
+    __tablename__ = "coupon"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    code = db.Column(db.String(50), unique=True, nullable=False)
+    discount_type = db.Column(db.String(20), nullable=False)
+    discount_value = db.Column(db.Numeric(10, 2), nullable=False)
+
+    minimum_order_amount = db.Column(db.Numeric(10, 2), default=0)
+    expiration_date = db.Column(db.DateTime)
+
+    is_active = db.Column(db.Boolean, default=True)
+
+
+# =========================
+# NEWSLETTER
+# =========================
+
+class NewsletterSubscriber(db.Model):
+    __tablename__ = "newsletter_subscriber"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+
+    subscribed_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+
+class CheckoutDraft(db.Model):
+    __tablename__ = "checkout_draft"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+
+    # Contact
+    email = db.Column(db.String(120))
+    phone = db.Column(db.String(20))
+
+    # Customer info
+    full_name = db.Column(db.String(150))
+
+    # Addresses
+    delivery_address = db.Column(db.Text)
+    billing_address = db.Column(db.Text)
+
+    # Shipping
+    delivery_method = db.Column(db.String(50))  # standard, express
+
+    # Cart snapshot (important like Jumia)
+    cart_snapshot = db.Column(db.JSON)
+
+    # Totals snapshot
+    subtotal = db.Column(db.Numeric(10, 2))
+    shipping_fee = db.Column(db.Numeric(10, 2), default=0)
+    tax = db.Column(db.Numeric(10, 2), default=0)
+    total = db.Column(db.Numeric(10, 2))
+
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    
+    user_key = db.Column(db.String(100), index=True)

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Foodstuff Store{% endblock %}</title>
+
+    <meta name="description"
+        content="Fresh foodstuff, groceries, vegetables, grains, spices, and household essentials delivered to your doorstep.">
+    <meta name="keywords" content="foodstuff, groceries, vegetables, rice, beans, spices, online store">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+            margin-top: 30px;
+        }
+
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+           
+
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .btn-success {
+            background-color: #198754;
+            border-color: #198754;
+        }
+
+        .btn-success:hover {
+            background-color: #157347;
+            border-color: #157347;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .flash-message {
+            border-radius: 12px;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <div class="page-wrapper">
+
+        <!-- HEADER -->
+        {% include 'header.html' %}
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <div class="container mt-2">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show flash-message" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+            </div>
+
+            {% block content %}{% endblock %}
+
+        </main>
+
+        <!-- FOOTER -->
+        {% include 'footer.html' %}
+
+    </div>
+
+    <!-- Bootstrap Bundle (IMPORTANT for dropdowns to work) -->
+    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+    <!-- jQuery (optional) -->
+    <!-- <script src="{{ url_for('static', filename='jquery.js') }}"></script> -->
+
+    <!-- Auto close alerts -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                let alerts = document.querySelectorAll(".flash-message");
+
+                alerts.forEach(function (alert) {
+                    let bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+
+            }, 2000);
+        });
+    </script>
+
+    <!-- Main JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    {% block js %}{% endblock %}
+
+</body>
+
+</html>

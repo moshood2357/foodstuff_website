@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout Details{% endblock %}
+
+{% block content %}
+
+<style>
+    .checkout-wrapper {
+        background: #f8fafc;
+        padding: 40px 15px;
+    }
+
+    .checkout-box {
+        max-width: 650px;
+        margin: auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 14px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+    }
+
+    .checkout-box h2 {
+        font-weight: 800;
+        margin-bottom: 20px;
+        color: #0f172a;
+    }
+
+    .checkout-box input,
+    .checkout-box textarea,
+    .checkout-box select {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        outline: none;
+        font-size: 14px;
+    }
+
+    .checkout-box input:focus,
+    .checkout-box textarea:focus,
+    .checkout-box select:focus {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+    }
+
+    .btn-primary {
+        width: 100%;
+        background: #22c55e;
+        color: #fff;
+        border: none;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 15px;
+    }
+
+    .btn-primary:hover {
+        background: #16a34a;
+    }
+</style>
+
+<div class="checkout-wrapper">
+
+    <div class="checkout-box">
+
+        <h2>Checkout Details</h2>
+
+        <form method="POST">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <input type="text" name="full_name" placeholder="Full Name" value="{{ draft.full_name or '' }}" required>
+
+            <input type="email" name="email" placeholder="Email" value="{{ draft.email or '' }}" required>
+
+            <input type="text" name="phone" placeholder="Phone Number" value="{{ draft.phone or '' }}" required>
+
+            <textarea name="delivery_address" placeholder="Delivery Address"
+                required>{{ draft.delivery_address or '' }}</textarea>
+
+            <textarea name="billing_address" placeholder="Billing Address"
+                required>{{ draft.billing_address or '' }}</textarea>
+
+            <select name="delivery_method" required>
+
+                <option value="standard" {% if draft.delivery_method=='standard' %}selected{% endif %}>
+                    Standard Delivery
+                </option>
+
+                <option value="express" {% if draft.delivery_method=='express' %}selected{% endif %}>
+                    Express Delivery
+                </option>
+
+            </select>
+
+    
+            <button type="submit" class="btn-primary">
+                Continue to Summary
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

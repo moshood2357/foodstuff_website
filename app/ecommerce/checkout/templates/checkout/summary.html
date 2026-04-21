@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Order Summary{% endblock %}
+
+{% block content %}
+
+<style>
+    .summary-wrapper {
+        padding: 40px 15px;
+        background: #f8fafc;
+        min-height: 80vh;
+    }
+
+    .summary-container {
+        max-width: 900px;
+        margin: auto;
+        display: grid;
+        gap: 20px;
+    }
+
+    .summary-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #0f172a;
+    }
+
+    .row {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        font-size: 14px;
+        color: #334155;
+    }
+
+    .items {
+        border-top: 1px solid #e2e8f0;
+        margin-top: 10px;
+        padding-top: 10px;
+    }
+
+    .item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        padding: 6px 0;
+        color: #475569;
+    }
+
+    .total {
+        font-size: 16px;
+        font-weight: 800;
+        color: #16a34a;
+        border-top: 1px solid #e2e8f0;
+        margin-top: 10px;
+        padding-top: 10px;
+    }
+
+    .btn-pay {
+        width: 100%;
+        background: #22c55e;
+        color: white;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+
+    .btn-pay:hover {
+        background: #16a34a;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #16a34a;
+        font-size: 12px;
+    }
+</style>
+
+<div class="summary-wrapper">
+
+    <div class="summary-container">
+
+        <!-- CUSTOMER DETAILS -->
+        <div class="summary-card">
+            <div class="section-title">Customer Details</div>
+
+            <div class="row">
+                <span>Name</span>
+                <strong>{{ draft.full_name }}</strong>
+            </div>
+
+            <div class="row">
+                <span>Email</span>
+                <strong>{{ draft.email }}</strong>
+            </div>
+
+            <div class="row">
+                <span>Phone</span>
+                <strong>{{ draft.phone }}</strong>
+            </div>
+        </div>
+
+        <!-- DELIVERY INFO -->
+        <div class="summary-card">
+            <div class="section-title">Delivery Details</div>
+
+            <div class="row">
+                <span>Delivery Method</span>
+                <span class="badge">{{ draft.delivery_method }}</span>
+            </div>
+
+            <div class="row">
+                <span>Delivery Address</span>
+                <strong>{{ draft.delivery_address }}</strong>
+            </div>
+
+            <div class="row">
+                <span>Billing Address</span>
+                <strong>{{ draft.billing_address }}</strong>
+            </div>
+        </div>
+
+        <!-- ITEMS -->
+        <div class="summary-card">
+            <div class="section-title">Order Items</div>
+
+            <div class="items">
+
+                {% for item in draft.cart_snapshot or [] %}
+
+                <div class="item">
+                    <span>{{ item.name }} × {{ item.qty }}</span>
+                    <strong>£{{ item.price * item.qty }}</strong>
+                </div>
+
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <!-- PAYMENT SUMMARY -->
+        <div class="summary-card">
+            <div class="section-title">Payment Summary</div>
+
+            <div class="row">
+                <span>Subtotal</span>
+                <strong>£{{ draft.subtotal }}</strong>
+            </div>
+
+            <div class="row">
+                <span>Shipping</span>
+                <strong>£{{ draft.shipping_fee }}</strong>
+            </div>
+
+            <div class="row">
+                <span>Tax</span>
+                <strong>£{{ draft.tax }}</strong>
+            </div>
+
+            <div class="total">
+                Total: £{{ draft.total }}
+            </div>
+
+            <form method="POST" action="{{ url_for('checkout.pay') }}">
+                <button type="submit" class="btn-pay">
+                    Proceed to Payment
+                </button>
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
