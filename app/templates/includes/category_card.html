@@ -7,7 +7,7 @@
 
             {% set img = 'uploads/categories/' ~ category.image if category.image else 'images/default-category.png' %}
 
-            <img src="{{ url_for('static', filename=img) }}" alt="{{ category.name }}" class="w-100 category-img">
+            <img src="{{ url_for('static', filename=img) }}" alt="{{ category.name }}" class="w-100 category-img w-100" loading="eager" decoding="async" fetchpriority="low" style="height: 180px; object-fit: cover;" alt="{{ category.name }}">
 
             <!-- DARK OVERLAY -->
             <div class="overlay"></div>

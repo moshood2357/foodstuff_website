@@ -46,7 +46,7 @@
     }
 </style>
 
-<div class="dashboard py-5">
+<div class="dashboard">
 
     <!-- STATS -->
     <div class="stats-grid">
@@ -84,7 +84,7 @@
         <div class="product-card">
             <div class="product-image">
                 <img
-                    src="{{ url_for('static', filename='uploads/' + product.image) if product.image else url_for('static', filename='images/default-product.png') }}">
+                    src="{{ url_for('static', filename='uploads/' + product.image) if product.image else url_for('static', filename='images/default-product.png') }}" alt = "{{ product.name }}" class="w-100 h-100" loading="lazy" decoding="async" fetchpriority="low" style="object-fit: cover;">
             </div>
 
             <div class="product-info">
@@ -114,7 +114,11 @@
         <div class="product-card">
             <div class="product-image">
                 <img
-                    src="{{ url_for('static', filename='uploads/categories/' ~ category.image) if category.image else url_for('static', filename='images/default-category.png') }}">
+                    src="{{ url_for('static', filename='uploads/categories/' ~ category.image) if category.image else url_for('static', filename='images/default-category.png') }}"
+                    class="w-100 h-100" alt="{{ category.name }}"
+                    loading="lazy"
+                    decoding="async"
+                    fetchpriority="low">
             </div>
 
             <div class="product-info">
