@@ -23,7 +23,7 @@ def create_app(config_class="config.Config"):
 
     app.config.from_object(config_class)
 
-    # ✅ FIXED ORDER (important)
+    
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-key")
 
     # =========================

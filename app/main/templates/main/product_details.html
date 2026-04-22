@@ -162,11 +162,20 @@
 
                 <!-- ACTION BUTTONS -->
                 <div class="action-buttons">
-                    <!-- 🛒 ADD TO CART (AJAX) -->
+                    <!-- 🛒 ADD TO CART -->
+                    {% if product.id in cart_product_ids %}
+                    
+                    <a href="{{ url_for('cart.view_cart') }}" class="btn btn-success rounded-pill px-3">
+                        View Cart
+                    </a>
+                    
+                    {% else %}
+                    
                     <button type="button" class="btn btn-success rounded-pill px-3 add-to-cart-btn" data-slug="{{ product.slug }}"
                         data-csrf="{{ csrf_token() }}">
                         Add to cart
                     </button>
+                    {% endif %}
     
 
                     <button type="button" class="wishlist-btn">

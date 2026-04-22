@@ -84,12 +84,12 @@
         <!-- MAIN CONTENT -->
         <main class="main-content">
 
-            <div class="container mt-5">
+            <div class="container">
 
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                 {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show flash-message" role="alert">
+                <div class="alert alert-{{ category }} alert-dismissible fade show flash-message mt-5" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>

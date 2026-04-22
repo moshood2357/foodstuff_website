@@ -167,6 +167,13 @@
                     </span>
                 </div>
 
+                <!-- 👇 Add this right after password field -->
+                <div style="text-align: right; margin-top: -8px; margin-bottom: 15px;">
+                    <a href="{{ url_for('auth.forgot_password') }}" style="font-size: 12.5px; color: #38bdf8; text-decoration: none;">
+                        Forgot password?
+                    </a>
+                </div>
+
                 
                 <button type="submit">Login</button>
             </form>

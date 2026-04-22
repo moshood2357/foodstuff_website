@@ -1,7 +1,13 @@
+from argon2 import hash_password
 from flask import render_template, redirect, url_for, flash, request
-from flask_login import login_user, logout_user, login_required, current_user
 
-from app.auth import auth_bp
+from flask_login import login_user, logout_user, login_required, current_user
+from app.utils.email import send_email
+from app.utils.serializer import get_serializer
+from app.utils.password_reset_email import password_reset_email
+from . import auth_bp
+
+
 from app.extensions import db
 from app.models import User
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -112,3 +118,64 @@ def profile():
         return redirect(url_for('auth.profile'))
 
     return render_template('auth/profile.html', user=current_user)
+
+@auth_bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+
+        user = User.query.filter_by(email=email).first()
+
+        # 🔐 Always use same response pattern (security best practice)
+        if user:
+            try:
+                serializer = get_serializer()
+                token = serializer.dumps(user.email, salt='password-reset-salt')
+
+                reset_link = url_for(
+                    'auth.reset_password',
+                    token=token,
+                    _external=True
+                )
+
+                send_email(
+                    to=user.email,
+                    subject="Password Reset Request",
+                    html_content=password_reset_email(reset_link)
+                )
+
+            except Exception as e:
+                print("Reset email error:", e)
+
+        flash("If that email exists, a reset link has been sent.", "info")
+        return redirect(url_for('auth.login'))
+
+    return render_template('auth/forgot_password.html')
+
+
+@auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        serializer=get_serializer()
+        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)
+    except:
+        flash("Invalid or expired link", "danger")
+        return redirect(url_for('auth.forgot_password'))
+
+    if request.method == 'POST':
+        password = request.form.get('password')
+        confirm = request.form.get('confirm_password')
+
+        if password != confirm:
+            flash("Passwords do not match", "danger")
+            return redirect(request.url)
+
+        user = User.query.filter_by(email=email).first()
+        user.password =hash_password(password)
+
+        db.session.commit()
+
+        flash("Password updated successfully", "success")
+        return redirect(url_for('auth.login'))
+
+    return render_template('reset_password.html')
