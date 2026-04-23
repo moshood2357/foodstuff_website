@@ -1,5 +1,7 @@
-from flask import flash, redirect, render_template, jsonify, request, session, session, url_for
+from flask import flash, redirect, render_template, jsonify, request, session, url_for
 from flask_login import login_required, current_user
+
+from app.utils.helpers import get_user_key
 from . import cart_bp
 from app.models import Product, CartItem, Cart, Wishlist, CheckoutDraft
 from app.extensions import db
@@ -9,10 +11,14 @@ from app.extensions import db
 # VIEW CART
 # =========================
 @cart_bp.route('/')
-@login_required
 def view_cart():
 
-    cart = Cart.query.filter_by(user_id=current_user.id).first()
+    user_key = get_user_key()
+
+    if current_user.is_authenticated:
+        cart = Cart.query.filter_by(user_id=current_user.id).first()
+    else:
+        cart = Cart.query.filter_by(user_key=user_key).first()
 
     if not cart:
         return render_template('cart/cart.html', cart_items=[], total=0)
@@ -34,19 +40,27 @@ def view_cart():
 
 
 # =========================
-# ADD TO CART (AJAX)
+# ADD TO CART
 # =========================
 @cart_bp.route('/add/<slug>', methods=['POST'])
 def add_to_cart(slug):
 
     product = Product.query.filter_by(slug=slug).first_or_404()
-
     source = request.form.get("source")
 
-    cart = Cart.query.filter_by(user_id=current_user.id).first()
+    user_key = get_user_key()
+
+    if current_user.is_authenticated:
+        cart = Cart.query.filter_by(user_id=current_user.id).first()
+    else:
+        cart = Cart.query.filter_by(user_key=user_key).first()
 
     if not cart:
-        cart = Cart(user_id=current_user.id)
+        if current_user.is_authenticated:
+            cart = Cart(user_id=current_user.id)
+        else:
+            cart = Cart(user_key=user_key)
+
         db.session.add(cart)
         db.session.flush()
 
@@ -66,10 +80,17 @@ def add_to_cart(slug):
             from_wishlist=(source == "wishlist")
         ))
 
-    Wishlist.query.filter_by(
-        user_id=current_user.id,
-        product_id=product.id
-    ).delete()
+    # remove from wishlist if logged in
+    if current_user.is_authenticated:
+        Wishlist.query.filter_by(
+            user_id=current_user.id,
+            product_id=product.id
+        ).delete()
+    else:
+        Wishlist.query.filter_by(
+            user_key=user_key,
+            product_id=product.id
+        ).delete()
 
     db.session.commit()
 
@@ -77,9 +98,14 @@ def add_to_cart(slug):
         db.func.coalesce(db.func.sum(CartItem.quantity), 0)
     ).filter_by(cart_id=cart.id).scalar() or 0
 
-    wishlist_count = Wishlist.query.filter_by(
-        user_id=current_user.id
-    ).count()
+    if current_user.is_authenticated:
+        wishlist_count = Wishlist.query.filter_by(
+            user_id=current_user.id
+        ).count()
+    else:
+        wishlist_count = Wishlist.query.filter_by(
+            user_key=user_key
+        ).count()
 
     return jsonify({
         "success": True,
@@ -87,7 +113,7 @@ def add_to_cart(slug):
         "already_in_cart": already_in_cart,
         "wishlist_count": wishlist_count
     })
-    
+
 
 # =========================
 # REMOVE ITEM
@@ -95,9 +121,15 @@ def add_to_cart(slug):
 @cart_bp.route('/remove/<int:item_id>', methods=['POST'])
 def remove_item(item_id):
 
+    user_key = get_user_key()
+
     item = CartItem.query.join(Cart).filter(
         CartItem.id == item_id,
-        Cart.user_id == current_user.id
+        (
+            (Cart.user_id == current_user.id)
+            if current_user.is_authenticated
+            else (Cart.user_key == user_key)
+        )
     ).first_or_404()
 
     cart = item.cart
@@ -126,9 +158,15 @@ def remove_item(item_id):
 @cart_bp.route('/increase/<int:item_id>', methods=['POST'])
 def increase_qty(item_id):
 
+    user_key = get_user_key()
+
     item = CartItem.query.join(Cart).filter(
         CartItem.id == item_id,
-        Cart.user_id == current_user.id
+        (
+            (Cart.user_id == current_user.id)
+            if current_user.is_authenticated
+            else (Cart.user_key == user_key)
+        )
     ).first_or_404()
 
     item.quantity += 1
@@ -155,12 +193,17 @@ def increase_qty(item_id):
 # DECREASE QTY
 # =========================
 @cart_bp.route('/decrease/<int:item_id>', methods=['POST'])
-@login_required
 def decrease_qty(item_id):
+
+    user_key = get_user_key()
 
     item = CartItem.query.join(Cart).filter(
         CartItem.id == item_id,
-        Cart.user_id == current_user.id
+        (
+            (Cart.user_id == current_user.id)
+            if current_user.is_authenticated
+            else (Cart.user_key == user_key)
+        )
     ).first_or_404()
 
     cart = item.cart
@@ -188,17 +231,58 @@ def decrease_qty(item_id):
         "cart_total": cart_total
     })
 
+
+# =========================
+# CHECKOUT START
+# =========================
 @cart_bp.route("/checkout/start")
 @login_required
 def start_checkout():
 
+    # =========================
+    # MERGE GUEST CART → USER
+    # =========================
+    guest_key = session.get("user_key")
+
+    if guest_key:
+        guest_cart = Cart.query.filter_by(user_key=guest_key).first()
+        user_cart = Cart.query.filter_by(user_id=current_user.id).first()
+
+        if guest_cart:
+            if not user_cart:
+                guest_cart.user_id = current_user.id
+                guest_cart.user_key = None
+            else:
+                for item in guest_cart.items:
+                    existing = CartItem.query.filter_by(
+                        cart_id=user_cart.id,
+                        product_id=item.product_id
+                    ).first()
+
+                    if existing:
+                        existing.quantity += item.quantity
+                    else:
+                        item.cart_id = user_cart.id
+
+                db.session.delete(guest_cart)
+
+            db.session.commit()
+
+        # remove guest key after merge
+        session.pop("user_key", None)
+
+    # =========================
+    # GET USER CART
+    # =========================
     cart = Cart.query.filter_by(user_id=current_user.id).first()
 
     if not cart or not cart.items:
         flash("Your cart is empty", "warning")
         return redirect(url_for("cart.view_cart"))
 
-    # check existing draft
+    # =========================
+    # CREATE CHECKOUT SESSION
+    # =========================
     draft = CheckoutDraft.query.filter_by(user_id=current_user.id).first()
 
     if not draft:
@@ -209,6 +293,7 @@ def start_checkout():
         db.session.add(draft)
         db.session.commit()
 
-        session["checkout_id"] = draft.id
+    # 🔥 ALWAYS set session (important fix)
+    session["checkout_id"] = draft.id
 
-    return redirect(url_for("checkout.details"))        
+    return redirect(url_for("checkout.details"))

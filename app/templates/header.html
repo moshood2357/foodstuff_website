@@ -3,9 +3,10 @@
         <div class="container">
 
             <!-- BRAND -->
-            <a class="navbar-brand fw-bold text-success" href="{{ url_for('main.home') }}">
-                Foodstuff Store
+            <a class="navbar-brand" href="{{ url_for('main.home') }}">
+                <img src="{{ url_for('static', filename='images/judith.png') }}" alt="Foodstuff Store" height="40">        
             </a>
+
 
             <!-- TOGGLER -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -67,7 +68,7 @@
                     <!-- AUTH -->
                     {% if current_user.is_authenticated %}
 
-                    <!-- ADMIN LINK -->
+                    <!-- ADMIN -->
                     {% if current_user.is_admin %}
                     <li class="nav-item">
                         <a class="nav-link fw-semibold text-dark" href="{{ url_for('admin.dashboard') }}">
@@ -103,12 +104,11 @@
                             </li>
 
                         </ul>
-
                     </li>
 
                     {% else %}
 
-                    <!-- LOGIN CTA -->
+                    <!-- LOGIN -->
                     <li class="nav-item ms-lg-2">
                         <a class="btn btn-success rounded-pill px-4" href="{{ url_for('auth.login') }}">
                             Login

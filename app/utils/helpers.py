@@ -15,9 +15,9 @@ def generate_slug(text):
 
 def get_user_key():
     if current_user.is_authenticated:
-        return f"user_{current_user.id}"
+        return str(current_user.id)
 
-    if "guest_id" not in session:
-        session["guest_id"] = f"guest_{uuid.uuid4()}"
+    if "user_key" not in session:
+        session["user_key"] = str(uuid.uuid4())
 
-    return session["guest_id"]
+    return session["user_key"]

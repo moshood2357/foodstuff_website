@@ -3,11 +3,13 @@ import uuid
 
 from dotenv import load_dotenv
 
-from flask import Flask, send_from_directory, session
+from flask import Flask, app, send_from_directory, session
 from flask_ckeditor import CKEditor
 from flask_compress import Compress
 from flask_login import current_user
 from flask_wtf import CSRFProtect
+
+from app.services.cart_service import get_cart_count, get_wishlist_count
 
 from .extensions import db, migrate, login_manager
 from app.models import Cart, CartItem, Wishlist, User
@@ -102,6 +104,15 @@ def create_app(config_class="config.Config"):
             return dict(cart_product_ids=cart_product_ids)
 
         return dict(cart_product_ids=[])
+    
+    @app.context_processor
+    def inject_counts():
+
+            return {
+                "cart_count": get_cart_count(),
+                "wishlist_count":   get_wishlist_count()
+            }
+        
 
     # =========================
     # FAVICON

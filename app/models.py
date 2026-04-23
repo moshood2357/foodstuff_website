@@ -135,7 +135,8 @@ class Cart(db.Model):
     __tablename__ = "cart"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -147,7 +148,9 @@ class Cart(db.Model):
         lazy=True
     )
     
-    user_key = db.Column(db.String(100), index=True)
+    user_key = db.Column(db.String(100), index=True, nullable=True)
+
+
 
 class CartItem(db.Model):
     __tablename__ = "cart_item"
@@ -179,12 +182,12 @@ class Wishlist(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    user_key = db.Column(db.String(100), index=True)
+    user_key = db.Column(db.String(100), index=True, nullable=True)
 
 
 
@@ -361,4 +364,4 @@ class CheckoutDraft(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     
-    user_key = db.Column(db.String(100), index=True)
+    user_key = db.Column(db.String(100), index=True, nullable=True)

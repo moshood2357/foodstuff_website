@@ -1,11 +1,16 @@
+import uuid
+
 from argon2 import hash_password
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, session
 
 from flask_login import login_user, logout_user, login_required, current_user
 from app.utils.email import send_email
 from app.utils.serializer import get_serializer
 from app.utils.password_reset_email import password_reset_email
 from . import auth_bp
+
+from app.services.cart_service import merge_cart, merge_wishlist
+from app.utils.helpers import get_user_key
 
 
 from app.extensions import db
@@ -65,7 +70,6 @@ def login():
         login_input = request.form.get('login')  # username or email
         password = request.form.get('password')
 
-        # allow login with username OR email
         user = User.query.filter(
             (User.username == login_input) | (User.email == login_input)
         ).first()
@@ -74,6 +78,16 @@ def login():
 
             login_user(user)
             flash("Login successful", "success")
+
+            # =========================
+            # MERGE GUEST DATA → USER
+            # =========================
+            guest_key = session.get("guest_id") or get_user_key()
+
+            if guest_key:
+                merge_cart(user.id, guest_key)
+                merge_wishlist(user.id, guest_key)
+                session.pop("guest_id", None)
 
             # =========================
             # ROLE-BASED REDIRECT
@@ -91,14 +105,18 @@ def login():
 # =========================
 # LOGOUT
 # =========================
+
 @auth_bp.route('/logout')
 @login_required
 def logout():
 
     logout_user()
+
+    if "user_key" not in session:
+        session["user_key"] = str(uuid.uuid4())
+
     flash("Logged out successfully", "info")
     return redirect(url_for('auth.login'))
-
 
 # =========================
 # PROFILE
