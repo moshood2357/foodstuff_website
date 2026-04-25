@@ -1,3 +1,6 @@
+import json
+
+
 from flask import flash, redirect, render_template, jsonify, request, session, url_for
 from flask_login import login_required, current_user
 
@@ -235,6 +238,8 @@ def decrease_qty(item_id):
 # =========================
 # CHECKOUT START
 # =========================
+
+
 @cart_bp.route("/checkout/start")
 @login_required
 def start_checkout():
@@ -268,7 +273,6 @@ def start_checkout():
 
             db.session.commit()
 
-        # remove guest key after merge
         session.pop("user_key", None)
 
     # =========================
@@ -281,7 +285,7 @@ def start_checkout():
         return redirect(url_for("cart.view_cart"))
 
     # =========================
-    # CREATE CHECKOUT SESSION
+    # CREATE CHECKOUT DRAFT
     # =========================
     draft = CheckoutDraft.query.filter_by(user_id=current_user.id).first()
 
@@ -293,7 +297,27 @@ def start_checkout():
         db.session.add(draft)
         db.session.commit()
 
-    # 🔥 ALWAYS set session (important fix)
+    # =========================
+    #  CREATE CART SNAPSHOT (IMPORTANT)
+    # =========================
+    snapshot = []
+
+    for item in cart.items:
+        snapshot.append({
+            "product_id": item.product_id,
+            "name": item.product.name,
+            "price": float(item.product.price),
+            "quantity": item.quantity,
+            "image": item.product.image_url if hasattr(item.product, "image_url") else None
+        })
+
+    draft.cart_snapshot = json.dumps(snapshot)
+
+    # =========================
+    # SET CHECKOUT SESSION
+    # =========================
     session["checkout_id"] = draft.id
+
+    db.session.commit()
 
     return redirect(url_for("checkout.details"))

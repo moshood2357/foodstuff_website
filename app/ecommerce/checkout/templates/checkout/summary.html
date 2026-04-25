@@ -30,6 +30,14 @@
         font-weight: 700;
         margin-bottom: 12px;
         color: #0f172a;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .section-title a {
+        font-size: 13px;
+        color: #22c55e;
+        text-decoration: none;
     }
 
     .row {
@@ -37,7 +45,6 @@
         justify-content: space-between;
         padding: 6px 0;
         font-size: 14px;
-        color: #334155;
     }
 
     .items {
@@ -49,13 +56,11 @@
     .item {
         display: flex;
         justify-content: space-between;
-        font-size: 14px;
         padding: 6px 0;
-        color: #475569;
     }
 
     .total {
-        font-size: 16px;
+        font-size: 18px;
         font-weight: 800;
         color: #16a34a;
         border-top: 1px solid #e2e8f0;
@@ -63,29 +68,29 @@
         padding-top: 10px;
     }
 
+    /* CTA */
     .btn-pay {
         width: 100%;
         background: #22c55e;
         color: white;
-        padding: 14px;
-        border: none;
-        border-radius: 10px;
+        padding: 16px;
+        border-radius: 12px;
         font-weight: 700;
+        margin-top: 15px;
+        border: none;
         cursor: pointer;
-        transition: 0.3s;
-        margin-top: 10px;
+        font-size: 16px;
     }
 
     .btn-pay:hover {
         background: #16a34a;
     }
 
-    .badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 999px;
-        background: #16a34a;
+    .secure-note {
+        text-align: center;
         font-size: 12px;
+        color: gray;
+        margin-top: 8px;
     }
 </style>
 
@@ -93,44 +98,58 @@
 
     <div class="summary-container">
 
-        <!-- CUSTOMER DETAILS -->
+        <!-- CUSTOMER -->
         <div class="summary-card">
-            <div class="section-title">Customer Details</div>
+            <div class="section-title">
+                Customer Details
+                <a href="{{ url_for('checkout.details') }}">Edit</a>
+            </div>
 
-            <div class="row">
-                <span>Name</span>
-                <strong>{{ draft.full_name }}</strong>
+            <div class="row"><span>Name</span><strong>{{ draft.full_name }}</strong></div>
+            <div class="row"><span>Email</span><strong>{{ draft.email }}</strong></div>
+            <div class="row"><span>Phone</span><strong>{{ draft.phone }}</strong></div>
+        </div>
+
+        <!-- DELIVERY -->
+        <div class="summary-card">
+            <div class="section-title">
+                Delivery Details
+                <a href="{{ url_for('checkout.details') }}">Edit</a>
             </div>
 
             <div class="row">
-                <span>Email</span>
-                <strong>{{ draft.email }}</strong>
+                <span>Method</span>
+                <strong>{{ draft.delivery_method|capitalize }}</strong>
             </div>
 
             <div class="row">
-                <span>Phone</span>
-                <strong>{{ draft.phone }}</strong>
+                <span>Address</span>
+                <strong>
+                    {{ draft.address_line_1 }},
+                    {% if draft.address_line_2 %}{{ draft.address_line_2 }}, {% endif %}
+                    {{ draft.city }}, {{ draft.state }},
+                    {{ draft.postal_code }}
+                </strong>
             </div>
         </div>
 
-        <!-- DELIVERY INFO -->
-        <div class="summary-card">
-            <div class="section-title">Delivery Details</div>
-
-            <div class="row">
-                <span>Delivery Method</span>
-                <span class="badge">{{ draft.delivery_method }}</span>
+        <!-- BILLING -->
+        <div class="summary-card"  name="same_as_delivery">
+            <div class="section-title">
+                Billing Details
+                <a href="{{ url_for('checkout.details') }}">Edit</a>
             </div>
 
-            <div class="row">
-                <span>Delivery Address</span>
-                <strong>{{ draft.delivery_address }}</strong>
-            </div>
-
-            <div class="row">
-                <span>Billing Address</span>
-                <strong>{{ draft.billing_address }}</strong>
-            </div>
+            {% if draft.same_as_delivery %}
+            <p>Same as delivery address</p>
+            {% else %}
+            <p>
+                {{ draft.billing_address_line_1 }},
+                {% if draft.billing_address_line_2 %}{{ draft.billing_address_line_2 }}, {% endif %}
+                {{ draft.billing_city }}, {{ draft.billing_state }},
+                {{ draft.billing_postcode }}
+            </p>
+            {% endif %}
         </div>
 
         <!-- ITEMS -->
@@ -138,48 +157,37 @@
             <div class="section-title">Order Items</div>
 
             <div class="items">
-
-                {% for item in draft.cart_snapshot or [] %}
-
+                {% for item in cart.items %}
                 <div class="item">
-                    <span>{{ item.name }} × {{ item.qty }}</span>
-                    <strong>£{{ item.price * item.qty }}</strong>
+                    <span>{{ products[item.product_id].name }} × {{ item.quantity }}</span>
+                    <strong>₦{{ "%.2f"|format(item.quantity * item.unit_price) }}</strong>
                 </div>
-
                 {% endfor %}
-
             </div>
         </div>
 
-        <!-- PAYMENT SUMMARY -->
+        <!-- PAYMENT -->
         <div class="summary-card">
             <div class="section-title">Payment Summary</div>
 
-            <div class="row">
-                <span>Subtotal</span>
-                <strong>£{{ draft.subtotal }}</strong>
-            </div>
-
-            <div class="row">
-                <span>Shipping</span>
-                <strong>£{{ draft.shipping_fee }}</strong>
-            </div>
-
-            <div class="row">
-                <span>Tax</span>
-                <strong>£{{ draft.tax }}</strong>
-            </div>
+            <div class="row"><span>Subtotal</span><strong>₦{{ "%.2f"|format(draft.subtotal) }}</strong></div>
+            <div class="row"><span>Shipping</span><strong>₦{{ "%.2f"|format(draft.shipping_fee) }}</strong></div>
+            <div class="row"><span>Tax</span><strong>₦{{ "%.2f"|format(draft.tax) }}</strong></div>
 
             <div class="total">
-                Total: £{{ draft.total }}
+                Total: ₦{{ "%.2f"|format(draft.total) }}
             </div>
 
             <form method="POST" action="{{ url_for('checkout.pay') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn-pay">
-                    Proceed to Payment
+                    Proceed to Payment →
                 </button>
             </form>
 
+            <div class="secure-note">
+                🔒 Secure checkout. Safe payment guaranteed.
+            </div>
         </div>
 
     </div>

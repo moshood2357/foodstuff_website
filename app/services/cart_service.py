@@ -1,4 +1,5 @@
 
+from flask import session
 from flask_login import current_user
 
 from app.models import Cart
@@ -58,14 +59,14 @@ def merge_wishlist(user_id, guest_key):
 
     
 
-def get_wishlist_count():
+# def get_wishlist_count():
 
-    user_key = get_user_key()
+#     user_key = get_user_key()
 
-    if current_user.is_authenticated:
-        return Wishlist.query.filter_by(user_id=current_user.id).count()
+#     if current_user.is_authenticated:
+#         return Wishlist.query.filter_by(user_id=current_user.id).count()
 
-    return Wishlist.query.filter_by(user_key=user_key).count()
+#     return Wishlist.query.filter_by(user_key=user_key).count()
 
 def get_cart_count():
 
@@ -90,3 +91,54 @@ def get_wishlist_count():
         return Wishlist.query.filter_by(user_id=current_user.id).count()
 
     return Wishlist.query.filter_by(user_key=user_key).count()
+
+
+
+
+
+def merge_guest_cart_to_user(user):
+
+    guest_key = session.get("user_key")
+
+    if not guest_key:
+        return
+
+    guest_cart = Cart.query.filter_by(user_key=guest_key).first()
+
+    if not guest_cart:
+        return
+
+    # ensure user has a cart container
+    user_cart = Cart.query.filter_by(user_id=user.id).first()
+
+    if not user_cart:
+        user_cart = Cart(user_id=user.id)
+        db.session.add(user_cart)
+        db.session.flush()  # ensures user_cart.id exists
+
+    # merge items safely
+    for item in guest_cart.items:
+
+        existing = CartItem.query.filter_by(
+            cart_id=user_cart.id,
+            product_id=item.product_id
+        ).first()
+
+        if existing:
+            existing.quantity += item.quantity
+        else:
+            db.session.add(CartItem(
+                cart_id=user_cart.id,
+                product_id=item.product_id,
+                quantity=item.quantity,
+                unit_price=item.unit_price,
+                product_name=item.product_name,
+                product_image=item.product_image
+            ))
+
+    # remove guest cart safely
+    db.session.delete(guest_cart)
+
+    db.session.commit()
+
+    session.pop("user_key", None)

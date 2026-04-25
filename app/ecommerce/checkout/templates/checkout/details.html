@@ -5,106 +5,400 @@
 {% block content %}
 
 <style>
-    .checkout-wrapper {
-        background: #f8fafc;
-        padding: 40px 15px;
+    /* =========================
+   PAGE LAYOUT
+========================= */
+    .checkout-page {
+        padding-top: 110px;
+        padding-bottom: 80px;
+        background: #f6f7fb;
+        min-height: 100vh;
+        font-family: 'Inter', sans-serif;
     }
 
-    .checkout-box {
-        max-width: 650px;
+    .checkout-container {
+        max-width: 1200px;
         margin: auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    /* =========================
+   CARD
+========================= */
+    .card {
         background: #fff;
-        padding: 30px;
-        border-radius: 14px;
+        border-radius: 16px;
+        padding: 25px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
     }
 
-    .checkout-box h2 {
-        font-weight: 800;
-        margin-bottom: 20px;
+    .card h2 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 18px;
         color: #0f172a;
     }
 
-    .checkout-box input,
-    .checkout-box textarea,
-    .checkout-box select {
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 12px;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        outline: none;
-        font-size: 14px;
+    /* =========================
+   FORM
+========================= */
+    .input-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
     }
 
-    .checkout-box input:focus,
-    .checkout-box textarea:focus,
-    .checkout-box select:focus {
+    .full {
+        grid-column: span 2;
+    }
+
+    input,
+    select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        outline: none;
+        font-size: 14px;
+        transition: 0.2s;
+        background: #fff;
+    }
+
+    input:focus,
+    select:focus {
         border-color: #22c55e;
         box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
     }
 
+    /* =========================
+   SECTION HEADERS
+========================= */
+    .section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #475569;
+        margin: 20px 0 10px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    /* =========================
+   BUTTONS
+========================= */
     .btn-primary {
         width: 100%;
+        margin-top: 18px;
+        padding: 14px;
         background: #22c55e;
         color: #fff;
-        border: none;
-        padding: 12px;
-        border-radius: 10px;
         font-weight: 700;
+        border: none;
+        border-radius: 12px;
         cursor: pointer;
         transition: 0.3s;
-        font-size: 15px;
     }
 
     .btn-primary:hover {
         background: #16a34a;
     }
+
+    .lookup-btn {
+        padding: 12px;
+        background: #0ea5e9;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .lookup-btn:hover {
+        background: #0284c7;
+    }
+
+    /* =========================
+   CHECKBOX UX
+========================= */
+    .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+        font-size: 13px;
+        
+    }
+
+    /* =========================
+   CUSTOM CHECKBOX UX
+========================= */
+
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+    cursor: pointer;
+    user-select: none;
+    margin-top: 10px;
+}
+
+/* hide default checkbox */
+.custom-checkbox input {
+    display: none;
+}
+
+/* custom box */
+.checkmark {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #94a3b8;
+    border-radius: 6px;
+    display: inline-block;
+    position: relative;
+    transition: 0.2s;
+    background: #fff;
+}
+
+/* hover effect */
+.custom-checkbox:hover .checkmark {
+    border-color: #22c55e;
+}
+
+/* checked state */
+.custom-checkbox input:checked + .checkmark {
+    background: #22c55e;
+    border-color: #22c55e;
+}
+
+/* tick icon */
+.custom-checkbox input:checked + .checkmark::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* =========================
+   CHECKBOX TEXT LAYOUT
+========================= */
+
+.checkbox-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.main-text {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 15px;
+}
+
+.sub-text {
+    font-size: 12px;
+    color: #64748b;
+    transition: 0.2s ease;
+}
+
+/* hidden state */
+.sub-text.hidden {
+    opacity: 0;
+    transform: translateY(-2px);
+}
+
+    /* =========================
+   ORDER SUMMARY SIDEBAR
+========================= */
+    .summary-box {
+        position: sticky;
+        top: 120px;
+        height: fit-content;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+        font-size: 14px;
+    }
+
+    .total {
+        font-weight: 800;
+        font-size: 16px;
+        border-top: 1px solid #eee;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+
+    /* =========================
+   MOBILE
+========================= */
+    @media (max-width: 900px) {
+        .checkout-container {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
-<div class="checkout-wrapper">
+<div class="checkout-page">
 
-    <div class="checkout-box">
+    <div class="checkout-container">
 
-        <h2>Checkout Details</h2>
+        <!-- =========================
+             LEFT: FORM
+        ========================== -->
+        <div class="card">
 
-        <form method="POST">
+            <h2>Checkout Details</h2>
 
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <input type="text" name="full_name" placeholder="Full Name" value="{{ draft.full_name or '' }}" required>
+                <div class="section-title">Contact Information</div>
 
-            <input type="email" name="email" placeholder="Email" value="{{ draft.email or '' }}" required>
+                <div class="input-grid">
+                    <input name="full_name" placeholder="Full Name" value="{{ draft.full_name or '' }}" required>
+                    <input name="email" type="email" placeholder="Email" value="{{ draft.email or '' }}" required>
+                    <input name="phone" placeholder="Phone Number" value="{{ draft.phone or '' }}" required
+                        class="full">
+                </div>
 
-            <input type="text" name="phone" placeholder="Phone Number" value="{{ draft.phone or '' }}" required>
+                <div class="section-title">Delivery Address</div>
 
-            <textarea name="delivery_address" placeholder="Delivery Address"
-                required>{{ draft.delivery_address or '' }}</textarea>
+                <div class="input-grid">
 
-            <textarea name="billing_address" placeholder="Billing Address"
-                required>{{ draft.billing_address or '' }}</textarea>
+                    <input id="postcode" name="postal_code" placeholder="Postcode"
+                        value="{{ draft.postal_code or '' }}">
 
-            <select name="delivery_method" required>
+                    <button type="button" class="lookup-btn" onclick="lookupAddress()">
+                        Find Address
+                    </button>
 
-                <option value="standard" {% if draft.delivery_method=='standard' %}selected{% endif %}>
-                    Standard Delivery
-                </option>
+                    <input name="address_line_1" placeholder="House number and street name (e.g. 221B Baker Street)" class="full"
+                        value="{{ draft.address_line_1 or '' }}">
+                    <input name="address_line_2" placeholder="Apartment, suite, unit, building (optional)" class="full"
+                        value="{{ draft.address_line_2 or '' }}">
+                    <input name="city" placeholder="City" value="{{ draft.city or '' }}">
+                    <input name="state" placeholder="County / State" value="{{ draft.state or '' }}">
 
-                <option value="express" {% if draft.delivery_method=='express' %}selected{% endif %}>
-                    Express Delivery
-                </option>
+                </div>
 
-            </select>
+                <label class="custom-checkbox">
+                    <input type="checkbox" name="same_as_delivery" id="sameAsDelivery" checked onchange="toggleBilling()">
+                    <span class="checkmark"></span>
+                
+                    <div class="checkbox-text">
+                        <span class="main-text">Billing address same as delivery</span>
+                        <span id="copyIndicator" class="sub-text">✔ Will auto-copy delivery details</span>
+                    </div>        
+                </label>
 
+                <div id="billingSection" style="display:none;">
+
+                    <div class="section-title">Billing Address</div>
+
+                    <div class="input-grid">
+
+                        <input name="billing_address_line_1" placeholder="Address Line 1">
+                        <input name="billing_address_line_2" placeholder="Address Line 2">
+                        <input name="billing_city" placeholder="City">
+                        <input name="billing_state" placeholder="State / County">
+                        <input name="billing_postcode" placeholder="Postcode" class="full">
+
+                    </div>
+
+                </div>
+
+                <div class="section-title">Delivery Method</div>
+
+                <select name="delivery_method" required>
+                    <option value="standard" {% if draft.delivery_method=='standard' %}selected{% endif %}>
+                        Standard Delivery
+                    </option>
+                    
+                    <option value="express" {% if draft.delivery_method=='express' %}selected{% endif %}>
+                        Express Delivery
+                    </option>
     
-            <button type="submit" class="btn-primary">
-                Continue to Summary
-            </button>
+                </select>
 
-        </form>
+                <button type="submit" class="btn-primary">
+                    Continue to Summary
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- =========================
+             RIGHT: SUMMARY (LIVE UX)
+        ========================== -->
+        <!-- <div class="card summary-box">
+
+            <h2>Order Summary</h2>
+
+            {% for item in cart.items %}
+            <div class="summary-item">
+                <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                <span>₦{{ "%.2f"|format(item.quantity * item.unit_price) }}</span>
+            </div>
+            {% endfor %}
+
+            <div class="summary-item total">
+                <span>Total</span>
+                <span>₦{{ "%.2f"|format(cart_total) }}</span>
+            </div>
+
+            <small style="color:#94a3b8;">
+                Shipping & tax calculated on next step
+            </small>
+
+        </div> -->
 
     </div>
-
 </div>
+
+<script>
+    function lookupAddress() {
+        const postcode = document.getElementById("postcode").value;
+
+        if (!postcode) return alert("Enter postcode");
+
+        // real API hook later
+        console.log("lookup:", postcode);
+
+        // mock fill (replace with getAddress.io / Loqate later)
+        document.querySelector("[name='address_line_1']").value = "221B Baker Street";
+        document.querySelector("[name='city']").value = "London";
+        document.querySelector("[name='state']").value = "Greater London";
+    }
+
+    function toggleBilling() {
+            const checkbox = document.getElementById("sameAsDelivery");
+            const section = document.getElementById("billingSection");
+            const indicator = document.getElementById("copyIndicator");
+
+            if (checkbox.checked) {
+                section.style.display = "none";
+                indicator.innerText = "✔ Will auto-copy delivery details";
+                indicator.style.color = "#16a34a";
+            } else {
+                section.style.display = "block";
+                indicator.innerText = "⚠ Billing details required separately";
+                indicator.style.color = "#ef4444";
+            }
+        }
+
+        // run once on page load
+        document.addEventListener("DOMContentLoaded", toggleBilling);
+</script>
 
 {% endblock %}

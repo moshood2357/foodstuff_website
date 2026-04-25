@@ -168,7 +168,7 @@ class CartItem(db.Model):
     product_image = db.Column(db.String(255))
 
     from_wishlist = db.Column(db.Boolean, default=False)
-    user_key = db.Column(db.String(100), index=True)
+    
 
     product = db.relationship("Product")
 
@@ -335,33 +335,41 @@ class CheckoutDraft(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    user_key = db.Column(db.String(255), index=True)  # 🔥 IMPORTANT
 
-    # Contact
+    full_name = db.Column(db.String(150))
     email = db.Column(db.String(120))
     phone = db.Column(db.String(20))
 
-    # Customer info
-    full_name = db.Column(db.String(150))
+    address_line_1 = db.Column(db.String(255))
+    address_line_2 = db.Column(db.String(255))
 
-    # Addresses
-    delivery_address = db.Column(db.Text)
-    billing_address = db.Column(db.Text)
+    
+    city = db.Column(db.String(100))
+    state = db.Column(db.String(100))
+    postal_code = db.Column(db.String(20))
 
-    # Shipping
-    delivery_method = db.Column(db.String(50))  # standard, express
+    cart_snapshot = db.Column(db.Text)
 
-    # Cart snapshot (important like Jumia)
-    cart_snapshot = db.Column(db.JSON)
+    delivery_method = db.Column(db.String(50))
 
+    
     # Totals snapshot
     subtotal = db.Column(db.Numeric(10, 2))
     shipping_fee = db.Column(db.Numeric(10, 2), default=0)
     tax = db.Column(db.Numeric(10, 2), default=0)
     total = db.Column(db.Numeric(10, 2))
 
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    
-    user_key = db.Column(db.String(100), index=True, nullable=True)
+    billing_address_line_1 = db.Column(db.String(255))
+    billing_address_line_2 = db.Column(db.String(255))
+
+    billing_city = db.Column(db.String(100))
+    billing_state = db.Column(db.String(100))
+    billing_postal_code = db.Column(db.String(20))
+
+    same_as_delivery = db.Column(db.Boolean, default=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow) 
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

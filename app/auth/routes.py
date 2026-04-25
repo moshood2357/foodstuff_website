@@ -9,14 +9,18 @@ from app.utils.serializer import get_serializer
 from app.utils.password_reset_email import password_reset_email
 from . import auth_bp
 
-from app.services.cart_service import merge_cart, merge_wishlist
+from app.services.cart_service import merge_cart, merge_guest_cart_to_user, merge_wishlist
 from app.utils.helpers import get_user_key
 
 
 from app.extensions import db
-from app.models import User
+from app.models import User, CheckoutDraft
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
+
+ph = PasswordHasher()
 
 # =========================
 # REGISTER
@@ -47,7 +51,7 @@ def register():
             username=username,
             email=email,
             phone=phone,
-            password_hash=generate_password_hash(password),
+            password_hash=ph.hash(password),
             role="customer"   # default role
         )
 
@@ -74,7 +78,7 @@ def login():
             (User.username == login_input) | (User.email == login_input)
         ).first()
 
-        if user and check_password_hash(user.password_hash, password):
+        if user and ph.verify(user.password_hash, password):
 
             login_user(user)
             flash("Login successful", "success")
@@ -82,11 +86,12 @@ def login():
             # =========================
             # MERGE GUEST DATA → USER
             # =========================
-            guest_key = session.get("guest_id") or get_user_key()
+            guest_key =  get_user_key()
 
             if guest_key:
                 merge_cart(user.id, guest_key)
                 merge_wishlist(user.id, guest_key)
+                merge_guest_cart_to_user(user)
                 session.pop("guest_id", None)
 
             # =========================
@@ -110,13 +115,20 @@ def login():
 @login_required
 def logout():
 
+    # remove logged-in user session
     logout_user()
 
-    if "user_key" not in session:
-        session["user_key"] = str(uuid.uuid4())
+    # clear old identity completely
+    session.pop("user_key", None)
+
+    # create NEW guest identity
+    session["user_key"] = str(uuid.uuid4())
 
     flash("Logged out successfully", "info")
     return redirect(url_for('auth.login'))
+
+
+
 
 # =========================
 # PROFILE
@@ -189,11 +201,11 @@ def reset_password(token):
             return redirect(request.url)
 
         user = User.query.filter_by(email=email).first()
-        user.password =hash_password(password)
+        user.password_hash = ph.hash(password)
 
         db.session.commit()
 
         flash("Password updated successfully", "success")
         return redirect(url_for('auth.login'))
 
-    return render_template('reset_password.html')
+    return render_template('auth/reset_password.html')
