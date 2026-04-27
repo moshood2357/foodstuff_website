@@ -61,7 +61,7 @@ if (!window.__cartListenerAttached) {
         .then((data) => {
           if (!data.success) return;
 
-          // ✅ CART COUNT (single source of truth)
+          //  CART COUNT (single source of truth)
           const cartCountEl = document.getElementById("cart-count");
           if (
             cartCountEl &&

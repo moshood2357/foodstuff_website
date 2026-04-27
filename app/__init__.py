@@ -3,7 +3,7 @@ import uuid
 
 from dotenv import load_dotenv
 
-from flask import Flask, app, send_from_directory, session
+from flask import Flask, send_from_directory, session
 from flask_ckeditor import CKEditor
 from flask_compress import Compress
 from flask_login import current_user
@@ -24,9 +24,12 @@ def create_app(config_class="config.Config"):
     app = Flask(__name__)
 
     app.config.from_object(config_class)
+    print("DB:", app.config["SQLALCHEMY_DATABASE_URI"])
 
     
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-key")
+     # load env-based config
+    app.config["IDEAL_POSTCODES_API_KEY"] = os.getenv("IDEAL_POSTCODES_API_KEY")
 
     # =========================
     # FILE UPLOAD CONFIG
@@ -141,6 +144,7 @@ def create_app(config_class="config.Config"):
     from .main import main as main_bp
     from .admin import admin_bp
     from .auth import auth_bp
+    from .api import api_bp
     from app.ecommerce.cart import cart_bp
     from app.ecommerce.wishlist import wishlist_bp
     from app.ecommerce.checkout import checkout_bp
@@ -151,6 +155,7 @@ def create_app(config_class="config.Config"):
     app.register_blueprint(cart_bp)
     app.register_blueprint(wishlist_bp)
     app.register_blueprint(checkout_bp, url_prefix="/checkout")
+    app.register_blueprint(api_bp, url_prefix="/api")
 
     print(app.url_map)
 

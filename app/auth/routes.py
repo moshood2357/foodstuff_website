@@ -156,7 +156,7 @@ def forgot_password():
 
         user = User.query.filter_by(email=email).first()
 
-        # 🔐 Always use same response pattern (security best practice)
+        #Always use same response pattern (security best practice)
         if user:
             try:
                 serializer = get_serializer()

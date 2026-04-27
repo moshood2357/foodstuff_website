@@ -14,7 +14,7 @@
 
             <!-- PRODUCT COUNT BADGE -->
             <div class="product-badge">
-                {{ category.product_count or 0 }} items
+                {{ category.products|length if category.products else 0 }} products
             </div>
 
         </div>

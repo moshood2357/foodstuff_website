@@ -1,8 +1,38 @@
 {% extends 'base.html' %}
 
+{% block head %}
+
+<title>Fresh Food & essentials across Cheltenham and beyond | Fast Delivery</title>
+
+<meta name="description"
+    content="Order fresh foodstuff and daily essentials across Cheltenham and beyond. Fast delivery, affordable prices, and quality products you can trust.">
+
+<meta name="keywords"
+    content="foodstuff Lagos, groceries Nigeria, online food store Lagos, fresh food delivery, buy food online Nigeria">
+
+<meta name="author" content="Judith Kitchen Takeaway">
+<meta name="robots" content="index, follow">
+
+<link rel="canonical" href="{{ request.url }}">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Fresh Food and Essentials in Cheltenham and beyond">
+<meta property="og:description"
+    content="Shop fresh food and essentials online with fast delivery in Cheltenham and beyond.">
+<meta property="og:image" content="{{ url_for('static', filename='images/judith.png', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta property="og:type" content="website">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Fresh Food & Groceries in Cheltenham and beyond">
+<meta name="twitter:description" content="Order fresh food and essentials online with fast delivery.">
+<meta name="twitter:image" content="{{ url_for('static', filename='images/judith.png', _external=True) }}">
+
+{% endblock %}
+
+
 {% block content %}
-
-
 
 <main class="">
     {% include 'includes/hero.html' %}
@@ -11,10 +41,10 @@
     <section class="py-5 bg-light">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold">Best Selling Products</h2>
-                <a href="{{ url_for('main.shop') }}" class="btn btn-success">Shop All</a>
+                <h2 class="fw-bold">Hot Right Now</h2>
+                <a href="{{ url_for('main.shop') }}" class="btn btn-success">View menu</a>
             </div>
-    
+
             <div class="row g-4">
                 {% for product in featured_products %}
                 <div class="col-lg-3 col-md-4 col-sm-6">
@@ -25,14 +55,13 @@
         </div>
     </section>
 
-
     <section class="py-5">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="fw-bold">Featured Categories</h2>
-                <a href="{{ url_for('main.shop') }}" class="btn btn-outline-success">View All</a>
+                <a href="{{ url_for('main.shop') }}" class="btn btn-outline-success">View Menu</a>
             </div>
-    
+
             <div class="row g-4">
                 {% for category in categories %}
                 <div class="col-md-3 col-sm-6">
@@ -41,16 +70,29 @@
                 {% endfor %}
             </div>
         </div>
-        </section>
-
-
-        
+    </section>
 
 </main>
 
-
-
-
-
+<!-- STRUCTURED DATA -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Store",
+  "name": "Judith Kitchen Takeaway",
+  "image": "{{ url_for('static', filename='images/judith.png', _external=True) }}",
+  "url": "{{ request.url }}",
+  "telephone": "+234XXXXXXXXXX",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Cheltenham",
+    "addressCountry": "GB"
+  },
+  "sameAs": [
+    "https://instagram.com/yourbrand",
+    "https://facebook.com/yourbrand"
+  ]
+}
+</script>
 
 {% endblock %}
