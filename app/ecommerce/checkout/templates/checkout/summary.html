@@ -160,7 +160,7 @@
                 {% for item in cart.items %}
                 <div class="item">
                     <span>{{ products[item.product_id].name }} × {{ item.quantity }}</span>
-                    <strong>₦{{ "%.2f"|format(item.quantity * item.unit_price) }}</strong>
+                    <strong>£{{ "%.2f"|format(item.quantity * item.unit_price) }}</strong>
                 </div>
                 {% endfor %}
             </div>
@@ -170,12 +170,12 @@
         <div class="summary-card">
             <div class="section-title">Payment Summary</div>
 
-            <div class="row"><span>Subtotal</span><strong>₦{{ "%.2f"|format(draft.subtotal) }}</strong></div>
-            <div class="row"><span>Shipping</span><strong>₦{{ "%.2f"|format(draft.shipping_fee) }}</strong></div>
-            <div class="row"><span>Tax</span><strong>₦{{ "%.2f"|format(draft.tax) }}</strong></div>
+            <div class="row"><span>Subtotal</span><strong>£{{ "%.2f"|format(draft.subtotal) }}</strong></div>
+            <div class="row"><span>Shipping</span><strong>£{{ "%.2f"|format(draft.shipping_fee) }}</strong></div>
+            <div class="row"><span>Tax</span><strong>£{{ "%.2f"|format(draft.tax) }}</strong></div>
 
             <div class="total">
-                Total: ₦{{ "%.2f"|format(draft.total) }}
+                Total: £{{ "%.2f"|format(draft.total) }}
             </div>
 
             <form method="POST" action="{{ url_for('checkout.pay') }}">

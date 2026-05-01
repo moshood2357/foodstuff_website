@@ -16,7 +16,8 @@
             <div class="collapse navbar-collapse" id="navbarNav">
 
                 <!-- SEARCH -->
-                <form action="{{ url_for('main.search') }}" method="GET" class="d-flex mx-auto w-50 position-relative">
+                <form action="{{ url_for('main.search') }}" method="GET" class="d-flex mx-auto position-relative"
+                    style="max-width: 420px; width: 100%;">
 
                     <input type="search" name="q" id="searchInput" class="form-control rounded-pill me-2"
                         placeholder="Search products..." autocomplete="off">
@@ -40,7 +41,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.shop') }}">Shop</a>
+                        <a class="nav-link" href="{{ url_for('main.shop') }}">Menu</a>
                     </li>
 
                     <!-- WISHLIST -->

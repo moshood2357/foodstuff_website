@@ -5,7 +5,6 @@ from . import api_bp
 
 
 @api_bp.route("/lookup-address")
-@login_required
 def lookup_address():
 
     postcode = request.args.get("postcode", "").strip()

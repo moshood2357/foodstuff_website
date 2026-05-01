@@ -16,3 +16,4 @@ class Config:
     # Optional app settings
     # BLOG_NAME = "Foodstuff E-commerce"
     # SITE_URL = os.environ.get("SITE_URL") or "http://localhost:6000"
+

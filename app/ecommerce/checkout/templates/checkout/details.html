@@ -5,9 +5,6 @@
 {% block content %}
 
 <style>
-    /* =========================
-   PAGE LAYOUT
-========================= */
     .checkout-page {
         padding-top: 110px;
         padding-bottom: 80px;
@@ -24,9 +21,6 @@
         gap: 25px;
     }
 
-    /* =========================
-   CARD
-========================= */
     .card {
         background: #fff;
         border-radius: 16px;
@@ -41,9 +35,6 @@
         color: #0f172a;
     }
 
-    /* =========================
-   FORM
-========================= */
     .input-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -73,9 +64,6 @@
         box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
     }
 
-    /* =========================
-   BUTTONS
-========================= */
     .btn-primary {
         width: 100%;
         margin-top: 18px;
@@ -106,9 +94,6 @@
         background: #0284c7;
     }
 
-    /* =========================
-   ADDRESS DROPDOWN
-========================= */
     .address-dropdown {
         margin-top: 6px;
         border: 1px solid #e5e7eb;
@@ -118,7 +103,6 @@
         overflow-y: auto;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
         grid-column: span 2;
-
         position: relative;
         z-index: 9999;
     }
@@ -132,7 +116,6 @@
         cursor: pointer;
         font-size: 14px;
         border-bottom: 1px solid #f1f5f9;
-        transition: 0.2s;
     }
 
     .address-option:hover {
@@ -150,69 +133,22 @@
         color: #ef4444;
     }
 
-    /* =========================
-   CHECKBOX
-========================= */
+    /* Billing */
     .custom-checkbox {
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-size: 15px;
-        font-weight: 600;
-        color: #0f172a;
+        gap: 10px;
+        margin-top: 15px;
         cursor: pointer;
-        user-select: none;
-        margin-top: 10px;
+        font-weight: 600;
     }
 
     .custom-checkbox input {
-        display: none;
+        width: auto;
     }
 
-    .checkmark {
-        width: 22px;
-        height: 22px;
-        border: 2px solid #94a3b8;
-        border-radius: 6px;
-        display: inline-block;
-        position: relative;
-        background: #fff;
-    }
-
-    .custom-checkbox input:checked+.checkmark {
-        background: #22c55e;
-        border-color: #22c55e;
-    }
-
-    .custom-checkbox input:checked+.checkmark::after {
-        content: "";
-        position: absolute;
-        left: 6px;
-        top: 2px;
-        width: 6px;
-        height: 12px;
-        border: solid white;
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
-    }
-
-    .checkbox-text {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .sub-text {
-        font-size: 12px;
-        color: #64748b;
-    }
-
-    /* =========================
-   MOBILE
-========================= */
-    @media (max-width: 900px) {
-        .checkout-container {
-            grid-template-columns: 1fr;
-        }
+    #billingSection {
+        margin-top: 15px;
     }
 </style>
 
@@ -227,64 +163,65 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                 <!-- CONTACT -->
-                <div class="section-title">Contact Information</div>
-
-                <div class="input-grid">
-                    <input name="full_name" placeholder="Full Name" required>
-                    <input name="email" type="email" placeholder="Email" required>
-                    <input name="phone" placeholder="Phone Number" class="full" required>
+                <div class="input-grid mb-3">
+                    <input name="full_name" value="{{ draft.full_name if draft else '' }}" placeholder="Full Name" required>
+                    
+                    <input name="email" value="{{ draft.email if draft else '' }}" placeholder="Email" required>
+                    
+                    <input name="phone" value="{{ draft.phone if draft else '' }}" placeholder="Phone Number" class= "full" required>                
                 </div>
 
                 <!-- ADDRESS -->
-                <div class="section-title">Delivery Address</div>
+                <div class="input-grid mb-3">
 
-                <div class="input-grid">
+                    <input id="postcode" name="postal_code" value="{{ draft.postal_code if draft else '' }}" placeholder="Postcode">
 
-                    <input id="postcode" name="postal_code" placeholder="Postcode">
 
-                    <button type="button" class="lookup-btn" onclick="lookupAddress()">
+                    <button type="button" class="lookup-btn" onclick="lookupAddress(event)">
                         Find Address
                     </button>
 
                     <div id="addressDropdown" class="address-dropdown hidden full"></div>
 
-                    <input name="address_line_1" placeholder="Address Line 1" class="full">
-                    <input name="address_line_2" placeholder="Address Line 2 (optional)" class="full">
-                    <input name="city" placeholder="City">
-                    <input name="state" placeholder="State / County">
+                    <input name="address_line_1" value="{{ draft.address_line_1 if draft else '' }}" placeholder="Address Line 1">
+                    
+                    <input name="address_line_2" value="{{ draft.address_line_2 if draft else '' }}" placeholder="Address Line 2">
+                    
+                    <input name="city" value="{{ draft.city if draft else '' }}" placeholder="City">
+                    
+                    <input name="state" value="{{ draft.state if draft else '' }}" placeholder="State / County">
 
                 </div>
 
-                <!-- BILLING -->
-                <label class="custom-checkbox">
-                    <input type="checkbox" id="sameAsDelivery" checked onchange="toggleBilling()">
-                    <span class="checkmark"></span>
-
-                    <div class="checkbox-text">
-                        <span>Billing same as delivery</span>
-                        <span class="sub-text" id="copyIndicator">Auto-copy enabled</span>
-                    </div>
+                <!-- BILLING (RESTORED) -->
+                <label class="custom-checkbox mb-3">
+                    <input type="checkbox" id="sameAsDelivery" checked>
+                    Billing same as delivery
                 </label>
 
-                <div id="billingSection" style="display:none; margin-top:10px;">
-                    <div class="section-title">Billing Address</div>
-
+                <div id="billingSection" style="display:none;" class="mb-3">
                     <div class="input-grid">
-                        <input name="billing_address_line_1" placeholder="Address Line 1">
-                        <input name="billing_address_line_2" placeholder="Address Line 2">
-                        <input name="billing_city" placeholder="City">
-                        <input name="billing_state" placeholder="State">
-                        <input name="billing_postcode" placeholder="Postcode" class="full">
+                        <input name="billing_address_line_1" placeholder="Billing Address Line 1">
+                        <input name="billing_address_line_2" placeholder="Billing Address Line 2">
+                        <input name="billing_city" placeholder="Billing City">
+                        <input name="billing_state" placeholder="Billing State">
+                        <input name="billing_postcode" placeholder="Billing Postcode" class="full">
                     </div>
                 </div>
-
-                <!-- DELIVERY -->
-                <div class="section-title">Delivery Method</div>
-
-                <select name="delivery_method">
-                    <option value="standard">Standard Delivery</option>
-                    <option value="express">Express Delivery</option>
-                </select>
+                <!-- DELIVERY METHOD -->
+                <label class="" style="font-weight: 600;">
+                    Delivery Method
+                </label>
+                <div class="input-grid mb-3">
+                    <select name="delivery_method" class="full">
+                        <option value="standard" {% if draft and draft.delivery_method=='standard' %}selected{% endif %}>
+                            Standard Delivery(45 min)
+                        </option>
+                        <option value="express" {% if draft and draft.delivery_method=='express' %}selected{% endif %}>
+                            Express Delivery(25 min)
+                        </option>           
+                    </select>
+                </div>
 
                 <button class="btn-primary" type="submit">
                     Continue to Summary
@@ -297,75 +234,59 @@
 </div>
 
 <script>
-    /* =========================
-       ADDRESS LOOKUP
-    ========================= */
-    async function lookupAddress() {
-            const postcode = document.getElementById("postcode").value.trim();
-            const dropdown = document.getElementById("addressDropdown");
+    async function lookupAddress(event) {
+        if (event) event.preventDefault();
 
-            if (!postcode) return alert("Enter postcode");
+        const postcode = document.getElementById("postcode").value.trim();
+        const dropdown = document.getElementById("addressDropdown");
 
-            // ALWAYS show dropdown first
-            dropdown.classList.remove("hidden");
-            dropdown.innerHTML = `<div class="address-loading">Searching...</div>`;
+        if (!postcode) return alert("Enter postcode");
 
-            try {
-                const res = await fetch(`/api/lookup-address?postcode=${postcode}`);
-                const data = await res.json();
+        dropdown.classList.remove("hidden");
+        dropdown.innerHTML = `<div class="address-loading">Searching...</div>`;
 
-                if (!res.ok || !data.addresses) {
-                    dropdown.innerHTML = `<div class="address-error">No addresses found</div>`;
-                    return;
-                }
+        try {
+            const res = await fetch(`/api/lookup-address?postcode=${postcode}`, {
+                credentials: "include"
+            });
 
-                const addresses = data.addresses;
+            const data = await res.json();
 
-                if (addresses.length === 0) {
-                    dropdown.innerHTML = `<div class="address-loading">No results found</div>`;
-                    return;
-                }
-
-                dropdown.innerHTML = "";
-
-                addresses.forEach(a => {
-                    const div = document.createElement("div");
-                    div.className = "address-option";
-
-                    div.textContent = `${a.line_1}, ${a.post_town}`;
-
-                    div.onclick = () => {
-                        document.querySelector('[name="address_line_1"]').value = a.line_1;
-                        document.querySelector('[name="address_line_2"]').value = a.line_2 || "";
-                        document.querySelector('[name="city"]').value = a.post_town;
-                        document.querySelector('[name="state"]').value = a.county;
-
-                        dropdown.classList.add("hidden");
-
-                        if (document.getElementById("sameAsDelivery").checked) {
-                            copyBilling();
-                        }
-                    };
-
-                    dropdown.appendChild(div);
-                });
-
-            } catch (e) {
-                dropdown.innerHTML = `<div class="address-error">Error fetching address</div>`;
+            if (!data.addresses || data.addresses.length === 0) {
+                dropdown.innerHTML = `<div class="address-loading">No results found</div>`;
+                return;
             }
+
+            dropdown.innerHTML = "";
+
+            data.addresses.forEach(a => {
+                const div = document.createElement("div");
+                div.className = "address-option";
+
+                div.textContent = `${a.line_1}, ${a.post_town}`;
+
+                div.onclick = () => {
+                    document.querySelector('[name="address_line_1"]').value = a.line_1;
+                    document.querySelector('[name="address_line_2"]').value = a.line_2 || "";
+                    document.querySelector('[name="city"]').value = a.post_town;
+                    document.querySelector('[name="state"]').value = a.county;
+
+                    dropdown.classList.add("hidden");
+
+                    if (document.getElementById("sameAsDelivery").checked) {
+                        copyBilling();
+                    }
+                };
+
+                dropdown.appendChild(div);
+            });
+
+        } catch (e) {
+            dropdown.innerHTML = `<div class="address-error">Error fetching address</div>`;
         }
-    /* =========================
-       BILLING LOGIC
-    ========================= */
-    function toggleBilling() {
-        const box = document.getElementById("sameAsDelivery");
-        const section = document.getElementById("billingSection");
-
-        section.style.display = box.checked ? "none" : "block";
-
-        if (box.checked) copyBilling();
     }
 
+    /* BILLING LOGIC */
     function copyBilling() {
         document.querySelector('[name="billing_address_line_1"]').value =
             document.querySelector('[name="address_line_1"]').value;
@@ -380,18 +301,61 @@
             document.getElementById("postcode").value;
     }
 
-    /* =========================
-       CLOSE DROPDOWN
-    ========================= */
-    document.addEventListener("click", e => {
-        const dropdown = document.getElementById("addressDropdown");
+    document.addEventListener("DOMContentLoaded", () => {
+        const box = document.getElementById("sameAsDelivery");
+        const section = document.getElementById("billingSection");
+        function toggleBilling() {
+    if (box.checked) {
+        section.style.display = "none";
+        copyBilling();
+    } else {
+        section.style.display = "block";
 
-        if (!dropdown.contains(e.target) && e.target.id !== "postcode") {
-            dropdown.classList.add("hidden");
-        }
+        // CLEAR billing fields when user unchecks
+        document.querySelector('[name="billing_address_line_1"]').value = "";
+        document.querySelector('[name="billing_address_line_2"]').value = "";
+        document.querySelector('[name="billing_city"]').value = "";
+        document.querySelector('[name="billing_state"]').value = "";
+        document.querySelector('[name="billing_postcode"]').value = "";
+    }
+}
+        toggleBilling();
+        box.addEventListener("change", toggleBilling);
     });
 
-    document.addEventListener("DOMContentLoaded", toggleBilling);
+
+    async function saveDraft() {
+            const payload = {
+                full_name: document.querySelector('[name="full_name"]').value,
+                email: document.querySelector('[name="email"]').value,
+                phone: document.querySelector('[name="phone"]').value,
+
+                postal_code: document.getElementById("postcode").value,
+                address_line_1: document.querySelector('[name="address_line_1"]').value,
+                address_line_2: document.querySelector('[name="address_line_2"]').value,
+                city: document.querySelector('[name="city"]').value,
+                state: document.querySelector('[name="state"]').value,
+
+                billing_address_line_1: document.querySelector('[name="billing_address_line_1"]')?.value,
+                billing_address_line_2: document.querySelector('[name="billing_address_line_2"]')?.value,
+                billing_city: document.querySelector('[name="billing_city"]')?.value,
+                billing_state: document.querySelector('[name="billing_state"]')?.value,
+                billing_postcode: document.querySelector('[name="billing_postcode"]')?.value,
+
+                delivery_method: document.querySelector('[name="delivery_method"]')?.value
+            };
+
+            try {
+                await fetch("/api/checkout/save-draft", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) {
+                console.log("Draft save failed");
+            }
+        }
 </script>
 
 {% endblock %}

@@ -32,20 +32,43 @@
         </form> -->
 
 
+        <form method="GET" action="{{ url_for('main.shop') }}" class="d-flex gap-2 flex-wrap">
 
-        <select class="filter-select">
-            <option>All Categories</option>
-            <option>Vegetables</option>
-            <option>Grains</option>
-            <option>Fruits</option>
-        </select>
-
-        <select class="filter-select">
-            <option>Sort By</option>
-            <option>Newest</option>
-            <option>Price: Low to High</option>
-            <option>Price: High to Low</option>
-        </select>
+            <!-- CATEGORY -->
+            <select class="filter-select" name="category" onchange="this.form.submit()">
+                <option value="">All Categories</option>
+    
+                {% for category in categories %}
+                <option value="{{ category.id }}"
+                    {% if selected_category == category.id %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+    
+            <!-- SORT -->
+            <select class="filter-select" name="sort" onchange="this.form.submit()">
+    
+                <option value="">Sort By</option>
+    
+                <option value="newest"
+                    {% if selected_sort == "newest" %}selected{% endif %}>
+                    Newest
+                </option>
+    
+                <option value="low_high"
+                    {% if selected_sort == "low_high" %}selected{% endif %}>
+                    Price: Low to High
+                </option>
+    
+                <option value="high_low"
+                    {% if selected_sort == "high_low" %}selected{% endif %}>
+                    Price: High to Low
+                </option>
+    
+            </select>
+    
+        </form>
 
     </div>
 
@@ -62,7 +85,7 @@
     <div class="pagination">
 
         {% if products.has_prev %}
-        <a href="{{ url_for('main.shop', page=products.prev_num) }}" class="page-btn">
+        <a href="{{ url_for('main.shop', page=products.prev_num, category=selected_category, sort=selected_sort) }}" class="page-btn">
             Prev
         </a>
         {% endif %}
@@ -72,7 +95,7 @@
         </span>
 
         {% if products.has_next %}
-        <a href="{{ url_for('main.shop', page=products.next_num) }}" class="page-btn">
+        <a href="{{ url_for('main.shop', page=products.next_num, category=selected_category, sort=selected_sort) }}" class="page-btn">
             Next
         </a>
         {% endif %}

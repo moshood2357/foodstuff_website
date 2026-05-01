@@ -16,13 +16,43 @@ def home():
         categories=categories
     )
 
-
 @main.route('/shop')
 def shop():
     page = request.args.get('page', 1, type=int)
-    products = Product.query.paginate(page=page, per_page=10)
+    category_id = request.args.get('category', type=int)
+    sort = request.args.get('sort')
 
-    return render_template('main/shop.html', products=products)
+    categories = Category.query.all()
+
+    query = Product.query
+
+    #  FILTER BY CATEGORY
+    if category_id:
+        query = query.filter(Product.category_id == category_id)
+
+    #  SORTING
+    if sort == "newest":
+        query = query.order_by(Product.created_at.desc())
+
+    elif sort == "low_high":
+        query = query.order_by(Product.price.asc())
+
+    elif sort == "high_low":
+        query = query.order_by(Product.price.desc())
+
+    
+    else:
+        query = query.order_by(Product.created_at.desc())
+
+    products = query.paginate(page=page, per_page=10)
+
+    return render_template(
+        'main/shop.html',
+        products=products,
+        categories=categories,
+        selected_category=category_id,
+        selected_sort=sort
+    )
 
 
 # @main.route('/category/<slug>')

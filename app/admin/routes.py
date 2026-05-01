@@ -143,33 +143,6 @@ def add_product():
         categories=categories
     )
 
-# =========================
-# EDIT PRODUCT
-# =========================
-@admin_bp.route('/products/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
-@admin_required
-def edit_product(id):
-    product = Product.query.get_or_404(id)
-    categories = Category.query.all()
-
-    if request.method == 'POST':
-        product.name = request.form.get('name')
-        product.price = request.form.get('price')
-        product.description = request.form.get('description')
-        product.category_id = request.form.get('category_id')
-
-        db.session.commit()
-
-        flash("Product updated successfully!", "success")
-        return redirect(url_for('admin.products'))
-
-    return render_template(
-        'admin/edit_product.html',
-        product=product,
-        categories=categories
-    )
-
 
 # =========================
 # DELETE PRODUCT
@@ -293,3 +266,120 @@ def delete_category(id):
 
     flash("Category deleted successfully", "success")
     return redirect(url_for('admin.dashboard'))
+
+
+@admin_bp.route('/category/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_category(id):
+    category = Category.query.get_or_404(id)
+
+    if request.method == 'POST':
+        name = request.form.get('name')
+        description = request.form.get('description')
+        image_file = request.files.get('image')
+
+        if not name:
+            flash("Category name is required", "danger")
+            return redirect(request.url)
+
+        # update fields
+        category.name = name
+        category.slug = slugify(name)
+        category.description = description
+
+        # update image if provided
+        if image_file and image_file.filename != "":
+            ext = image_file.filename.rsplit('.', 1)[1].lower()
+            filename = f"{uuid.uuid4().hex}.{ext}"
+
+            upload_path = os.path.join(current_app.root_path, 'static/uploads/categories')
+            os.makedirs(upload_path, exist_ok=True)
+
+            image_file.save(os.path.join(upload_path, filename))
+            category.image = filename
+
+        db.session.commit()
+
+        flash("Category updated successfully", "success")
+        return redirect(url_for('admin.dashboard'))
+
+    return render_template(
+        'admin/edit_category.html',
+        category=category
+    )
+
+
+
+# =========================
+# EDIT PRODUCT
+# =========================
+@admin_bp.route('/products/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_product(id):
+
+    product = Product.query.get_or_404(id)
+    categories = Category.query.order_by(Category.name).all()
+
+    if request.method == 'POST':
+
+        name = request.form.get('name')
+        description = request.form.get('description')
+        short_description = request.form.get('short_description')
+        category_id = request.form.get('category_id')
+        price = request.form.get('price')
+        stock_quantity = request.form.get('stock_quantity')
+
+        if not name or not price:
+            flash("Name and price are required", "danger")
+            return redirect(request.url)
+
+        if not category_id:
+            flash("Please select a category", "danger")
+            return redirect(request.url)
+
+        # update fields
+        product.name = name
+        product.slug = generate_slug(name)
+        product.description = description
+        product.short_description = short_description
+        product.price = price
+        product.category_id = int(category_id)
+        product.stock_quantity = stock_quantity
+
+        # handle image update
+        image = request.files.get('image')
+
+        if image and image.filename != "":
+            filename = secure_filename(image.filename)
+            unique_filename = f"{uuid.uuid4().hex}_{filename}"
+
+            upload_path = os.path.join(
+                current_app.config['UPLOAD_FOLDER'],
+                unique_filename
+            )
+
+            image.save(upload_path)
+
+            # OPTIONAL: delete old image
+            if product.image:
+                old_path = os.path.join(
+                    current_app.config['UPLOAD_FOLDER'],
+                    product.image
+                )
+                if os.path.exists(old_path):
+                    os.remove(old_path)
+
+            product.image = unique_filename
+
+        db.session.commit()
+
+        flash("Product updated successfully!", "success")
+        return redirect(url_for('admin.dashboard'))
+
+    return render_template(
+        'admin/edit_product.html',
+        product=product,
+        categories=categories
+    )
