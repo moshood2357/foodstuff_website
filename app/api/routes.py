@@ -23,11 +23,11 @@ def lookup_address():
         res = requests.get(url, params={"api_key": api_key}, timeout=5)
         data = res.json()
 
-        # ❌ API quota exhausted
+        #  API quota exhausted
         if data.get("code") == 4020:
             return jsonify({"error": "API quota exhausted"}), 503
 
-        # ❌ invalid postcode or failure
+        #  invalid postcode or failure
         if data.get("code") != 2000:
             return jsonify({"error": "Invalid postcode or no results"}), 400
 

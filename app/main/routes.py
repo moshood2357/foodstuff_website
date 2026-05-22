@@ -55,17 +55,6 @@ def shop():
     )
 
 
-# @main.route('/category/<slug>')
-# def category_products(slug):
-#     category = Category.query.filter_by(slug=slug).first_or_404()
-#     products = Product.query.filter_by(category_id=category.id).all()
-
-#     return render_template(
-#         'main/category_products.html',
-#         category=category,
-#         products=products
-#     )
-
 
 @main.route('/product/<slug>')
 def product_details(slug):
@@ -98,12 +87,12 @@ def search():
     )
 
 
-@main.route('/about')
+@main.route('/about-us')
 def about():
     return render_template('main/about.html')
 
 
-@main.route('/contact')
+@main.route('/contact-us')
 def contact():
     return render_template('main/contact.html')
 

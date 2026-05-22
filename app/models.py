@@ -9,11 +9,15 @@ from .extensions import db
 # =========================
 
 class OrderStatus(enum.Enum):
-    pending = "pending"
+    pending    = "pending"
     processing = "processing"
-    shipped = "shipped"
-    delivered = "delivered"
-    cancelled = "cancelled"
+    accepted   = "accepted"
+    preparing  = "preparing"
+    shipped    = "shipped"
+    delivered  = "delivered"
+    completed  = "completed"
+    cancelled  = "cancelled"
+
 
 
 class PaymentStatus(enum.Enum):
@@ -61,7 +65,7 @@ class Address(db.Model):
     __tablename__ = "address"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
 
     full_name = db.Column(db.String(150), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
@@ -200,7 +204,7 @@ class Order(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     address_id = db.Column(db.Integer, db.ForeignKey("address.id"), nullable=False)
 
     order_number = db.Column(db.String(100), unique=True, nullable=False)
@@ -209,11 +213,17 @@ class Order(db.Model):
     shipping_fee = db.Column(db.Numeric(10, 2), default=0)
     tax = db.Column(db.Numeric(10, 2), default=0)
     total_amount = db.Column(db.Numeric(10, 2), nullable=False)
+    delivery_method = db.Column(db.String(50))
 
     status = db.Column(db.Enum(OrderStatus), default=OrderStatus.pending, nullable=False)
     payment_status = db.Column(db.Enum(PaymentStatus), default=PaymentStatus.unpaid, nullable=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    prep_time       = db.Column(db.Integer, nullable=True)
+    timer_started_at = db.Column(db.DateTime, nullable=True)
+    timer_status    = db.Column(db.String(20), default="pending")  # pending, running, completed
+      
+    guest_email = db.Column(db.String(120))
 
     # relationships
     address = db.relationship("Address", backref="orders")
@@ -336,7 +346,7 @@ class CheckoutDraft(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
-    user_key = db.Column(db.String(255), index=True)  # 🔥 IMPORTANT
+    user_key = db.Column(db.String(255), index=True)  # IMPORTANT
 
     full_name = db.Column(db.String(150))
     email = db.Column(db.String(120))
@@ -345,7 +355,7 @@ class CheckoutDraft(db.Model):
     address_line_1 = db.Column(db.String(255))
     address_line_2 = db.Column(db.String(255))
 
-    
+    country = db.Column(db.String(100))
     city = db.Column(db.String(100))
     state = db.Column(db.String(100))
     postal_code = db.Column(db.String(20))
@@ -353,6 +363,7 @@ class CheckoutDraft(db.Model):
     cart_snapshot = db.Column(db.Text)
 
     delivery_method = db.Column(db.String(50))
+    country = db.Column(db.String(100))
 
     
     # Totals snapshot
@@ -373,3 +384,5 @@ class CheckoutDraft(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow) 
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    completed    = db.Column(db.Boolean, default=False, nullable=False)
+    completed_at = db.Column(db.DateTime, nullable=True)

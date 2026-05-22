@@ -1,6 +1,11 @@
-// جلوگیری از اضافه شدن چندباره ایونت
+// =========================
+// REMOVE OLD HANDLER
+// =========================
 document.removeEventListener("click", window.__cartHandler);
 
+// =========================
+// MAIN EVENT DELEGATION
+// =========================
 window.__cartHandler = function (e) {
   // =========================
   // REMOVE ITEM (CART)
@@ -19,17 +24,41 @@ window.__cartHandler = function (e) {
         "X-Requested-With": "XMLHttpRequest",
       },
     })
-      .then((res) => res.json())
+      .then(async (res) => {
+        const text = await res.text();
+        try {
+          return JSON.parse(text);
+        } catch (err) {
+          console.error("Non-JSON response:", text);
+          return null;
+        }
+      })
       .then((data) => {
-        if (!data.success) return;
+        if (!data || !data.success) return;
 
         const row = removeBtn.closest("tr");
         if (row) row.remove();
 
-        document.getElementById("cart-count").innerText = data.cart_count;
-        document.getElementById("cart-total").innerText = data.cart_total;
+        updateCartCount(data.cart_count);
+
+        const totalEl = document.getElementById("cart-total");
+        if (totalEl) totalEl.innerText = parseFloat(data.cart_total).toFixed(2);
+
+        const drawer = document.getElementById("cartDrawer");
+        if (drawer && drawer.classList.contains("active")) loadCartItems();
 
         checkCartEmpty();
+
+        // ✅ Reset the add-to-cart button using slug from backend response
+        const pageCartBtn = document.querySelector(
+          `.add-to-cart-btn[data-slug="${data.slug}"]`,
+        );
+        if (pageCartBtn) {
+          pageCartBtn.innerText = "Add to Cart";
+          pageCartBtn.disabled = false;
+          pageCartBtn.classList.add("btn-success");
+          pageCartBtn.onclick = null;
+        }
       });
 
     return;
@@ -42,7 +71,6 @@ window.__cartHandler = function (e) {
   if (cartBtn) {
     e.preventDefault();
 
-    // prevent multiple rapid clicks
     if (cartBtn.dataset.loading === "true") return;
     cartBtn.dataset.loading = "true";
 
@@ -60,32 +88,24 @@ window.__cartHandler = function (e) {
       .then((data) => {
         if (!data.success) return;
 
-        // ✅ FIXED: always trust backend value
-        const cartCountEl = document.getElementById("cart-count");
-        if (cartCountEl && data.cart_count !== undefined) {
-          cartCountEl.innerText = data.cart_count;
-        }
+        updateCartCount(data.cart_count);
 
-        // =========================
-        // UI STATE FLOW
-        // =========================
-
-        if (data.already_in_cart) {
-          cartBtn.innerText = "Already in Cart";
-        } else {
-          cartBtn.innerText = "Added ✓";
-        }
-
+        cartBtn.innerText = "Added ✓";
         cartBtn.disabled = true;
-        cartBtn.classList.remove("btn-success");
         cartBtn.classList.add("btn-success");
 
         setTimeout(() => {
           cartBtn.innerText = "View Cart";
-
           cartBtn.disabled = false;
-          cartBtn.onclick = () => {
-            window.location.href = "/cart";
+          cartBtn.classList.add("btn-success");
+          cartBtn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (window.innerWidth < 768) {
+              openCart(); // mobile: open drawer
+            } else {
+              window.location.href = "/cart"; // desktop: navigate to cart page
+            }
           };
         }, 600);
       })
@@ -117,9 +137,19 @@ window.__cartHandler = function (e) {
       .then((data) => {
         if (!data.success) return;
 
-        document.getElementById(`qty-${itemId}`).innerText = data.quantity;
-        document.getElementById(`subtotal-${itemId}`).innerText = data.subtotal;
-        document.getElementById("cart-total").innerText = data.cart_total;
+        const qtyEl = document.getElementById(`qty-${itemId}`);
+        const subEl = document.getElementById(`subtotal-${itemId}`);
+
+        if (qtyEl) qtyEl.innerText = data.quantity;
+        if (subEl) subEl.innerText = parseFloat(data.subtotal).toFixed(2);
+
+        const totalEl = document.getElementById("cart-total");
+        if (totalEl) totalEl.innerText = parseFloat(data.cart_total).toFixed(2);
+
+        if (data.cart_count !== undefined) updateCartCount(data.cart_count);
+
+        const drawer = document.getElementById("cartDrawer");
+        if (drawer && drawer.classList.contains("active")) loadCartItems();
       });
 
     return;
@@ -149,13 +179,34 @@ window.__cartHandler = function (e) {
         if (data.deleted) {
           const row = decBtn.closest("tr");
           if (row) row.remove();
+
+          // ✅ Reset the add-to-cart button when item is fully removed via decrease
+          if (data.slug) {
+            const pageCartBtn = document.querySelector(
+              `.add-to-cart-btn[data-slug="${data.slug}"]`,
+            );
+            if (pageCartBtn) {
+              pageCartBtn.innerText = "Add to Cart";
+              pageCartBtn.disabled = false;
+              pageCartBtn.classList.remove("btn-success");
+              pageCartBtn.onclick = null;
+            }
+          }
         } else {
-          document.getElementById(`qty-${itemId}`).innerText = data.quantity;
-          document.getElementById(`subtotal-${itemId}`).innerText =
-            data.subtotal;
+          const qtyEl = document.getElementById(`qty-${itemId}`);
+          const subEl = document.getElementById(`subtotal-${itemId}`);
+
+          if (qtyEl) qtyEl.innerText = data.quantity;
+          if (subEl) subEl.innerText = parseFloat(data.subtotal).toFixed(2);
         }
 
-        document.getElementById("cart-total").innerText = data.cart_total;
+        const totalEl = document.getElementById("cart-total");
+        if (totalEl) totalEl.innerText = parseFloat(data.cart_total).toFixed(2);
+
+        if (data.cart_count !== undefined) updateCartCount(data.cart_count);
+
+        const drawer = document.getElementById("cartDrawer");
+        if (drawer && drawer.classList.contains("active")) loadCartItems();
 
         checkCartEmpty();
       });
@@ -164,7 +215,7 @@ window.__cartHandler = function (e) {
   }
 
   // =========================
-  // ADD TO WISHLIST
+  // WISHLIST ADD
   // =========================
   const wishlistBtn = e.target.closest(".add-to-wishlist-btn");
   if (wishlistBtn) {
@@ -185,24 +236,17 @@ window.__cartHandler = function (e) {
         if (!data.success) return;
 
         const wishCountEl = document.getElementById("wishlist-count");
-        if (wishCountEl && data.wishlist_count !== undefined) {
-          wishCountEl.innerText = data.wishlist_count;
-        }
+        if (wishCountEl) wishCountEl.innerText = data.wishlist_count;
 
-        if (data.action === "added") {
-          wishlistBtn.classList.remove("btn-outline-danger");
-          wishlistBtn.classList.add("btn-danger");
-        } else {
-          wishlistBtn.classList.remove("btn-danger");
-          wishlistBtn.classList.add("btn-outline-danger");
-        }
+        wishlistBtn.classList.toggle("btn-danger");
+        wishlistBtn.classList.toggle("btn-outline-danger");
       });
 
     return;
   }
 
   // =========================
-  // REMOVE FROM WISHLIST
+  // WISHLIST REMOVE
   // =========================
   const removeWishBtn = e.target.closest(".remove-from-wishlist-btn");
   if (removeWishBtn) {
@@ -222,8 +266,8 @@ window.__cartHandler = function (e) {
       .then((data) => {
         if (!data.success) return;
 
-        document.getElementById("wishlist-count").innerText =
-          data.wishlist_count;
+        const wishCountEl = document.getElementById("wishlist-count");
+        if (wishCountEl) wishCountEl.innerText = data.wishlist_count;
 
         const card = removeWishBtn.closest(".wishlist-card, .card, tr");
         if (card) card.remove();
@@ -233,10 +277,13 @@ window.__cartHandler = function (e) {
   }
 };
 
+// =========================
+// ATTACH HANDLER
+// =========================
 document.addEventListener("click", window.__cartHandler);
 
 // =========================
-// CART EMPTY CHECK
+// EMPTY CART CHECK
 // =========================
 function checkCartEmpty() {
   const rows = document.querySelectorAll("tbody tr");
@@ -249,6 +296,110 @@ function checkCartEmpty() {
   } else {
     if (summary) summary.style.display = "block";
     if (empty) empty.classList.add("d-none");
+  }
+}
+
+// =========================
+// OPEN CART
+// =========================
+function openCart() {
+  document.getElementById("cartDrawer").classList.add("active");
+  loadCartItems();
+}
+
+// =========================
+// LOAD MOBILE CART
+// =========================
+function loadCartItems() {
+  fetch("/cart/data")
+    .then((res) => res.json())
+    .then((data) => {
+      const container = document.getElementById("mobile-cart-items");
+      const totalEl = document.getElementById("mobile-cart-total");
+
+      if (!container) return;
+
+      container.innerHTML = "";
+
+      if (!data.items.length) {
+        container.innerHTML = `
+          <p class="text-center text-muted mt-3">
+            Your cart is empty
+          </p>
+        `;
+        if (totalEl) totalEl.innerText = "0";
+        return;
+      }
+
+      let total = 0;
+
+      data.items.forEach((item) => {
+        total += Number(item.subtotal);
+
+        container.innerHTML += `
+          <div class="mobile-cart-card" data-slug="${item.slug}">
+            <div class="d-flex gap-2 align-items-center">
+              <img src="/static/uploads/${item.image}" width="60" class="rounded">
+              <div>
+                <strong>${item.name}</strong>
+                <div>£${item.price}</div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-2 mt-2">
+              <button class="btn btn-sm btn-outline-dark decrease-btn"
+                data-id="${item.id}" data-csrf="${item.csrf}">-</button>
+
+              <span id="qty-${item.id}">${item.quantity}</span>
+
+              <button class="btn btn-sm btn-outline-dark increase-btn"
+                data-id="${item.id}" data-csrf="${item.csrf}">+</button>
+            </div>
+
+            <div class="d-flex justify-content-between mx-3 mt-2">
+              <small>Subtotal</small>
+              <strong>£${parseFloat(item.subtotal).toFixed(2)}</strong>
+            </div>
+
+            <button class="btn btn-danger btn-sm w-100 mt-2 remove-item-btn"
+              data-id="${item.id}" data-csrf="${item.csrf}" data-slug="${item.slug}">
+              Remove
+            </button>
+          </div>
+        `;
+      });
+
+      if (totalEl) totalEl.innerText = parseFloat(total).toFixed(2);
+    });
+}
+
+// =========================
+// CART COUNT SYNC
+// =========================
+function updateCartCount(count) {
+  document.querySelectorAll(".cart-count").forEach((el) => {
+    el.innerText = count;
+  });
+}
+
+// =========================
+// INITIAL SYNC
+// =========================
+document.addEventListener("DOMContentLoaded", function () {
+  fetch("/cart/data-count")
+    .then((res) => res.json())
+    .then((data) => updateCartCount(data.cart_count))
+    .catch(() => {});
+});
+
+function toggleCart() {
+  const drawer = document.getElementById("cartDrawer");
+  if (!drawer) return;
+
+  drawer.classList.toggle("active");
+
+  if (drawer.classList.contains("active")) {
+    loadCartItems();
   }
 }
 
@@ -297,7 +448,7 @@ if (searchInput && resultsBox) {
                      style="object-fit:cover;border-radius:6px;">
                 <div>
                   <div>${item.name}</div>
-                  <small class="text-success"> £${item.price}</small>
+                  <small class="text-success">£${item.price}</small>
                 </div>
               `;
 

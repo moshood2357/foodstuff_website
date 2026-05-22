@@ -46,75 +46,11 @@
     }
 
 
-    .orders-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
+/* Animations */
 
-.orders-table th,
-.orders-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-}
-
-.orders-table th {
-    background: #f7f7f7;
-    font-weight: 600;
-}
-
-.orders-table tr:hover {
-    background: #fafafa;
-}
-
-.status-badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-}
-
-/* .status-badge.processing {
-    background: #fff3cd;
-    color: #856404;
-} */
-/* 
-.status-badge.paid {
-    background: #d4edda;
-    color: #155724;
-} */
-
-.status-badge.unpaid {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.status-badge.failed {
-    background: #f5c6cb;
-    color: #721c24;
-}
-
-.status-badge.paid {
-    background: #d4edda;
-    color: #155724;
-}
-
-.status-badge.processing {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.status-badge.shipped {
-    background: #cce5ff;
-    color: #004085;
-}
-
-.status-badge.delivered {
-    background: #d4edda;
-    color: #155724;
+@keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
 }
 </style>
 
@@ -134,12 +70,16 @@
 
         <div class="stat-card">
             <div class="stat-title">Total Sales</div>
-            <div class="stat-value">₦{{ total_sales }}</div>
+            <div class="stat-value">£{{ total_sales  or 0 }}</div>
         </div>
     </div>
 
     <!-- ACTION BUTTONS -->
+    <!-- ACTION BUTTONS -->
     <div style="display:flex; justify-content:flex-end; gap:10px; margin: 15px 0 25px;">
+        <a href="{{ url_for('order.orders_list') }}" class="add-category-btn">
+            View Orders
+        </a>
         <a href="{{ url_for('admin.add_category') }}" class="add-category-btn">
             + Add Category
         </a>
@@ -239,80 +179,106 @@
     </div>
 
     
-    <!-- ORDERS -->
-    <div class="section-title">Recent Orders</div>
+    <audio id="order-sound" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/order.mp3') }}" type="audio/mpeg">
+    </audio>
     
-    <div class="table-responsive">
-        <table class="orders-table">
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Contact</th>
-                    <th>Delivery</th>
-                    <th>Subtotal</th>
-                    <th>Shipping</th>
-                    <th>Tax</th>
-                    <th>Total</th>
-                    <th>Payment</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-    
-            <tbody>
-                {% for order in recent_orders %}
-                <tr>
-                    <td>£{{ order.id }}</td>
-    
-                    <td>
-                        {{ order.full_name }}
-                    </td>
-    
-                    <td>
-                        <div>{{ order.email }}</div>
-                        <small>{{ order.phone }}</small>
-                    </td>
-    
-                    <td>
-                        {{ order.delivery_method }}
-                    </td>
-    
-                    <!-- GBP FIXED + NULL SAFE -->
-                    <td>£{{ "{:,.2f}".format(order.subtotal or 0) }}</td>
-                    <td>£{{ "{:,.2f}".format(order.shipping_fee or 0) }}</td>
-                    <td>£{{ "{:,.2f}".format(order.tax or 0) }}</td>
-    
-                    <td>
-                        <strong>£{{ "{:,.2f}".format(order.total_amount or 0) }}</strong>
-                    </td>
-    
-                    <!-- PAYMENT STATUS (ENUM SAFE) -->
-                    <td>
-                        {% if order.payment_status %}
-                        <span class="status-badge {{ order.payment_status.value }}">
-                            {{ order.payment_status.value }}
-                        </span>
-                        {% else %}
-                        <span class="status-badge unpaid">unpaid</span>
-                        {% endif %}
-                    </td>
-    
-                    <!-- ORDER STATUS (ENUM SAFE) -->
-                    <td>
-                        {% if order.status %}
-                        <span class="status-badge {{ order.status.value }}">
-                            {{ order.status.value }}
-                        </span>
-                        {% else %}
-                        <span class="status-badge processing">processing</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div id="order-toast" style="
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #0f172a;
+            color: #fff;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        ">
+        🛒 New order received!
         </div>
-
 </div>
+
+<script>
+    // =========================
+    // NEW ORDER SOUND POLLING
+    // =========================
+    (function () {
+        const POLL_INTERVAL = 10000;
+        const STORAGE_KEY = "last_seen_order_id";
+
+        const sound = document.getElementById("order-sound");
+        const toast = document.getElementById("order-toast");
+
+        fetch("/admin/orders/latest-id")
+            .then(res => res.json())
+            .then(data => {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (!stored) {
+                    localStorage.setItem(STORAGE_KEY, data.latest_id);
+                }
+            });
+
+        function checkForNewOrders() {
+            fetch("/admin/orders/latest-id")
+                .then(res => res.json())
+                .then(data => {
+                    const lastSeen = parseInt(localStorage.getItem(STORAGE_KEY) || "0");
+                    const latestId = data.latest_id;
+
+                    if (latestId > lastSeen) {
+                        localStorage.setItem(STORAGE_KEY, latestId);
+                        triggerNotification();
+                    }
+                })
+                .catch(() => { });
+        }
+
+        function triggerNotification() {
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(() => { });
+            }
+
+            if (toast) {
+                toast.style.display = "block";
+                setTimeout(() => { toast.style.display = "none"; }, 5000);
+            }
+
+            // just update the order count stat without full reload
+            fetch("/admin/orders/latest-id")
+                .then(res => res.json())
+                .then(data => {
+                    const statEl = document.querySelector(".stat-value");
+                    // update total orders stat card
+                    const cards = document.querySelectorAll(".stat-card");
+                    cards.forEach(card => {
+                        if (card.querySelector(".stat-title").innerText === "Total Orders") {
+                            card.querySelector(".stat-value").innerText = data.total_orders;
+                        }
+                    });
+                })
+                .catch(() => { });
+        }
+
+        setInterval(checkForNewOrders, POLL_INTERVAL);
+    })();
+</script>
+
+<script>
+    document.addEventListener("click", function unlockAudio() {
+        const sound = document.getElementById("order-sound");
+        if (sound) {
+            sound.play().then(() => {
+                sound.pause();
+                sound.currentTime = 0;
+            }).catch(() => { });
+        }
+        document.removeEventListener("click", unlockAudio);
+    }, { once: true });
+</script>
 
 {% endblock %}

@@ -1,5 +1,5 @@
+from itertools import product
 import json
-
 
 from flask import flash, redirect, render_template, jsonify, request, session, url_for
 from flask_login import login_required, current_user
@@ -8,6 +8,8 @@ from app.utils.helpers import get_user_key
 from . import cart_bp
 from app.models import Product, CartItem, Cart, Wishlist, CheckoutDraft
 from app.extensions import db
+
+from flask_wtf.csrf import generate_csrf
 
 
 # =========================
@@ -83,7 +85,6 @@ def add_to_cart(slug):
             from_wishlist=(source == "wishlist")
         ))
 
-    # remove from wishlist if logged in
     if current_user.is_authenticated:
         Wishlist.query.filter_by(
             user_id=current_user.id,
@@ -118,8 +119,9 @@ def add_to_cart(slug):
     })
 
 
+
 # =========================
-# REMOVE ITEM
+# REMOVE ITEM FROM CART
 # =========================
 @cart_bp.route('/remove/<int:item_id>', methods=['POST'])
 def remove_item(item_id):
@@ -136,6 +138,8 @@ def remove_item(item_id):
     ).first_or_404()
 
     cart = item.cart
+    slug = item.product.slug 
+
 
     db.session.delete(item)
     db.session.commit()
@@ -151,8 +155,163 @@ def remove_item(item_id):
     return jsonify({
         "success": True,
         "cart_count": cart_count,
-        "cart_total": cart_total
+        "cart_total": cart_total,
+         "slug": slug
     })
+
+
+
+@cart_bp.route("/data")
+def cart_data():
+    user_key = get_user_key()
+
+    if current_user.is_authenticated:
+        cart = Cart.query.filter_by(user_id=current_user.id).first()
+    else:
+        cart = Cart.query.filter_by(user_key=user_key).first()
+
+    if not cart:
+        return jsonify({"items": []})
+
+    items = []
+
+    for item in cart.items:
+        product = item.product
+        items.append({
+            "id": item.id,
+            "name": product.name,
+            "price": item.unit_price,
+            "quantity": item.quantity,
+            "subtotal": item.unit_price * item.quantity,
+            "image": product.image,
+            "csrf": generate_csrf(),
+            "slug": product.slug
+        })
+
+    return jsonify({"items": items})
+
+
+@cart_bp.route("/data-count")
+def cart_count():
+    user_key = get_user_key()
+
+    if current_user.is_authenticated:
+        cart = Cart.query.filter_by(user_id=current_user.id).first()
+    else:
+        cart = Cart.query.filter_by(user_key=user_key).first()
+
+    if not cart:
+        return jsonify({"cart_count": 0})
+
+    return jsonify({"cart_count": len(cart.items)})
+
+
+# =========================
+# CHECKOUT START
+# =========================
+@cart_bp.route("/checkout/start")
+def start_checkout():
+
+    # =========================
+    # IDENTIFY USER OR GUEST
+    # =========================
+    if current_user.is_authenticated:
+        user_id = current_user.id
+        guest_key = session.get("user_key")
+    else:
+        user_id = None
+        guest_key = get_user_key()
+
+    # =========================
+    # MERGE GUEST CART → USER
+    # =========================
+    if current_user.is_authenticated and guest_key:
+
+        guest_cart = Cart.query.filter_by(user_key=guest_key).first()
+        user_cart = Cart.query.filter_by(user_id=user_id).first()
+
+        if guest_cart:
+            if not user_cart:
+                guest_cart.user_id = user_id
+                guest_cart.user_key = None
+            else:
+                for item in guest_cart.items:
+                    existing = CartItem.query.filter_by(
+                        cart_id=user_cart.id,
+                        product_id=item.product_id
+                    ).first()
+
+                    if existing:
+                        existing.quantity += item.quantity
+                    else:
+                        item.cart_id = user_cart.id
+
+                db.session.delete(guest_cart)
+
+            db.session.commit()
+
+        session.pop("user_key", None)
+
+    # =========================
+    # GET CART
+    # =========================
+    if current_user.is_authenticated:
+        cart = Cart.query.filter_by(user_id=user_id).first()
+    else:
+        cart = Cart.query.filter_by(user_key=guest_key).first()
+
+    if not cart or not cart.items:
+        flash("Your cart is empty", "warning")
+        return redirect(url_for("cart.view_cart"))
+
+    # =========================
+    # CREATE CHECKOUT DRAFT
+    # =========================
+    if current_user.is_authenticated:
+        draft = CheckoutDraft.query.filter_by(user_id=user_id).first()
+    else:
+        draft = CheckoutDraft.query.filter_by(user_key=guest_key).first()
+
+    if not draft:
+        if current_user.is_authenticated:
+            draft = CheckoutDraft(
+                user_id=user_id,
+                email=current_user.email
+            )
+        else:
+            draft = CheckoutDraft(
+                user_key=guest_key,
+                email=session.get("guest_email")
+            )
+
+        db.session.add(draft)
+        db.session.commit()
+
+    # =========================
+    # CART SNAPSHOT
+    # =========================
+    snapshot = []
+
+    for item in cart.items:
+        snapshot.append({
+            "product_id": item.product_id,
+            "name": item.product.name,
+            "price": float(item.product.price),
+            "quantity": item.quantity,
+            "image": getattr(item.product, "image_url", None)
+        })
+
+    draft.cart_snapshot = json.dumps(snapshot)
+
+    # =========================
+    # SET SESSION
+    # =========================
+    session["checkout_id"] = draft.id
+
+    db.session.commit()
+
+    return redirect(url_for("checkout.details"))
+
 
 
 # =========================
@@ -233,91 +392,3 @@ def decrease_qty(item_id):
         "deleted": deleted,
         "cart_total": cart_total
     })
-
-
-# =========================
-# CHECKOUT START
-# =========================
-
-
-@cart_bp.route("/checkout/start")
-@login_required
-def start_checkout():
-
-    # =========================
-    # MERGE GUEST CART → USER
-    # =========================
-    guest_key = session.get("user_key")
-
-    if guest_key:
-        guest_cart = Cart.query.filter_by(user_key=guest_key).first()
-        user_cart = Cart.query.filter_by(user_id=current_user.id).first()
-
-        if guest_cart:
-            if not user_cart:
-                guest_cart.user_id = current_user.id
-                guest_cart.user_key = None
-            else:
-                for item in guest_cart.items:
-                    existing = CartItem.query.filter_by(
-                        cart_id=user_cart.id,
-                        product_id=item.product_id
-                    ).first()
-
-                    if existing:
-                        existing.quantity += item.quantity
-                    else:
-                        item.cart_id = user_cart.id
-
-                db.session.delete(guest_cart)
-
-            db.session.commit()
-
-        session.pop("user_key", None)
-
-    # =========================
-    # GET USER CART
-    # =========================
-    cart = Cart.query.filter_by(user_id=current_user.id).first()
-
-    if not cart or not cart.items:
-        flash("Your cart is empty", "warning")
-        return redirect(url_for("cart.view_cart"))
-
-    # =========================
-    # CREATE CHECKOUT DRAFT
-    # =========================
-    draft = CheckoutDraft.query.filter_by(user_id=current_user.id).first()
-
-    if not draft:
-        draft = CheckoutDraft(
-            user_id=current_user.id,
-            email=current_user.email
-        )
-        db.session.add(draft)
-        db.session.commit()
-
-    # =========================
-    #  CREATE CART SNAPSHOT (IMPORTANT)
-    # =========================
-    snapshot = []
-
-    for item in cart.items:
-        snapshot.append({
-            "product_id": item.product_id,
-            "name": item.product.name,
-            "price": float(item.product.price),
-            "quantity": item.quantity,
-            "image": item.product.image_url if hasattr(item.product, "image_url") else None
-        })
-
-    draft.cart_snapshot = json.dumps(snapshot)
-
-    # =========================
-    # SET CHECKOUT SESSION
-    # =========================
-    session["checkout_id"] = draft.id
-
-    db.session.commit()
-
-    return redirect(url_for("checkout.details"))

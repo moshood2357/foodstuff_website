@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen Display — Judith Kitchen</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .kitchen-header {
+            background: #1e293b;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #334155;
+        }
+
+        .kitchen-header h1 {
+            font-size: 1.4rem;
+            color: #f8fafc;
+        }
+
+        .kitchen-header .clock {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .tab-btn {
+            padding: 7px 18px;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: #6366f1;
+            color: #fff;
+        }
+
+        .tab-btn.inactive {
+            background: #334155;
+            color: #94a3b8;
+        }
+
+        .tab-btn.inactive:hover {
+            background: #475569;
+            color: #f8fafc;
+        }
+
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 24px;
+        }
+
+        .order-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #334155;
+            position: relative;
+            transition: border-color 0.3s;
+        }
+
+        .order-card.urgent {
+            border-color: #ef4444;
+        }
+
+        .order-card.warning {
+            border-color: #f59e0b;
+        }
+
+        .order-card.done {
+            border-color: #22c55e;
+            opacity: 0.6;
+        }
+
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+
+        .order-number {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .order-meta {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .delivery-badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .delivery-badge.express {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .delivery-badge.standard {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .items-list {
+            list-style: none;
+            margin: 12px 0;
+            border-top: 1px solid #334155;
+            padding-top: 12px;
+        }
+
+        .items-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        .items-list li span.qty {
+            background: #334155;
+            border-radius: 4px;
+            padding: 1px 8px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .timer-section {
+            margin-top: 14px;
+        }
+
+        .timer-display {
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+            color: #f8fafc;
+            margin: 8px 0;
+        }
+
+        .timer-display.warning {
+            color: #f59e0b;
+        }
+
+        .timer-display.urgent {
+            color: #ef4444;
+        }
+
+        .timer-display.done {
+            color: #22c55e;
+        }
+
+        .timer-bar-bg {
+            background: #334155;
+            border-radius: 999px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .timer-bar {
+            height: 100%;
+            border-radius: 999px;
+            background: #6366f1;
+            transition: width 1s linear, background 0.3s;
+        }
+
+        .timer-bar.warning {
+            background: #f59e0b;
+        }
+
+        .timer-bar.urgent {
+            background: #ef4444;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 10px;
+            background: #6366f1;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .start-btn:hover {
+            background: #4f46e5;
+        }
+
+        .start-btn.done-btn {
+            background: #22c55e;
+            cursor: default;
+        }
+
+        .prep-time-label {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .completed-time {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #475569;
+        }
+
+        .empty-state h2 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+
+        #kitchen-toast {
+            display: none;
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: #22c55e;
+            color: #fff;
+            padding: 14px 22px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            z-index: 9999;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <audio id="kitchen-sound" preload="auto">
+        <source src="/static/sounds/order.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="kitchen-toast">🍽 New order incoming!</div>
+
+    <div class="kitchen-header">
+        <h1>🍽 Kitchen Display</h1>
+        <div class="header-right">
+            <button class="tab-btn active" id="tab-current" onclick="switchTab('current')">Current</button>
+            <button class="tab-btn inactive" id="tab-history" onclick="switchTab('history')">History</button>
+            <div class="clock" id="wall-clock"></div>
+        </div>
+    </div>
+
+    <!-- CURRENT ORDERS -->
+    <div id="view-current">
+        <div class="orders-grid" id="orders-grid">
+            {% if orders %}
+            {% for order in orders %}
+            <div class="order-card" id="card-{{ order.id }}">
+                <div class="order-card-header">
+                    <div>
+                        <div class="order-number">{{ order.order_number }}</div>
+                        <div class="order-meta">
+                            {{ order.address.full_name if order.address else 'Guest' }} •
+                            {{ order.created_at.strftime("%I:%M %p") }}
+                        </div>
+                    </div>
+                    <span class="delivery-badge {{ order.delivery_method or 'standard' }}">
+                        {{ order.delivery_method or 'standard' }}
+                    </span>
+                </div>
+
+                <ul class="items-list">
+                    {% for item in order.items %}
+                    <li>
+                        <span>{{ item.product_name }}</span>
+                        <span class="qty">x{{ item.quantity }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="timer-section">
+                    <div class="prep-time-label">
+                        Prep time: {{ order.prep_time or '—' }} min
+                    </div>
+                    <div class="timer-display" id="timer-{{ order.id }}">
+                        {% if order.prep_time %}
+                        {{ "%02d:%02d"|format(order.prep_time, 0) }}
+                        {% else %}
+                        --:--
+                        {% endif %}
+                    </div>
+                    <div class="timer-bar-bg">
+                        <div class="timer-bar" id="bar-{{ order.id }}" style="width:100%"></div>
+                    </div>
+                    <button class="start-btn" id="btn-{{ order.id }}" data-order-id="{{ order.id }}"
+                        data-prep-time="{{ order.prep_time | int if order.prep_time else 0 }}"
+                        onclick="startTimer(this.dataset.orderId, this.dataset.prepTime)">
+                        ▶ Start Timer
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state" id="empty-state">
+                <h2>No active orders</h2>
+                <p>Accepted orders will appear here in real time.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div id="view-history" style="display:none;">
+        <div class="orders-grid" id="history-grid">
+            <div class="empty-state" id="history-empty">
+                <h2>No completed orders yet</h2>
+                <p>Completed orders will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================
+        // WALL CLOCK
+        // =========================
+        function updateClock() {
+            const now = new Date();
+            document.getElementById("wall-clock").innerText =
+                now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // =========================
+        // TAB SWITCHING
+        // =========================
+        function switchTab(tab) {
+            const current = document.getElementById("view-current");
+            const history = document.getElementById("view-history");
+            const btnCurrent = document.getElementById("tab-current");
+            const btnHistory = document.getElementById("tab-history");
+
+            if (tab === "current") {
+                current.style.display = "block";
+                history.style.display = "none";
+                btnCurrent.className = "tab-btn active";
+                btnHistory.className = "tab-btn inactive";
+            } else {
+                current.style.display = "none";
+                history.style.display = "block";
+                btnCurrent.className = "tab-btn inactive";
+                btnHistory.className = "tab-btn active";
+                loadHistory();
+            }
+        }
+
+        // =========================
+        // LOAD HISTORY FROM SERVER
+        // =========================
+        function loadHistory() {
+            fetch("/kitchen/history-orders")
+                .then(res => res.json())
+                .then(data => {
+                    const grid = document.getElementById("history-grid");
+                    const empty = document.getElementById("history-empty");
+
+                    grid.querySelectorAll(".order-card").forEach(c => c.remove());
+
+                    if (!data.orders.length) {
+                        if (empty) empty.style.display = "block";
+                        return;
+                    }
+
+                    if (empty) empty.style.display = "none";
+
+                    data.orders.forEach(order => {
+                        const itemsHtml = order.items.map(i =>
+                            `<li style="display:flex;justify-content:space-between;padding:5px 0;font-size:0.9rem;color:#cbd5e1;">
+                                <span>${i.name}</span>
+                                <span style="background:#334155;border-radius:4px;padding:1px 8px;font-weight:700;color:#f8fafc;">x${i.quantity}</span>
+                            </li>`
+                        ).join("");
+
+                        const card = document.createElement("div");
+                        card.className = "order-card done";
+                        card.innerHTML = `
+                            <div class="order-card-header">
+                                <div>
+                                    <div class="order-number">${order.order_number}</div>
+                                    <div class="order-meta">${order.customer} • ${order.created_at}</div>
+                                </div>
+                                <span class="delivery-badge ${order.delivery_method}">${order.delivery_method}</span>
+                            </div>
+                            <ul class="items-list">${itemsHtml}</ul>
+                            <div class="completed-time">✓ Completed at ${order.completed_at}</div>
+                        `;
+                        grid.prepend(card);
+                    });
+                })
+                .catch(() => { });
+        }
+
+        // =========================
+        // TRACKING SETS
+        // =========================
+        const localCompleted = new Set();
+        const addedCards = new Set();
+
+        // pre-populate with cards already rendered by server
+        document.querySelectorAll(".order-card[id^='card-']").forEach(card => {
+            const id = parseInt(card.id.replace("card-", ""));
+            if (id) addedCards.add(id);
+        });
+
+        // =========================
+        // MARK COMPLETED (UI)
+        // =========================
+        function markCompleted(orderId) {
+            const btn = document.getElementById(`btn-${orderId}`);
+            const display = document.getElementById(`timer-${orderId}`);
+            const bar = document.getElementById(`bar-${orderId}`);
+            const card = document.getElementById(`card-${orderId}`);
+
+            if (!display) return;
+
+            display.innerText = "DONE ✓";
+            display.className = "timer-display done";
+            bar.style.width = "100%";
+            bar.className = "timer-bar";
+            bar.style.background = "#22c55e";
+            card.className = "order-card done";
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = "✓ Completed";
+                btn.classList.add("done-btn");
+            }
+        }
+
+        // =========================
+        // MOVE TO HISTORY
+        // =========================
+        function moveToHistory(orderId) {
+            localCompleted.add(orderId);
+            addedCards.delete(orderId);
+
+            const card = document.getElementById(`card-${orderId}`);
+            if (!card) return;
+
+            const historyGrid = document.getElementById("history-grid");
+            const historyEmpty = document.getElementById("history-empty");
+
+            if (historyEmpty) historyEmpty.style.display = "none";
+
+            // clone card for history
+            const historyCard = card.cloneNode(true);
+            historyCard.id = `history-card-${orderId}`;
+            historyCard.className = "order-card done";
+
+            const timerSection = historyCard.querySelector(".timer-section");
+            if (timerSection) {
+                timerSection.innerHTML = `
+                    <div class="completed-time">
+                        ✓ Completed at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                `;
+            }
+
+            if (!document.getElementById(`history-card-${orderId}`)) {
+                historyGrid.prepend(historyCard);
+            }
+
+            card.remove();
+
+            const grid = document.getElementById("orders-grid");
+            const remaining = grid.querySelectorAll(".order-card");
+            if (remaining.length === 0) {
+                const emptyState = document.getElementById("empty-state");
+                if (emptyState) emptyState.style.display = "block";
+            }
+        }
+
+        // =========================
+        // UPDATE TIMER UI
+        // =========================
+        function updateTimerUI(orderId, remaining, totalSeconds) {
+            const display = document.getElementById(`timer-${orderId}`);
+            const bar = document.getElementById(`bar-${orderId}`);
+            const card = document.getElementById(`card-${orderId}`);
+            const btn = document.getElementById(`btn-${orderId}`);
+
+            if (!display) return;
+
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            const pct = totalSeconds > 0 ? (remaining / totalSeconds) * 100 : 0;
+
+            display.innerText = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+            bar.style.width = pct + "%";
+
+            if (btn && !btn.classList.contains("done-btn")) {
+                btn.disabled = true;
+                btn.innerText = "⏱ Running...";
+            }
+
+            if (pct <= 20) {
+                display.className = "timer-display urgent";
+                bar.className = "timer-bar urgent";
+                card.className = "order-card urgent";
+            } else if (pct <= 40) {
+                display.className = "timer-display warning";
+                bar.className = "timer-bar warning";
+                card.className = "order-card warning";
+            } else {
+                display.className = "timer-display";
+                bar.className = "timer-bar";
+                if (!card.classList.contains("done")) card.className = "order-card";
+            }
+        }
+
+        // =========================
+        // MASTER SYNC — every second
+        // =========================
+        // =========================
+            // MASTER SYNC — every second
+            // =========================
+            const lastAgeCheck = {};
+
+            function syncAllTimers() {
+                fetch("/kitchen/all-timer-states")
+                    .then(res => res.json())
+                    .then(data => {
+                        const states = data.states;
+
+                        Object.keys(states).forEach(orderIdStr => {
+                            const orderId = parseInt(orderIdStr);
+                            const state = states[orderIdStr];
+
+                            const card = document.getElementById(`card-${orderId}`);
+                            if (!card) return;
+
+                            if (state.timer_status === "completed") {
+
+                                if (!localCompleted.has(orderId)) {
+                                    localCompleted.add(orderId);
+                                    markCompleted(orderId);
+                                }
+
+                                // only check age once per minute per order
+                                const now = Date.now();
+                                if (!lastAgeCheck[orderId] || now - lastAgeCheck[orderId] > 60000) {
+                                    lastAgeCheck[orderId] = now;
+
+                                    fetch(`/kitchen/order-completed-age/${orderId}`)
+                                        .then(r => r.json())
+                                        .then(d => {
+                                            if (d.minutes_since_completed >= 10) {
+                                                moveToHistory(orderId);
+                                            }
+                                        })
+                                        .catch(() => { });
+                                }
+
+                            } else if (state.timer_status === "running") {
+                                if (state.remaining <= 0 && !localCompleted.has(orderId)) {
+                                    localCompleted.add(orderId);
+                                    markCompleted(orderId);
+
+                                    fetch(`/kitchen/complete-order/${orderId}`, {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" }
+                                    }).catch(() => { });
+
+                                } else if (state.remaining > 0) {
+                                    updateTimerUI(orderId, state.remaining, state.total_seconds);
+                                }
+                            }
+                        });
+                    })
+                    .catch(() => { });
+            }
+
+        setInterval(syncAllTimers, 1000);
+
+        // =========================
+        // START TIMER
+        // =========================
+        function startTimer(orderId, prepMinutes) {
+            orderId = parseInt(orderId);
+            prepMinutes = parseInt(prepMinutes);
+
+            if (!prepMinutes || prepMinutes < 1) return;
+
+            const btn = document.getElementById(`btn-${orderId}`);
+            if (btn.classList.contains("done-btn")) return;
+
+            btn.disabled = true;
+            btn.innerText = "⏱ Starting...";
+
+            fetch(`/kitchen/start-timer/${orderId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Timer started on server");
+                    }
+                })
+                .catch(() => { });
+        }
+
+        // =========================
+        // POLLING — NEW ORDERS
+        // =========================
+        const sound = document.getElementById("kitchen-sound");
+        const toast = document.getElementById("kitchen-toast");
+
+        function pollKitchenOrders() {
+            fetch("/kitchen/accepted-orders")
+                .then(res => res.json())
+                .then(data => {
+                    data.orders.forEach(order => {
+                        // skip if already on page or already completed
+                        if (addedCards.has(order.id)) return;
+                        if (localCompleted.has(order.id)) return;
+
+                        addedCards.add(order.id);
+
+                        if (sound) {
+                            sound.currentTime = 0;
+                            sound.play().catch(() => { });
+                        }
+
+                        toast.style.display = "block";
+                        setTimeout(() => { toast.style.display = "none"; }, 5000);
+
+                        const emptyState = document.getElementById("empty-state");
+                        if (emptyState) emptyState.style.display = "none";
+
+                        const itemsHtml = order.items.map(i =>
+                            `<li style="display:flex;justify-content:space-between;padding:5px 0;font-size:0.9rem;color:#cbd5e1;">
+                                <span>${i.name}</span>
+                                <span style="background:#334155;border-radius:4px;padding:1px 8px;font-weight:700;color:#f8fafc;">x${i.quantity}</span>
+                            </li>`
+                        ).join("");
+
+                        const card = document.createElement("div");
+                        card.className = "order-card";
+                        card.id = `card-${order.id}`;
+                        card.innerHTML = `
+                            <div class="order-card-header">
+                                <div>
+                                    <div class="order-number">${order.order_number}</div>
+                                    <div class="order-meta">${order.customer} • ${order.created_at}</div>
+                                </div>
+                                <span class="delivery-badge ${order.delivery_method}">${order.delivery_method}</span>
+                            </div>
+                            <ul class="items-list">${itemsHtml}</ul>
+                            <div class="timer-section">
+                                <div class="prep-time-label">Prep time: ${order.prep_time || "—"} min</div>
+                                <div class="timer-display" id="timer-${order.id}">
+                                    ${order.prep_time ? String(order.prep_time).padStart(2, "0") + ":00" : "--:--"}
+                                </div>
+                                <div class="timer-bar-bg">
+                                    <div class="timer-bar" id="bar-${order.id}" style="width:100%"></div>
+                                </div>
+                                <button class="start-btn" id="btn-${order.id}"
+                                    data-order-id="${order.id}"
+                                    data-prep-time="${order.prep_time || 0}"
+                                    onclick="startTimer(this.dataset.orderId, this.dataset.prepTime)">
+                                    ▶ Start Timer
+                                </button>
+                            </div>
+                        `;
+
+                        document.getElementById("orders-grid").prepend(card);
+                    });
+                })
+                .catch(() => { });
+        }
+
+        setInterval(pollKitchenOrders, 5000);
+
+        document.addEventListener("DOMContentLoaded", () => {
+            syncAllTimers();
+            pollKitchenOrders();
+        });
+    </script>
+
+</body>
+
+</html>

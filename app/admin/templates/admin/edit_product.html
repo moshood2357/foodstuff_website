@@ -25,7 +25,7 @@
                         value="{{ product.short_description }}">
 
                     <!-- Price -->
-                    <input type="number" name="price" class="form-control mb-3" value="{{ product.price }}" required>
+                    <input type="number" name="price" step="0.01" class="form-control mb-3" value="{{ product.price }}" required>
 
                     <!-- Stock -->
                     <input type="number" name="stock_quantity" class="form-control mb-3"

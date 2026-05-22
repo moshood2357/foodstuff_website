@@ -164,17 +164,17 @@
 
                 <!-- CONTACT -->
                 <div class="input-grid mb-3">
-                    <input name="full_name" value="{{ draft.full_name if draft else '' }}" placeholder="Full Name" required>
+                    <input name="full_name" value="{{ draft.full_name or '' }}" placeholder="Full Name" required>
                     
-                    <input name="email" value="{{ draft.email if draft else '' }}" placeholder="Email" required>
+                    <input name="email" value="{{ draft.email or '' }}" placeholder="Email" required>
                     
-                    <input name="phone" value="{{ draft.phone if draft else '' }}" placeholder="Phone Number" class= "full" required>                
+                    <input name="phone" value="{{ draft.phone or '' }}" placeholder="Phone Number" class= "full" required>                
                 </div>
 
                 <!-- ADDRESS -->
                 <div class="input-grid mb-3">
 
-                    <input id="postcode" name="postal_code" value="{{ draft.postal_code if draft else '' }}" placeholder="Postcode">
+                    <input id="postcode" name="postal_code" value="{{ draft.postal_code or '' }}" placeholder="Postcode">
 
 
                     <button type="button" class="lookup-btn" onclick="lookupAddress(event)">
@@ -183,13 +183,13 @@
 
                     <div id="addressDropdown" class="address-dropdown hidden full"></div>
 
-                    <input name="address_line_1" value="{{ draft.address_line_1 if draft else '' }}" placeholder="Address Line 1">
+                    <input name="address_line_1" value="{{ draft.address_line_1 or '' }}" placeholder="Address Line 1">
                     
-                    <input name="address_line_2" value="{{ draft.address_line_2 if draft else '' }}" placeholder="Address Line 2">
+                    <input name="address_line_2" value="{{ draft.address_line_2 or '' }}" placeholder="Address Line 2">
                     
-                    <input name="city" value="{{ draft.city if draft else '' }}" placeholder="City">
+                    <input name="city" value="{{ draft.city or '' }}" placeholder="City">
                     
-                    <input name="state" value="{{ draft.state if draft else '' }}" placeholder="State / County">
+                    <input name="state" value="{{ draft.state or '' }}" placeholder="State / County">
 
                 </div>
 

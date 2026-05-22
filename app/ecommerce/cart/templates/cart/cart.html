@@ -80,8 +80,8 @@
                     <!-- REMOVE -->
                     <td>
                         <button type="button" class="btn btn-danger btn-sm remove-item-btn" data-id="{{ cart_item.id }}"
-                            data-csrf="{{ csrf_token() }}">
-                            Remove
+                            data-csrf="{{ csrf_token() }}" data-slug="{{ cart_item.slug }}">
+                            Remove             
                         </button>
                     </td>
 

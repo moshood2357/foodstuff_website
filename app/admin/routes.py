@@ -5,7 +5,8 @@ from werkzeug.utils import secure_filename
 from flask import render_template, redirect, url_for, request, flash, current_app
 from flask_login import login_required, current_user
 from sqlalchemy import func
-from datetime import datetime, timedelta
+from datetime import datetime
+from app import csrf
 
 from app.forms import DeleteForm
 from app.utils.decorators import admin_required
@@ -13,10 +14,29 @@ from app.utils.helpers import generate_slug
 
 from . import admin_bp
 from app.extensions import db
-from app.models import CartItem, Product, Category, Order, Wishlist
+from app.models import CartItem, OrderStatus, PaymentStatus, Product, Category, Order, Wishlist
 
 from werkzeug.utils import secure_filename
 from slugify import slugify
+
+
+
+# ====================
+# AJAX ENDPOINT TO GET LATEST ORDER ID
+# ====================
+@admin_bp.route("/orders/latest-id")
+@login_required
+@admin_required
+def latest_order_id():
+    from flask import jsonify
+    order = Order.query.order_by(Order.id.desc()).first()
+    total = Order.query.count()
+    return jsonify({
+        "latest_id":    order.id if order else 0,
+        "total_orders": total
+    })
+
+
 
 
 # =========================
@@ -36,8 +56,10 @@ def dashboard():
     total_orders = Order.query.count()
 
     total_sales = db.session.query(
-        func.sum(Order.total_amount)
-    ).scalar() or 0
+    func.coalesce(func.sum(Order.total_amount), 0)
+    ).filter(
+        Order.payment_status == PaymentStatus.paid
+    ).scalar()
 
     delete_form = DeleteForm()
 
@@ -45,8 +67,6 @@ def dashboard():
     # DISPLAY DATA (LISTS ONLY)
     # =========================
     recent_products = Product.query.order_by(Product.created_at.desc()).limit(12).all()
-
-    recent_orders = Order.query.order_by(Order.id.desc()).limit(20).all()
 
     categories_available = Category.query.order_by(Category.id.desc()).all()
 
@@ -61,7 +81,6 @@ def dashboard():
 
         # display data
         recent_products=recent_products,
-        recent_orders=recent_orders,
         categories_available=categories_available,
         delete_form=delete_form
     )
@@ -170,40 +189,56 @@ def delete_product(slug):
 @admin_bp.route('/orders')
 @login_required
 def orders():
-    orders = Order.query.order_by(Order.id.desc()).all()
+    page = request.args.get('page', 1, type=int)
+    orders = Order.query.order_by(Order.id.desc()).paginate(page=page, per_page=20)
     return render_template('admin/orders.html', orders=orders)
-
-
-# =========================
-# VIEW SINGLE ORDER
-# =========================
-@admin_bp.route('/orders/<int:id>')
-@login_required
-def order_detail(id):
-    order = Order.query.get_or_404(id)
-    return render_template('admin/order_detail.html', order=order)
 
 
 
 # =========================
 # UPDATE ORDER STATUS
 # =========================
-@admin_bp.route('/orders/update/<int:id>', methods=['POST'])
+@admin_bp.route("/orders/update/<int:id>", methods=["POST"])
+@csrf.exempt
 @login_required
 def update_order_status(id):
+    from flask import request, jsonify
+    from app.utils.email import send_order_confirmation_customer
+
     order = Order.query.get_or_404(id)
+    data  = request.get_json()
+    status    = data.get("status")
+    prep_time = data.get("prep_time")
 
-    new_status = request.form.get('status')
-    order.status = new_status
+    print(f"update_order_status called: order={id}, status={status}, prep_time={prep_time}")
 
-    db.session.commit()
-    flash("Order status updated!", "success")
+    try:
+        order.status = OrderStatus[status]
 
-    return redirect(url_for('admin.orders'))
+        if prep_time:
+            order.prep_time = int(prep_time)
 
+        db.session.commit()
+        print(f"DB commit successful for order {id}")
 
+        if status == "accepted":
+            try:
+                send_order_confirmation_customer(order)
+                print(f"Customer email sent for order {id}")
+            except Exception as e:
+                print(f"Customer email failed: {e}")
 
+        print(f"Returning success for order {id}")
+        return jsonify({"success": True})
 
+    except Exception as e:
+        db.session.rollback()
+        print(f"update_order_status error: {e}")
+        import traceback
+        print(traceback.format_exc())
+        return jsonify({"success": False}), 500
+    
+    
 @admin_bp.route('/category/add', methods=['GET', 'POST'])
 def add_category():
     if request.method == 'POST':
@@ -383,3 +418,4 @@ def edit_product(id):
         product=product,
         categories=categories
     )
+

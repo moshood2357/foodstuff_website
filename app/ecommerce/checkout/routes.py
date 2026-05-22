@@ -1,27 +1,47 @@
 import uuid
 import stripe
+import traceback
+import json
+
+from datetime import datetime
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
 from flask_login import login_required, current_user
 
 from app.extensions import db
-from app.models import CartItem, OrderStatus, PaymentStatus, Cart, Order, CheckoutDraft
-
-from . import checkout_bp
+from app.models import (
+    CartItem, OrderStatus, PaymentStatus, Cart, Order,
+    CheckoutDraft, Address, OrderItem, Payment
+)
 
 from flask import render_template, redirect, url_for, session, request, flash
-from flask_login import login_required, current_user
 
+from app import csrf
 from app.ecommerce.checkout import checkout_bp
-from app.extensions import db
-from app.models import Cart, Product, CheckoutDraft
+
+from app.utils.helpers import get_user_key
+from app.utils.email import send_order_notification
+
+# =========================
+# HELPER (GUEST SAFE)
+# =========================
+def get_identity():
+    if current_user.is_authenticated:
+        return {
+            "type": "user",
+            "id": current_user.id
+        }
+    else:
+        return {
+            "type": "guest",
+            "key": session.get("user_key") or get_user_key()
+        }
 
 
 # =========================
 # DETAILS
 # =========================
 @checkout_bp.route("/details", methods=["GET", "POST"])
-@login_required
 def details():
 
     checkout_id = session.get("checkout_id")
@@ -35,12 +55,67 @@ def details():
     if not draft:
         return redirect(url_for("cart.view_cart"))
 
-    cart = Cart.query.filter_by(user_id=current_user.id).first()
+    session["guest_email"] = draft.email
+
+    identity = get_identity()
+
+    if identity["type"] == "user":
+        cart = Cart.query.filter_by(user_id=identity["id"]).first()
+    else:
+        cart = Cart.query.filter_by(user_key=identity["key"]).first()
 
     if not cart or not cart.items:
         flash("Your cart is empty.", "warning")
         return redirect(url_for("cart.view_cart"))
 
+    # =========================
+    # PRE-POPULATE ON GET
+    # =========================
+    if request.method == "GET":
+
+        draft_is_empty = not any([
+            draft.full_name,
+            draft.address_line_1,
+            draft.city,
+            draft.postal_code
+        ])
+
+        if draft_is_empty:
+
+            if identity["type"] == "user":
+                previous = (
+                    CheckoutDraft.query
+                    .filter_by(user_id=identity["id"], completed=True)
+                    .order_by(CheckoutDraft.id.desc())
+                    .first()
+                )
+
+            else:
+                guest_email = session.get("guest_email")
+                previous = (
+                    CheckoutDraft.query
+                    .filter(
+                        CheckoutDraft.email == guest_email,
+                        CheckoutDraft.completed == True
+                    )
+                    .order_by(CheckoutDraft.id.desc())
+                    .first()
+                ) if guest_email else None
+
+            if previous:
+                draft.full_name = previous.full_name
+                draft.email = previous.email
+                draft.phone = previous.phone
+                draft.address_line_1 = previous.address_line_1
+                draft.address_line_2 = previous.address_line_2
+                draft.city = previous.city
+                draft.state = previous.state
+                draft.postal_code = previous.postal_code
+                db.session.commit()
+
+    # =========================
+    # POST
+    # =========================
     if request.method == "POST":
 
         draft.full_name = request.form.get("full_name")
@@ -78,7 +153,7 @@ def details():
 
         draft.subtotal = subtotal
         draft.shipping_fee = shipping
-        draft.tax = tax
+        draft.tax  = tax
         draft.total = subtotal + shipping + tax
 
         db.session.commit()
@@ -95,13 +170,10 @@ def details():
         products=products,
         cart_total=total
     )
-
-
 # =========================
 # SUMMARY
 # =========================
 @checkout_bp.route("/summary")
-@login_required
 def summary():
 
     checkout_id = session.get("checkout_id")
@@ -115,7 +187,12 @@ def summary():
     if not draft:
         return redirect(url_for("cart.view_cart"))
 
-    cart = Cart.query.filter_by(user_id=current_user.id).first()
+    identity = get_identity()
+
+    if identity["type"] == "user":
+        cart = Cart.query.filter_by(user_id=identity["id"]).first()
+    else:
+        cart = Cart.query.filter_by(user_key=identity["key"]).first()
 
     if not cart or not cart.items:
         flash("Your cart is empty.", "warning")
@@ -144,10 +221,9 @@ def summary():
 
 
 # =========================
-# PAY (Stripe)
+# PAY (STRIPE)
 # =========================
 @checkout_bp.route("/pay", methods=["POST"])
-@login_required
 def pay():
 
     checkout_id = session.get("checkout_id")
@@ -162,7 +238,12 @@ def pay():
         flash("Invalid checkout session.", "danger")
         return redirect(url_for("cart.view_cart"))
 
-    cart = Cart.query.filter_by(user_id=current_user.id).first()
+    identity = get_identity()
+
+    if identity["type"] == "user":
+        cart = Cart.query.filter_by(user_id=identity["id"]).first()
+    else:
+        cart = Cart.query.filter_by(user_key=identity["key"]).first()
 
     if not cart or not cart.items:
         flash("Your cart is empty.", "warning")
@@ -189,11 +270,12 @@ def pay():
             success_url=url_for("checkout.success", _external=True),
             cancel_url=url_for("checkout.summary", _external=True),
 
-            customer_email=current_user.email,
+            customer_email=draft.email,
 
             metadata={
                 "checkout_id": str(checkout_id),
-                "user_id": str(current_user.id),
+                "user_id": str(identity["id"]) if identity["type"] == "user" else "",
+                "guest_key": session.get("user_key", "")
             }
         )
 
@@ -206,67 +288,258 @@ def pay():
 
 
 # =========================
-# SUCCESS (UI ONLY)
+# SUCCESS
 # =========================
 @checkout_bp.route("/success")
-@login_required
 def success():
-    return render_template("checkout/success.html")
+
+    if current_user.is_authenticated:
+        order = Order.query.filter_by(user_id=current_user.id)\
+            .order_by(Order.id.desc()).first()
+
+        return render_template(
+            "checkout/success.html",
+            order=order,
+            guest_email=None
+        )
+
+    else:
+        # guest flow
+        guest_email = session.get("guest_email")
+        order = Order.query.filter_by(guest_email=guest_email)\
+            .order_by(Order.id.desc()).first()
+
+        return render_template(
+            "checkout/success.html",
+            order=order,
+            guest_email=guest_email
+        )
 
 
-# =========================
+# =========================================================
 # STRIPE WEBHOOK
-# =========================
+# =========================================================
 @checkout_bp.route("/stripe/webhook", methods=["POST"])
+@csrf.exempt
 def stripe_webhook():
 
     payload = request.data
     sig_header = request.headers.get("Stripe-Signature")
-
     endpoint_secret = current_app.config["STRIPE_WEBHOOK_SECRET"]
 
+    # =====================================================
+    # VERIFY STRIPE SIGNATURE
+    # =====================================================
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, endpoint_secret
+            payload,
+            sig_header,
+            endpoint_secret
         )
-    except Exception as e:
-        print("Webhook error:", e)
-        return "Invalid webhook", 400
 
-    if event["type"] == "checkout.session.completed":
+    except ValueError:
+        current_app.logger.error("Invalid payload")
+        return "Invalid payload", 400
 
-        session_obj = event["data"]["object"]
+    except stripe.error.SignatureVerificationError:
+        current_app.logger.error("Invalid Stripe signature")
+        return "Invalid signature", 400
 
-        checkout_id = session_obj["metadata"]["checkout_id"]
-        user_id = session_obj["metadata"]["user_id"]
+    except Exception:
+        current_app.logger.error(traceback.format_exc())
+        return "Webhook verification failed", 400
 
-        draft = CheckoutDraft.query.get(checkout_id)
+    # =====================================================
+    # HANDLE EVENT
+    # =====================================================
+    try:
 
-        if draft:
+        # =================================================
+        # CHECKOUT SUCCESS
+        # =================================================
+        if event["type"] == "checkout.session.completed":
 
+            session_obj = event["data"]["object"]
+            metadata = session_obj.to_dict().get("metadata") or {}
+
+            checkout_id = metadata.get("checkout_id")
+            user_id = metadata.get("user_id")
+            guest_key = metadata.get("guest_key")
+
+            # =============================================
+            # VALIDATE CHECKOUT ID
+            # =============================================
+            if not checkout_id:
+                current_app.logger.error("Missing checkout_id")
+                return "missing checkout id", 200
+
+            try:
+                checkout_id = int(checkout_id)
+            except (ValueError, TypeError):
+                current_app.logger.error("Invalid checkout_id")
+                return "invalid checkout id", 200
+
+            # =============================================
+            # PREVENT DUPLICATE PROCESSING
+            # =============================================
+            existing_payment = Payment.query.filter_by(
+                reference=session_obj.id  #  fixed
+            ).first()
+
+            if existing_payment:
+                current_app.logger.info("Webhook already processed")
+                return "already processed", 200
+
+            # =============================================
+            # GET DRAFT
+            # =============================================
+            draft = CheckoutDraft.query.filter_by(
+                id=checkout_id
+            ).first()
+
+            if not draft:
+                current_app.logger.error("Draft not found")
+                return "draft not found", 200
+
+            # =============================================
+            # CREATE ADDRESS
+            # =============================================
+            address = Address(
+                user_id=int(user_id) if user_id else None,
+                full_name=draft.full_name or "",
+                phone=draft.phone or "",
+                address_line_1=draft.address_line_1 or "",
+                address_line_2=draft.address_line_2 or "",
+                city=draft.city or "",
+                state=draft.state or "",
+                country=draft.country or "United Kingdom",
+                postal_code=draft.postal_code or "",
+            )
+
+            db.session.add(address)
+            db.session.flush()
+
+            # =============================================
+            # CREATE ORDER
+            # =============================================
             order = Order(
-                user_id=user_id,
-                order_number=str(uuid.uuid4()),
+                user_id=int(user_id) if user_id else None,
+                address_id=address.id,
+                order_number=f"ORD-{uuid.uuid4().hex[:10].upper()}",
                 subtotal=draft.subtotal,
                 shipping_fee=draft.shipping_fee,
+                delivery_method=draft.delivery_method,
                 tax=draft.tax,
                 total_amount=draft.total,
                 status=OrderStatus.processing,
-                payment_status=PaymentStatus.paid
+                payment_status=PaymentStatus.paid,
+                guest_email=draft.email if not user_id else None,
             )
 
             db.session.add(order)
+            db.session.flush()
 
-            cart = Cart.query.filter_by(user_id=user_id).first()
+            # =============================================
+            # CART ITEMS
+            # =============================================
+            try:
+                cart_items = json.loads(
+                    draft.cart_snapshot or "[]"
+                )
+            except json.JSONDecodeError:
+                current_app.logger.error("Invalid cart snapshot JSON")
+                cart_items = []
+
+            # =============================================
+            # CREATE ORDER ITEMS
+            # =============================================
+            for item in cart_items:
+
+                product_id = item.get("product_id")
+                quantity = item.get("quantity", 1)
+                price = item.get("price", 0)
+
+                if not product_id:
+                    continue
+
+                order_item = OrderItem(
+                    order_id=order.id,
+                    product_id=product_id,
+                    quantity=quantity,
+                    price=price,
+                    product_name=item.get("name", ""),
+                    product_image=item.get("image", ""),
+                )
+
+                db.session.add(order_item)
+
+            # =============================================
+            # CREATE PAYMENT
+            # =============================================
+            payment = Payment(
+                order_id=order.id,
+                payment_method="stripe",
+                transaction_id=session_obj.payment_intent,  #  fixed
+                amount=draft.total,
+                status=PaymentStatus.paid,
+                reference=session_obj.id,                   #  fixed
+                paid_at=datetime.utcnow(),
+            )
+
+            db.session.add(payment)
+
+            # =============================================
+            # CLEAR CART
+            # =============================================
+            cart = None
+
+            if user_id:
+                try:
+                    cart = Cart.query.filter_by(
+                        user_id=int(user_id)
+                    ).first()
+                except (ValueError, TypeError):
+                    cart = None
+
+            elif guest_key:
+                cart = Cart.query.filter_by(
+                    user_key=guest_key
+                ).first()
 
             if cart:
-                CartItem.query.filter_by(cart_id=cart.id).delete()
+                db.session.query(CartItem).filter_by(
+                    cart_id=cart.id
+                ).delete()
 
-            db.session.delete(draft)
+            # =============================================
+            # KEEP CHECKOUT DRAFT
+            # =======================================
+            draft.completed = True
+            draft.completed_at = datetime.utcnow()
+            # =============================================
+            # COMMIT TRANSACTION
+            # =============================================
             db.session.commit()
 
-    if event["type"] == "payment_intent.payment_failed":
-        intent = event["data"]["object"]
-        print("Payment failed:", intent["id"])
+            # after db.session.commit()
+            
+            try:
+                send_order_notification(order)
+            except Exception:
+                current_app.logger.error("Email notification failed")
+                current_app.logger.error(traceback.format_exc())
 
-    return "success", 200
+            current_app.logger.info(f"Stripe order created successfully: {order.order_number}")
+
+        # =================================================
+        # SUCCESS RESPONSE
+        # =================================================
+        return "success", 200
+
+    except Exception:
+        db.session.rollback()
+
+        current_app.logger.error("Stripe webhook processing failed")
+        current_app.logger.error(traceback.format_exc())
+
+        return "server error", 500

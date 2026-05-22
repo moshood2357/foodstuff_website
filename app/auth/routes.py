@@ -10,7 +10,7 @@ from app.utils.password_reset_email import password_reset_email
 from . import auth_bp
 
 from app.services.cart_service import merge_cart, merge_guest_cart_to_user, merge_wishlist
-from app.utils.helpers import get_user_key
+from app.utils.helpers import get_user_key, merge_guest_to_user
 
 
 from app.extensions import db
@@ -19,6 +19,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
+
 
 ph = PasswordHasher()
 
@@ -71,7 +72,22 @@ def register():
 def login():
 
     if request.method == 'POST':
-        login_input = request.form.get('login')  # username or email
+        action = request.form.get("action")
+
+        # =========================
+        # GUEST FLOW
+        # =========================
+        if action == "guest":
+            session["guest_email"] = request.form.get("login")
+            get_user_key()  # ensures guest ID exists
+
+            flash("Continuing as guest", "info")
+            return redirect(url_for('cart.start_checkout')) 
+
+        # =========================
+        # LOGIN FLOW
+        # =========================
+        login_input = request.form.get('login')  # email
         password = request.form.get('password')
 
         user = User.query.filter(
@@ -86,13 +102,12 @@ def login():
             # =========================
             # MERGE GUEST DATA → USER
             # =========================
-            guest_key =  get_user_key()
+            guest_key = session.get("user_key")
 
             if guest_key:
                 merge_cart(user.id, guest_key)
                 merge_wishlist(user.id, guest_key)
-                merge_guest_cart_to_user(user)
-                session.pop("guest_id", None)
+                session.pop("user_key", None)
 
             # =========================
             # ROLE-BASED REDIRECT
@@ -209,3 +224,37 @@ def reset_password(token):
         return redirect(url_for('auth.login'))
 
     return render_template('auth/reset_password.html')
+
+
+
+@auth_bp.route("/convert-guest", methods=["POST"])
+def convert_guest():
+
+    email = request.form.get("email")
+    password = request.form.get("password")
+    name = request.form.get("name")
+
+    # check if user already exists
+    user = User.query.filter_by(email=email).first()
+
+    if user:
+        flash("Account already exists. Please log in.", "info")
+        return redirect(url_for("auth.login"))
+
+    # create new user from guest
+    new_user = User(
+        username=name,
+        email=email,
+        password_hash=ph.hash(password)
+    )
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    # IMPORTANT: merge guest cart into new user
+    merge_guest_to_user(new_user)
+
+    login_user(new_user)
+
+    flash("Account created successfully!", "success")
+    return redirect(url_for("main.home"))

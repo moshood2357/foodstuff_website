@@ -142,12 +142,12 @@
             <form method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     
-                <input type="text" name="login" placeholder="Username or Email" required autocomplete="username">
+                <input type="email" name="login" placeholder="Email Address"  autocomplete="username" required>
 
     
                 <div class="password-wrapper">
                     <input type="password" name="password"
-                    id="password" placeholder="Password" required autocomplete="current-password">
+                    id="password" placeholder="Password(optional)" autocomplete="current-password">
                     <span class="toggle-password" onclick="togglePassword()">
                         <!-- Eye (Visible) -->
                         <svg id="eyeOpen" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -175,7 +175,17 @@
                 </div>
 
                 
-                <button type="submit">Login</button>
+                <button type="submit" name="action" value="login">Login</button>
+
+                <!-- Divider -->
+                <div style="text-align:center; margin: 15px 0; font-size: 13px; color: #64748b;">
+                    OR
+                </div>
+                
+                <!-- Continue as Guest -->
+                <button type="submit" name="action" value="guest" style="background:#0ea5e9;">
+                    Continue as Guest
+                </button>
             </form>
     
             <div class="auth-footer">

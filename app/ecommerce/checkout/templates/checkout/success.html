@@ -61,9 +61,19 @@
         background: #f8fafc;
         border-radius: 12px;
         padding: 15px;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
         font-size: 14px;
         color: #334155;
+    }
+
+    .guest-box {
+        background: #fefce8;
+        border: 1px solid #fde047;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        font-size: 14px;
+        color: #713f12;
     }
 
     .btn-group {
@@ -146,15 +156,36 @@
 
         <!-- TEXT -->
         <div class="success-text">
-            Thank you for your purchase! Your order has been placed successfully and is now being processed.
+            Thank you for your purchase! Your order has been placed successfully.
             You will receive a confirmation email shortly.
         </div>
 
-        <!-- ORDER INFO (optional dynamic) -->
+        <!-- ORDER INFO -->
         <div class="order-box">
             Order ID:
-            <strong>#{{ order.order_number if order else 'Processing...' }}</strong>
+            <strong>#{{ order.order_number if order else 'guest_email' }}</strong>
         </div>
+
+        <!-- 👇 GUEST CONVERSION BLOCK -->
+        {% if guest_email %}
+        <div class="guest-box">
+            Want faster checkout next time? Create an account using <strong>{{ guest_email }}</strong>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.convert_guest') }}" style="margin-bottom:20px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <input type="text" name="name" placeholder="Your name" required
+                style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #117843;">
+
+            <input type="password" name="password" placeholder="Create password" required
+                style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #117843;">
+
+            <button class="" style="width:100%; border-radius: 8px; padding: 14px; cursor: pointer; border: 1px solid #22c55e; color: #22c55e; font-weight: 600; font-size: 15px; transition: all 0.3s ease;">
+                Create Account
+            </button>
+        </form>
+        {% endif %}
 
         <!-- BUTTONS -->
         <div class="btn-group">
