@@ -266,3 +266,47 @@ def _send_email(to_email, to_name, subject, html_content):
         current_app.logger.info(f"Email sent to {to_email} - {subject}")
     except ApiException as e:
         current_app.logger.error(f"Brevo email error: {e}")
+
+
+
+def send_order_rejected_customer(order, reason):
+    if order.user:
+        customer_email = order.user.email
+        customer_name  = order.user.first_name
+    elif order.guest_email:
+        customer_email = order.guest_email
+        customer_name  = order.address.full_name if order.address else "Customer"
+    else:
+        print("No customer email for rejection notification")
+        return
+
+    html_content = f"""
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b;">
+        <div style="background:#0f172a;padding:24px;text-align:center;">
+            <h1 style="color:#fff;margin:0;font-size:1.4rem;">Order Update</h1>
+        </div>
+        <div style="padding:24px;">
+            <p style="font-size:0.95rem;color:#475569;margin-bottom:16px;">
+                Hi {customer_name}, unfortunately your order <strong>{order.order_number}</strong>
+                could not be fulfilled at this time.
+            </p>
+            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin:16px 0;">
+                <p style="margin:0;font-weight:600;color:#991b1b;">Reason:</p>
+                <p style="margin:8px 0 0;color:#7f1d1d;">{reason}</p>
+            </div>
+            <p style="color:#475569;font-size:0.9rem;">
+                If you have any questions, please contact us. We apologise for any inconvenience.
+            </p>
+        </div>
+        <div style="background:#f8fafc;padding:16px;text-align:center;color:#94a3b8;font-size:0.82rem;border-top:1px solid #e2e8f0;">
+            Judith Kitchen &mdash; We appreciate your patience
+        </div>
+    </div>
+    """
+
+    _send_email(
+        to_email=customer_email,
+        to_name=customer_name,
+        subject=f"Your Order {order.order_number} — Update",
+        html_content=html_content
+    )

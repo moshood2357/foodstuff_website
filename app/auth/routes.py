@@ -230,9 +230,18 @@ def reset_password(token):
 @auth_bp.route("/convert-guest", methods=["POST"])
 def convert_guest():
 
-    email = request.form.get("email")
-    password = request.form.get("password")
-    name = request.form.get("name")
+    email    = request.form.get("email", "").strip()
+    password = request.form.get("password", "").strip()
+    name     = request.form.get("name", "").strip()
+
+    if not email or not password or not name:
+        flash("All fields are required.", "danger")
+        return redirect(request.referrer or url_for("main.home"))
+
+    # split name into first and last
+    parts      = name.split(" ", 1)
+    first_name = parts[0]
+    last_name  = parts[1] if len(parts) > 1 else parts[0]
 
     # check if user already exists
     user = User.query.filter_by(email=email).first()
@@ -243,6 +252,8 @@ def convert_guest():
 
     # create new user from guest
     new_user = User(
+        first_name=first_name,
+        last_name=last_name,
         username=name,
         email=email,
         password_hash=ph.hash(password)
@@ -251,7 +262,7 @@ def convert_guest():
     db.session.add(new_user)
     db.session.commit()
 
-    # IMPORTANT: merge guest cart into new user
+    # merge guest cart into new user
     merge_guest_to_user(new_user)
 
     login_user(new_user)

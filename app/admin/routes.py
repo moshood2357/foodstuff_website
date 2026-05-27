@@ -203,12 +203,13 @@ def orders():
 @login_required
 def update_order_status(id):
     from flask import request, jsonify
-    from app.utils.email import send_order_confirmation_customer
+    from app.utils.email import send_order_confirmation_customer, send_order_rejected_customer
 
-    order = Order.query.get_or_404(id)
-    data  = request.get_json()
+    order     = Order.query.get_or_404(id)
+    data      = request.get_json()
     status    = data.get("status")
     prep_time = data.get("prep_time")
+    reason    = data.get("rejection_reason", "").strip()
 
     print(f"update_order_status called: order={id}, status={status}, prep_time={prep_time}")
 
@@ -217,6 +218,9 @@ def update_order_status(id):
 
         if prep_time:
             order.prep_time = int(prep_time)
+
+        if status == "cancelled" and reason:
+            order.rejection_reason = reason
 
         db.session.commit()
         print(f"DB commit successful for order {id}")
@@ -227,6 +231,13 @@ def update_order_status(id):
                 print(f"Customer email sent for order {id}")
             except Exception as e:
                 print(f"Customer email failed: {e}")
+
+        if status == "cancelled" and reason:
+            try:
+                send_order_rejected_customer(order, reason)
+                print(f"Rejection email sent for order {id}")
+            except Exception as e:
+                print(f"Rejection email failed: {e}")
 
         print(f"Returning success for order {id}")
         return jsonify({"success": True})

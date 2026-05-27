@@ -1,3 +1,4 @@
+import re
 import uuid
 import stripe
 import traceback
@@ -21,6 +22,16 @@ from app.ecommerce.checkout import checkout_bp
 
 from app.utils.helpers import get_user_key
 from app.utils.email import send_order_notification
+
+
+# =========================
+# EMAIL VALIDATOR
+# =========================
+def is_valid_email(email):
+    if not email:
+        return False
+    return bool(re.match(r"[^@]+@[^@]+\.[^@]+", email.strip()))
+
 
 # =========================
 # HELPER (GUEST SAFE)
@@ -103,14 +114,14 @@ def details():
                 ) if guest_email else None
 
             if previous:
-                draft.full_name = previous.full_name
-                draft.email = previous.email
-                draft.phone = previous.phone
-                draft.address_line_1 = previous.address_line_1
-                draft.address_line_2 = previous.address_line_2
-                draft.city = previous.city
-                draft.state = previous.state
-                draft.postal_code = previous.postal_code
+                draft.full_name        = previous.full_name
+                draft.email            = previous.email
+                draft.phone            = previous.phone
+                draft.address_line_1   = previous.address_line_1
+                draft.address_line_2   = previous.address_line_2
+                draft.city             = previous.city
+                draft.state            = previous.state
+                draft.postal_code      = previous.postal_code
                 db.session.commit()
 
     # =========================
@@ -119,15 +130,18 @@ def details():
     if request.method == "POST":
 
         draft.full_name = request.form.get("full_name")
-        draft.email = request.form.get("email")
-        draft.phone = request.form.get("phone")
 
+        # only save email if it looks valid
+        submitted_email = request.form.get("email", "").strip()
+        if is_valid_email(submitted_email):
+            draft.email = submitted_email
+
+        draft.phone          = request.form.get("phone")
         draft.address_line_1 = request.form.get("address_line_1")
         draft.address_line_2 = request.form.get("address_line_2")
-        draft.city = request.form.get("city")
-        draft.state = request.form.get("state")
-        draft.postal_code = request.form.get("postal_code")
-
+        draft.city           = request.form.get("city")
+        draft.state          = request.form.get("state")
+        draft.postal_code    = request.form.get("postal_code")
         draft.delivery_method = request.form.get("delivery_method")
 
         same_as_delivery = request.form.get("same_as_delivery") == "on"
@@ -136,32 +150,31 @@ def details():
         if same_as_delivery:
             draft.billing_address_line_1 = draft.address_line_1
             draft.billing_address_line_2 = draft.address_line_2
-            draft.billing_city = draft.city
-            draft.billing_state = draft.state
-            draft.billing_postcode = draft.postal_code
+            draft.billing_city           = draft.city
+            draft.billing_state          = draft.state
+            draft.billing_postcode       = draft.postal_code
         else:
             draft.billing_address_line_1 = request.form.get("billing_address_line_1")
             draft.billing_address_line_2 = request.form.get("billing_address_line_2")
-            draft.billing_city = request.form.get("billing_city")
-            draft.billing_state = request.form.get("billing_state")
-            draft.billing_postcode = request.form.get("billing_postcode")
+            draft.billing_city           = request.form.get("billing_city")
+            draft.billing_state          = request.form.get("billing_state")
+            draft.billing_postcode       = request.form.get("billing_postcode")
 
         subtotal = sum(item.quantity * float(item.unit_price) for item in cart.items)
-
         shipping = subtotal * 0.10 if draft.delivery_method == "express" else subtotal * 0.05
-        tax = subtotal * 0.05
+        tax      = subtotal * 0.05
 
-        draft.subtotal = subtotal
+        draft.subtotal     = subtotal
         draft.shipping_fee = shipping
-        draft.tax  = tax
-        draft.total = subtotal + shipping + tax
+        draft.tax          = tax
+        draft.total        = subtotal + shipping + tax
 
         db.session.commit()
 
         return redirect(url_for("checkout.summary"))
 
     products = {item.product_id: item.product for item in cart.items}
-    total = sum(item.quantity * float(item.unit_price) for item in cart.items)
+    total    = sum(item.quantity * float(item.unit_price) for item in cart.items)
 
     return render_template(
         "checkout/details.html",
@@ -170,6 +183,8 @@ def details():
         products=products,
         cart_total=total
     )
+
+
 # =========================
 # SUMMARY
 # =========================
@@ -201,14 +216,13 @@ def summary():
     products = {item.product_id: item.product for item in cart.items}
 
     subtotal = sum(item.quantity * float(item.unit_price) for item in cart.items)
-
     shipping = subtotal * 0.10 if draft.delivery_method == "express" else subtotal * 0.05
-    tax = subtotal * 0.05
+    tax      = subtotal * 0.05
 
-    draft.subtotal = subtotal
+    draft.subtotal     = subtotal
     draft.shipping_fee = shipping
-    draft.tax = tax
-    draft.total = subtotal + shipping + tax
+    draft.tax          = tax
+    draft.total        = subtotal + shipping + tax
 
     db.session.commit()
 
@@ -252,6 +266,13 @@ def pay():
     try:
         amount = int(draft.total * 100)
 
+        # only pass email to Stripe if it's valid
+        customer_email = draft.email if is_valid_email(draft.email) else None
+
+        # for logged-in users, always use their account email
+        if current_user.is_authenticated:
+            customer_email = current_user.email
+
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             mode="payment",
@@ -270,12 +291,12 @@ def pay():
             success_url=url_for("checkout.success", _external=True),
             cancel_url=url_for("checkout.summary", _external=True),
 
-            customer_email=draft.email,
+            customer_email=customer_email,
 
             metadata={
                 "checkout_id": str(checkout_id),
-                "user_id": str(identity["id"]) if identity["type"] == "user" else "",
-                "guest_key": session.get("user_key", "")
+                "user_id":     str(identity["id"]) if identity["type"] == "user" else "",
+                "guest_key":   session.get("user_key", "")
             }
         )
 
@@ -304,7 +325,6 @@ def success():
         )
 
     else:
-        # guest flow
         guest_email = session.get("guest_email")
         order = Order.query.filter_by(guest_email=guest_email)\
             .order_by(Order.id.desc()).first()
@@ -323,18 +343,13 @@ def success():
 @csrf.exempt
 def stripe_webhook():
 
-    payload = request.data
+    payload    = request.data
     sig_header = request.headers.get("Stripe-Signature")
     endpoint_secret = current_app.config["STRIPE_WEBHOOK_SECRET"]
 
-    # =====================================================
-    # VERIFY STRIPE SIGNATURE
-    # =====================================================
     try:
         event = stripe.Webhook.construct_event(
-            payload,
-            sig_header,
-            endpoint_secret
+            payload, sig_header, endpoint_secret
         )
 
     except ValueError:
@@ -349,26 +364,17 @@ def stripe_webhook():
         current_app.logger.error(traceback.format_exc())
         return "Webhook verification failed", 400
 
-    # =====================================================
-    # HANDLE EVENT
-    # =====================================================
     try:
 
-        # =================================================
-        # CHECKOUT SUCCESS
-        # =================================================
         if event["type"] == "checkout.session.completed":
 
             session_obj = event["data"]["object"]
-            metadata = session_obj.to_dict().get("metadata") or {}
+            metadata    = session_obj.to_dict().get("metadata") or {}
 
             checkout_id = metadata.get("checkout_id")
-            user_id = metadata.get("user_id")
-            guest_key = metadata.get("guest_key")
+            user_id     = metadata.get("user_id")
+            guest_key   = metadata.get("guest_key")
 
-            # =============================================
-            # VALIDATE CHECKOUT ID
-            # =============================================
             if not checkout_id:
                 current_app.logger.error("Missing checkout_id")
                 return "missing checkout id", 200
@@ -379,31 +385,20 @@ def stripe_webhook():
                 current_app.logger.error("Invalid checkout_id")
                 return "invalid checkout id", 200
 
-            # =============================================
-            # PREVENT DUPLICATE PROCESSING
-            # =============================================
             existing_payment = Payment.query.filter_by(
-                reference=session_obj.id  #  fixed
+                reference=session_obj.id
             ).first()
 
             if existing_payment:
                 current_app.logger.info("Webhook already processed")
                 return "already processed", 200
 
-            # =============================================
-            # GET DRAFT
-            # =============================================
-            draft = CheckoutDraft.query.filter_by(
-                id=checkout_id
-            ).first()
+            draft = CheckoutDraft.query.filter_by(id=checkout_id).first()
 
             if not draft:
                 current_app.logger.error("Draft not found")
                 return "draft not found", 200
 
-            # =============================================
-            # CREATE ADDRESS
-            # =============================================
             address = Address(
                 user_id=int(user_id) if user_id else None,
                 full_name=draft.full_name or "",
@@ -419,9 +414,9 @@ def stripe_webhook():
             db.session.add(address)
             db.session.flush()
 
-            # =============================================
-            # CREATE ORDER
-            # =============================================
+            # use draft email only if valid
+            guest_email_to_save = draft.email if is_valid_email(draft.email) else None
+
             order = Order(
                 user_id=int(user_id) if user_id else None,
                 address_id=address.id,
@@ -433,31 +428,22 @@ def stripe_webhook():
                 total_amount=draft.total,
                 status=OrderStatus.processing,
                 payment_status=PaymentStatus.paid,
-                guest_email=draft.email if not user_id else None,
+                guest_email=guest_email_to_save if not user_id else None,
             )
 
             db.session.add(order)
             db.session.flush()
 
-            # =============================================
-            # CART ITEMS
-            # =============================================
             try:
-                cart_items = json.loads(
-                    draft.cart_snapshot or "[]"
-                )
+                cart_items = json.loads(draft.cart_snapshot or "[]")
             except json.JSONDecodeError:
                 current_app.logger.error("Invalid cart snapshot JSON")
                 cart_items = []
 
-            # =============================================
-            # CREATE ORDER ITEMS
-            # =============================================
             for item in cart_items:
-
                 product_id = item.get("product_id")
-                quantity = item.get("quantity", 1)
-                price = item.get("price", 0)
+                quantity   = item.get("quantity", 1)
+                price      = item.get("price", 0)
 
                 if not product_id:
                     continue
@@ -470,76 +456,48 @@ def stripe_webhook():
                     product_name=item.get("name", ""),
                     product_image=item.get("image", ""),
                 )
-
                 db.session.add(order_item)
 
-            # =============================================
-            # CREATE PAYMENT
-            # =============================================
             payment = Payment(
                 order_id=order.id,
                 payment_method="stripe",
-                transaction_id=session_obj.payment_intent,  #  fixed
+                transaction_id=session_obj.payment_intent,
                 amount=draft.total,
                 status=PaymentStatus.paid,
-                reference=session_obj.id,                   #  fixed
+                reference=session_obj.id,
                 paid_at=datetime.utcnow(),
             )
-
             db.session.add(payment)
 
-            # =============================================
-            # CLEAR CART
-            # =============================================
             cart = None
-
             if user_id:
                 try:
-                    cart = Cart.query.filter_by(
-                        user_id=int(user_id)
-                    ).first()
+                    cart = Cart.query.filter_by(user_id=int(user_id)).first()
                 except (ValueError, TypeError):
                     cart = None
-
             elif guest_key:
-                cart = Cart.query.filter_by(
-                    user_key=guest_key
-                ).first()
+                cart = Cart.query.filter_by(user_key=guest_key).first()
 
             if cart:
-                db.session.query(CartItem).filter_by(
-                    cart_id=cart.id
-                ).delete()
+                db.session.query(CartItem).filter_by(cart_id=cart.id).delete()
 
-            # =============================================
-            # KEEP CHECKOUT DRAFT
-            # =======================================
-            draft.completed = True
+            draft.completed    = True
             draft.completed_at = datetime.utcnow()
-            # =============================================
-            # COMMIT TRANSACTION
-            # =============================================
+
             db.session.commit()
 
-            # after db.session.commit()
-            
             try:
                 send_order_notification(order)
             except Exception:
                 current_app.logger.error("Email notification failed")
                 current_app.logger.error(traceback.format_exc())
 
-            current_app.logger.info(f"Stripe order created successfully: {order.order_number}")
+            current_app.logger.info(f"Stripe order created: {order.order_number}")
 
-        # =================================================
-        # SUCCESS RESPONSE
-        # =================================================
         return "success", 200
 
     except Exception:
         db.session.rollback()
-
         current_app.logger.error("Stripe webhook processing failed")
         current_app.logger.error(traceback.format_exc())
-
         return "server error", 500

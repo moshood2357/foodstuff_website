@@ -224,6 +224,8 @@ class Order(db.Model):
     timer_status    = db.Column(db.String(20), default="pending")  # pending, running, completed
       
     guest_email = db.Column(db.String(120))
+    
+    rejection_reason = db.Column(db.Text, nullable=True)
 
     # relationships
     address = db.relationship("Address", backref="orders")

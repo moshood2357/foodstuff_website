@@ -150,6 +150,17 @@
     #billingSection {
         margin-top: 15px;
     }
+
+    .error-msg {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #ef4444;
+}
+
+.input-error {
+    border: 1px solid #ef4444 !important;
+}
 </style>
 
 <div class="checkout-page">
@@ -164,11 +175,18 @@
 
                 <!-- CONTACT -->
                 <div class="input-grid mb-3">
-                    <input name="full_name" value="{{ draft.full_name or '' }}" placeholder="Full Name" required>
-                    
-                    <input name="email" value="{{ draft.email or '' }}" placeholder="Email" required>
-                    
-                    <input name="phone" value="{{ draft.phone or '' }}" placeholder="Phone Number" class= "full" required>                
+                    <div class="">
+                        <input type="text" id='name' name="full_name" value="{{ draft.full_name or '' }}" placeholder="Full Name" required>
+                        <small class="error-msg" id="nameError"></small>
+                    </div>
+                    <div class="">
+                        <input  type = 'email' id="email" name="email" value="{{ draft.email or '' }}" placeholder="Email" required>
+                        <small class="error-msg" id="emailError"></small>
+                    </div>
+                    <div class="full">
+                        <input type="tel" name="phone" id="phone" value="{{ draft.phone or '' }}" placeholder="Phone Number" class= "full" required>
+                        <small class="error-msg" id="phoneError"></small>
+                    </div>
                 </div>
 
                 <!-- ADDRESS -->
@@ -324,6 +342,18 @@
     });
 
 
+        function validatePhone(phone) {
+            return /^[0-9+\s-]{7,15}$/.test(phone);
+        }
+
+        function showError(id, message) {
+            document.getElementById(id).innerText = message;
+        }
+
+        function clearErrors() {
+            document.querySelectorAll(".error-msg").forEach(el => el.innerText = "");
+        }
+
     async function saveDraft() {
             const payload = {
                 full_name: document.querySelector('[name="full_name"]').value,
@@ -356,6 +386,70 @@
                 console.log("Draft save failed");
             }
         }
+
+        document.querySelector("form").addEventListener("submit", function (e) {
+                clearErrors();
+
+                let valid = true;
+
+                const emailEl = document.getElementById("email");
+                const phoneEl = document.getElementById("phone");
+                const nameEl = document.querySelector('[name="full_name"]');
+
+                const email = emailEl?.value.trim() || "";
+                const phone = phoneEl?.value.trim() || "";
+                const name = nameEl?.value.trim() || "";
+
+                document.querySelectorAll("input:not([type='hidden']), select, textarea").forEach(el => {
+                el.classList.remove("input-error");
+            });
+
+                if (!name) {
+                    showError("nameError", "Full name is required");
+                    nameEl.classList.add("input-error");
+                    valid = false;
+                }
+
+                if (!validateEmail(email)) {
+                    showError("emailError", "Incorrect email address");
+                    emailEl.classList.add("input-error")
+                    valid = false;
+                }
+
+                if (!validatePhone(phone)) {
+                    showError("phoneError", "Invalid phone number");
+                    phoneEl.classList.add("input-error");
+                    valid = false;
+                }
+
+                if (!valid) {
+                    e.preventDefault();
+                }
+            });
+
+            // =========================
+                // CLEAR ERRORS ON INPUT
+                // =========================
+                document.getElementById("email").addEventListener("input", function () {
+                    if (validateEmail(this.value.trim())) {
+                        showError("emailError", "");
+                        this.classList.remove("input-error");
+                    }
+                });
+
+                document.getElementById("phone").addEventListener("input", function () {
+                    if (validatePhone(this.value.trim())) {
+                        showError("phoneError", "");
+                        this.classList.remove("input-error");
+                    }
+                });
+
+                document.querySelector('[name="full_name"]').addEventListener("input", function () {
+                    if (this.value.trim()) {
+                        showError("nameError", "");
+                        this.classList.remove("input-error");
+                    }
+                });
 </script>
 
 {% endblock %}

@@ -174,17 +174,18 @@
 
         <form method="POST" action="{{ url_for('auth.convert_guest') }}" style="margin-bottom:20px;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
+            <input type="hidden" name="email" value="{{ guest_email }}">
+        
             <input type="text" name="name" placeholder="Your name" required
                 style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #117843;">
-
+        
             <input type="password" name="password" placeholder="Create password" required
                 style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #117843;">
-
-            <button class="" style="width:100%; border-radius: 8px; padding: 14px; cursor: pointer; border: 1px solid #22c55e; color: #22c55e; font-weight: 600; font-size: 15px; transition: all 0.3s ease;">
+        
+            <button
+                style="width:100%; border-radius: 8px; padding: 14px; cursor: pointer; border: 1px solid #22c55e; color: #22c55e; font-weight: 600; font-size: 15px; transition: all 0.3s ease;">
                 Create Account
-            </button>
-        </form>
+            </button> </form>
         {% endif %}
 
         <!-- BUTTONS -->
