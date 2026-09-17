@@ -17,14 +17,25 @@
 
         <div class="status-card">
             <span class="label">Order Status</span>
-            <select class="status-dropdown {{ order.status.value }}" data-order-id="{{ order.id }}"
-                onchange="updateOrderStatus(this)">
-                <option value="processing" {% if order.status.value=='processing' %}selected{% endif %}>Processing
-                </option>
-                <option value="shipped" {% if order.status.value=='shipped' %}selected{% endif %}>Shipped</option>
-                <option value="delivered" {% if order.status.value=='delivered' %}selected{% endif %}>Delivered</option>
-                <option value="cancelled" {% if order.status.value=='cancelled' %}selected{% endif %}>Cancelled</option>
-            </select>
+            <select class="status-dropdown {{ order.status.value if order.status else 'new' }}" data-order-id="{{ order.id }}"
+    onchange="updateOrderStatus(this)">
+    <option value="new" {% if order.status and order.status.value=='new' %}selected{% endif %}>New</option>
+    <option value="payment_confirmed" {% if order.status and order.status.value=='payment_confirmed' %}selected{% endif %}>Payment Confirmed</option>
+    <option value="processing" {% if order.status and order.status.value=='processing' %}selected{% endif %}>Processing</option>
+    <option value="picking" {% if order.status and order.status.value=='picking' %}selected{% endif %}>Picking</option>
+    <option value="picked" {% if order.status and order.status.value=='picked' %}selected{% endif %}>Picked</option>
+    <option value="packed" {% if order.status and order.status.value=='packed' %}selected{% endif %}>Packed</option>
+    <option value="ready_for_dispatch" {% if order.status and order.status.value=='ready_for_dispatch' %}selected{% endif %}>Ready for Dispatch</option>
+    <option value="dispatched" {% if order.status and order.status.value=='dispatched' %}selected{% endif %}>Dispatched</option>
+    <option value="delivered" {% if order.status and order.status.value=='delivered' %}selected{% endif %}>Delivered</option>
+    <option value="completed" {% if order.status and order.status.value=='completed' %}selected{% endif %}>Completed</option>
+    <option value="on_hold" {% if order.status and order.status.value=='on_hold' %}selected{% endif %}>On Hold</option>
+    <option value="cancelled" {% if order.status and order.status.value=='cancelled' %}selected{% endif %}>Cancelled</option>
+    <option value="refunded" {% if order.status and order.status.value=='refunded' %}selected{% endif %}>Refunded</option>
+    <option value="returned" {% if order.status and order.status.value=='returned' %}selected{% endif %}>Returned</option>
+    <option value="payment_failed" {% if order.status and order.status.value=='payment_failed' %}selected{% endif %}>Payment Failed</option>
+    <option value="out_of_stock" {% if order.status and order.status.value=='out_of_stock' %}selected{% endif %}>Out of Stock</option>
+</select>
         </div>
 
         <div class="status-card">

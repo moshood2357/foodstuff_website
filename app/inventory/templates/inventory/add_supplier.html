@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .inv-page {
+        padding: 90px 24px 40px;
+        max-width: 700px;
+        margin: auto;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 28px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .full {
+        grid-column: span 2;
+    }
+
+    label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: 6px;
+    }
+
+    input,
+    textarea {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        font-family: inherit;
+    }
+
+    input:focus,
+    textarea:focus {
+        border-color: #22c55e;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: #22c55e;
+        color: #fff;
+    }
+
+    .btn-outline {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        color: #374151;
+    }
+</style>
+
+<div class="inv-page">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h1 style="font-size:22px;font-weight:800;color:#0f172a;">+ Add Supplier</h1>
+        <a href="{{ url_for('inventory.suppliers') }}" class="btn btn-outline">← Back</a>
+    </div>
+
+    <div class="card">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+                <div class="full">
+                    <label>Company Name *</label>
+                    <input type="text" name="name" required placeholder="e.g. African Foods Wholesale Ltd">
+                </div>
+                <div>
+                    <label>Contact Person</label>
+                    <input type="text" name="contact_name" placeholder="Full name">
+                </div>
+                <div>
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="supplier@example.com">
+                </div>
+                <div>
+                    <label>Phone</label>
+                    <input type="tel" name="phone" placeholder="+44 ...">
+                </div>
+                <div>
+                    <label>Website</label>
+                    <input type="url" name="website" placeholder="https://...">
+                </div>
+                <div>
+                    <label>Lead Time (days)</label>
+                    <input type="number" name="lead_time_days" min="1" value="7">
+                </div>
+                <div class="full">
+                    <label>Address</label>
+                    <textarea name="address" rows="3" placeholder="Full address"></textarea>
+                </div>
+                <div class="full">
+                    <label>Notes</label>
+                    <textarea name="notes" rows="3" placeholder="Any additional notes..."></textarea>
+                </div>
+            </div>
+            <div style="display:flex;gap:12px;margin-top:24px;">
+                <button type="submit" class="btn btn-primary">Save Supplier</button>
+                <a href="{{ url_for('inventory.suppliers') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

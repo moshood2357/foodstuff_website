@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Receipt — {{ order.order_number }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            width: 80mm;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 8px 0;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin: 3px 0;
+        }
+
+        .store-name {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .total-row {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .thank-you {
+            margin-top: 12px;
+            font-size: 11px;
+        }
+
+        @media print {
+            body {
+                width: 80mm;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="center">
+        <div class="store-name">JUDITH ETHNIC STORE</div>
+        <div>311 High Street, Cheltenham</div>
+        <div>GL50 3HW</div>
+        <div>Tel: +44 7306 011093</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row">
+        <span>Receipt:</span>
+        <span>{{ order.order_number }}</span>
+    </div>
+    <div class="row">
+        <span>Date:</span>
+        <span>{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+    </div>
+    <div class="row">
+        <span>Staff:</span>
+        <span>{{ order.staff.first_name }} {{ order.staff.last_name }}</span>
+    </div>
+    {% if order.customer_name %}
+    <div class="row">
+        <span>Customer:</span>
+        <span>{{ order.customer_name }}</span>
+    </div>
+    {% endif %}
+
+    <div class="divider"></div>
+
+    {% for item in order.items %}
+    <div class="row">
+        <span>{{ item.product_name[:24] }}</span>
+        <span>£{{ "%.2f"|format(item.total_price) }}</span>
+    </div>
+    <div style="color:#555; padding-left:4px;">
+        {{ item.quantity }} x £{{ "%.2f"|format(item.unit_price) }}
+    </div>
+    {% endfor %}
+
+    <div class="divider"></div>
+
+    <div class="row">
+        <span>Subtotal</span>
+        <span>£{{ "%.2f"|format(order.subtotal) }}</span>
+    </div>
+    {% if order.discount > 0 %}
+    <div class="row">
+        <span>Discount</span>
+        <span>-£{{ "%.2f"|format(order.discount) }}</span>
+    </div>
+    {% endif %}
+    <div class="row total-row">
+        <span>TOTAL</span>
+        <span>£{{ "%.2f"|format(order.total_amount) }}</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row">
+        <span>Payment</span>
+        <span>{{ order.payment_method | upper }}</span>
+    </div>
+    {% if order.payment_method == 'cash' %}
+    <div class="row">
+        <span>Tendered</span>
+        <span>£{{ "%.2f"|format(order.amount_tendered) }}</span>
+    </div>
+    <div class="row">
+        <span>Change</span>
+        <span>£{{ "%.2f"|format(order.change_given) }}</span>
+    </div>
+    {% endif %}
+
+    <div class="divider"></div>
+
+    <div class="center thank-you">
+        <div>Thank you for shopping with us!</div>
+        <div>judithethnicstore.co.uk</div>
+    </div>
+
+    <div class="no-print" style="margin-top:20px; text-align:center;">
+        <button onclick="window.print()"
+            style="padding:10px 24px; background:#22c55e; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:700;">
+            🖨️ Print Receipt
+        </button>
+        <button onclick="window.close()"
+            style="padding:10px 24px; background:#334155; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:14px; margin-left:8px;">
+            Close
+        </button>
+    </div>
+
+    <script>
+        window.onload = () => window.print();
+    </script>
+
+</body>
+
+</html>

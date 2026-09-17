@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Legal Notices — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Legal notices for judithethnicstore.co.uk — company information, copyright, customer rights, product information disclaimer, and external links.{% endblock %}
+
+{% block content %}
+<section class="hero hero--sub mt-5" aria-labelledby="page-title">
+  <div style="position:relative;z-index:1;text-align:center;">
+    <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+      <i class="fa-solid fa-gavel" aria-hidden="true"></i> Legal &amp; Policies
+    </p>
+    <h1 class="hero__title" id="page-title">Legal Notices</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:760px;margin:0 auto;">
+    <div class="policy-body">
+
+      <div class="policy-section">
+        <h2 class="policy-section__title">Company Information</h2>
+        <address style="font-style:normal;line-height:2;">
+          <strong>Judith Ethnic Food Store Ltd</strong><br>
+          Registered in England &amp; Wales<br>
+          Registered Office: 311 High Street, Cheltenham, England, GL50 3HW<br>
+          <a href="tel:07306011093">07306 011093</a><br>
+          <a href="mailto:info@judithethnicstore.co.uk">info@judithethnicstore.co.uk</a><br>
+          <a href="https://judithethnicstore.co.uk" target="_blank" rel="noopener">judithethnicstore.co.uk</a>
+        </address>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title">Copyright Notice</h2>
+        <p>&copy; 2026 Judith Ethnic Food Store Ltd. All rights reserved.</p>
+        <p style="margin-top:12px;">All content on this website — including text, images, logos, graphics, product descriptions, website design, and software — is licensed to Judith Ethnic Food Store Ltd. Unauthorised use, reproduction, or distribution of any content is prohibited without written permission.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title">Customer Rights Notice</h2>
+        <p>Nothing on this website affects your statutory rights as a consumer under UK law. Customers have legal protections relating to product quality, product description, product suitability, and online purchases.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title">Website Accuracy</h2>
+        <p>We aim to ensure that information displayed on our website is accurate and up to date. However:</p>
+        <ul>
+          <li>product availability may change;</li>
+          <li>manufacturers may update packaging or ingredients;</li>
+          <li>images may differ slightly from actual products;</li>
+          <li>prices may change due to supplier or market changes.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title">Product Information Disclaimer</h2>
+        <p>Customers should always check product packaging before consumption, particularly where they have allergies, dietary requirements, or specific health considerations. While we aim to provide accurate information, final responsibility for checking ingredients and suitability rests with the customer.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title">External Links Disclaimer</h2>
+        <p>Our website may contain links to third-party websites provided for convenience only. Judith Ethnic Food Store Ltd is not responsible for third-party content, external website availability, third-party privacy practices, or services provided by external websites.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title">Website Availability</h2>
+        <p>We aim to keep our website available and operating correctly. However, we cannot guarantee uninterrupted access due to maintenance, technical issues, internet service interruptions, or circumstances beyond our control.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title">Website Policy Links</h2>
+        <p>You can view our full policies here:</p>
+        <ul>
+          <li><a href="{{ url_for('main.terms') }}">Terms &amp; Conditions</a></li>
+          <li><a href="{{ url_for('main.terms_of_sale') }}">Terms of Sale</a></li>
+          <li><a href="{{ url_for('main.cookie_policy') }}">Cookie Policy</a></li>
+          <li><a href="{{ url_for('main.delivery_policy') }}">Delivery Policy</a></li>
+          <li><a href="{{ url_for('main.click_and_collect_policy') }}">Click &amp; Collect Policy</a></li>
+          <li><a href="{{ url_for('main.returns_policy') }}">Returns &amp; Refund Policy</a></li>
+          <li><a href="{{ url_for('main.allergy_policy') }}">Allergy Policy</a></li>
+          <li><a href="{{ url_for('main.complaints') }}">Complaints Procedure</a></li>
+          <li><a href="{{ url_for('main.accessibility') }}">Accessibility Statement</a></li>
+        </ul>
+        <p style="margin-top:12px;font-size:0.85rem;color:var(--slate-500);">Note: update the <code>url_for</code> endpoint names above to match your actual Flask route names.</p>
+      </div>
+
+    </div>
+    <div style="margin-top:48px;padding:32px 24px;background:var(--green-50);border-radius:var(--radius-lg);text-align:center;">
+      <p class="about-eyebrow" style="margin-bottom:8px;">Questions?</p>
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:20px;color:var(--green-800);">Get in touch</h2>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ url_for('main.contact') }}" class="btn btn--primary">Contact Us</a>
+        <a href="mailto:info@judithethnicstore.co.uk" class="btn btn--outline"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Email Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Legal Notices — Judith Ethnic Food Store Ltd","url":"{{ request.url }}","publisher":{"@type":"Organization","name":"Judith Ethnic Food Store Ltd","url":"https://judithethnicstore.co.uk"}}
+</script>
+{% endblock %}

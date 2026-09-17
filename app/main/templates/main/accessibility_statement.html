@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Accessibility Statement — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Our accessibility statement explains how Judith Ethnic Food Store Ltd works to make judithethnicstore.co.uk accessible and easy to use for all customers.{% endblock %}
+
+{% block content %}
+<section class="hero hero--sub mt-5" aria-labelledby="page-title">
+  <div style="position:relative;z-index:1;text-align:center;">
+    <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+      <i class="fa-solid fa-universal-access" aria-hidden="true"></i> Legal &amp; Policies
+    </p>
+    <h1 class="hero__title" id="page-title">Accessibility Statement</h1>
+    <p style="color:var(--green-100);margin-top:8px;font-size:0.9rem;">Effective Date: 1 August 2026</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:760px;margin:0 auto;">
+    <div class="policy-body">
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">1</span> Our Commitment</h2>
+        <p>At Judith Ethnic Food Store Ltd, we are committed to making our website and services accessible and easy to use for all customers. We aim to provide an inclusive shopping experience where customers can access our products and services regardless of ability or circumstances.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">2</span> Accessibility on Our Website</h2>
+        <p>We aim to make <a href="https://judithethnicstore.co.uk" target="_blank" rel="noopener">judithethnicstore.co.uk</a> accessible by following recognised accessibility principles, including:</p>
+        <ul>
+          <li>clear and simple website navigation;</li>
+          <li>readable text and information;</li>
+          <li>clear product descriptions;</li>
+          <li>accessible forms and checkout processes;</li>
+          <li>compatibility with common browsers and devices.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">3</span> Supporting Customers</h2>
+        <p>We understand that customers may have different accessibility needs. We will make reasonable efforts to support customers who require assistance, including:</p>
+        <ul>
+          <li>help placing orders;</li>
+          <li>assistance understanding product information;</li>
+          <li>support with online shopping processes;</li>
+          <li>alternative communication methods where possible.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">4</span> Store Accessibility</h2>
+        <p>We aim to provide a welcoming shopping environment at our physical store. Where reasonably possible, we will support customers by:</p>
+        <ul>
+          <li>assisting customers who need help locating products;</li>
+          <li>providing customer service support;</li>
+          <li>responding to accessibility requests;</li>
+          <li>helping customers complete purchases.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">5</span> Accessibility Features</h2>
+        <p>Depending on available website technology, our website may include features such as:</p>
+        <ul>
+          <li>adjustable text size through browser settings;</li>
+          <li>keyboard navigation support;</li>
+          <li>clear headings and page structure;</li>
+          <li>readable colour contrast;</li>
+          <li>mobile-friendly design.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">6</span> Third-Party Services</h2>
+        <p>Some parts of our website may use third-party services, such as payment providers, delivery services, mapping services, and social media platforms. We cannot always control the accessibility of third-party services but encourage providers to maintain accessible experiences.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">7</span> Feedback and Accessibility Requests</h2>
+        <p>We welcome feedback from customers who experience accessibility difficulties. If you cannot access part of our website, need information in another format, require assistance completing an order, or have suggestions for improvement, please <a href="{{ url_for('main.contact') }}">contact us</a>.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">8</span> Contact Us</h2>
+        <address style="font-style:normal;line-height:2;">
+          <strong>Judith Ethnic Food Store Ltd</strong><br>
+          311 High Street, Cheltenham, England, GL50 3HW<br>
+          <a href="tel:07306011093">07306 011093</a><br>
+          <a href="mailto:info@judithethnicstore.co.uk">info@judithethnicstore.co.uk</a>
+        </address>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">9</span> Reviewing This Statement</h2>
+        <p>We may update this Accessibility Statement as our website and services develop. We will review accessibility improvements regularly and aim to provide the best possible experience for all customers.</p>
+      </div>
+
+    </div>
+    <div style="margin-top:48px;padding:32px 24px;background:var(--green-50);border-radius:var(--radius-lg);text-align:center;">
+      <p class="about-eyebrow" style="margin-bottom:8px;">Need assistance?</p>
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:20px;color:var(--green-800);">We're here to help</h2>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ url_for('main.contact') }}" class="btn btn--primary">Contact Us</a>
+        <a href="mailto:info@judithethnicstore.co.uk" class="btn btn--outline"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Email Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Accessibility Statement — Judith Ethnic Food Store Ltd","url":"{{ request.url }}","publisher":{"@type":"Organization","name":"Judith Ethnic Food Store Ltd","url":"https://judithethnicstore.co.uk"}}
+</script>
+{% endblock %}

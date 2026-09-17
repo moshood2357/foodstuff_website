@@ -1,185 +1,150 @@
 {% extends "base.html" %}
 
+{% block title %}Shop — Authentic Ethnic Groceries | Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Browse our full range of authentic African and ethnic groceries. Fresh produce, pantry staples, drinks and more. Order online for fast delivery in Cheltenham.{% endblock %}
+
 {% block content %}
 
-<!-- ================= HERO (MATCH HOMEPAGE STYLE) ================= -->
-<section class="hero-section shop-hero">
-    <div class="hero-content">
-        <h1>Order Hot, Fresh Meals</h1>
-        <p>Delicious Traditional dishes, Freshly cooked and ready for delivery - fast,tasty, and satisfying</p>
-    </div>
+<!-- Hero -->
+<section class="mt-5 hero hero--sub" aria-labelledby="shop-title">
+  <div style="position:relative;z-index:1;text-align:center;">
+    <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+      <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i> All Products
+    </p>
+    <h1 class="hero__title" id="shop-title">Our Products</h1>
+    <p style="opacity:.8;max-width:480px;margin:0 auto;font-size:1rem;">
+      Fresh, authentic, and sourced with care — browse our full range.
+    </p>
+  </div>
 </section>
 
-<!-- ================= SHOP WRAPPER ================= -->
-<section class="shop-wrapper container">
+<!-- Shop Layout -->
+<div class="shop-layout">
 
-    <!-- ================= FILTER BAR ================= -->
-    <div class="shop-filters">
-        <form method="GET" action="{{ url_for('main.shop') }}" class="d-flex gap-2 flex-wrap">
+  <!-- ── Sidebar filters ── -->
+  <aside class="shop-sidebar" aria-label="Product filters">
+    <h2>Filters</h2>
 
-            <!-- CATEGORY -->
-            <select class="filter-select" name="category" onchange="this.form.submit()">
-                <option value="">All Categories</option>
-    
-                {% for category in categories %}
-                <option value="{{ category.id }}"
-                    {% if selected_category == category.id %}selected{% endif %}>
-                    {{ category.name }}
-                </option>
-                {% endfor %}
-            </select>
-    
-            <!-- SORT -->
-            <select class="filter-select" name="sort" onchange="this.form.submit()">
-    
-                <option value="">Sort By</option>
-    
-                <option value="newest"
-                    {% if selected_sort == "newest" %}selected{% endif %}>
-                    Newest
-                </option>
-    
-                <option value="low_high"
-                    {% if selected_sort == "low_high" %}selected{% endif %}>
-                    Price: Low to High
-                </option>
-    
-                <option value="high_low"
-                    {% if selected_sort == "high_low" %}selected{% endif %}>
-                    Price: High to Low
-                </option>
-    
-            </select>
-    
-        </form>
-
-    </div>
-
-    <!-- ================= PRODUCTS GRID ================= -->
-    <div class="product-grid">
-
-        {% for product in products.items %}
-        {% include "includes/product_card.html" %}
+    <div class="filter-group" role="group" aria-labelledby="cat-filter-label">
+      <label id="cat-filter-label">Category</label>
+      <form method="GET" action="{{ url_for('main.shop') }}" id="filter-form">
+      
+        <!-- Preserve current sort -->
+        <input type="hidden" name="sort" value="{{ selected_sort or '' }}">
+      
+        <div class="filter-option {% if not selected_category %}active{% endif %}">
+          <input type="radio" name="category" value="" id="cat-all" {% if not selected_category %}checked{% endif %}
+            onchange="document.getElementById('filter-form').submit()">
+      
+          <label for="cat-all" style="cursor:pointer;flex:1;">
+            All Categories
+          </label>
+        </div>
+      
+        {% for category in categories %}
+        <div class="filter-option {% if selected_category == category.id %}active{% endif %}">
+      
+          <input type="radio" name="category" value="{{ category.id }}" id="cat-{{ category.id }}" {% if
+            selected_category==category.id %}checked{% endif %} onchange="document.getElementById('filter-form').submit()">
+      
+          <label for="cat-{{ category.id }}" style="cursor:pointer;flex:1;">
+            {{ category.name }}
+          </label>
+      
+        </div>
         {% endfor %}
+      
+        </form>    
+      </div>
 
+  </aside>
+
+  <!-- ── Main content ── -->
+  <section aria-label="Product listings">
+
+    <!-- Toolbar -->
+    <div class="shop-toolbar">
+      <p class="shop-toolbar__count">
+        {{ products.total }} product{{ 's' if products.total != 1 }}
+        {% if selected_category %} in this category{% endif %}
+      </p>
+      <form method="GET" action="{{ url_for('main.shop') }}" aria-label="Sort products">
+      
+        <input type="hidden" name="category" value="{{ selected_category or '' }}">
+      
+        <label for="sort-select" class="sr-only">
+          Sort by
+        </label>
+      
+        <select id="sort-select" class="filter-select" name="sort" onchange="this.form.submit()">
+      
+          <option value="">Sort By</option>
+      
+          <option value="newest" {% if selected_sort=='newest' %}selected{% endif %}>
+            Newest
+          </option>
+      
+          <option value="low_high" {% if selected_sort=='low_high' %}selected{% endif %}>
+            Price: Low → High
+          </option>
+      
+          <option value="high_low" {% if selected_sort=='high_low' %}selected{% endif %}>
+            Price: High → Low
+          </option>
+      
+        </select>
+      
+      </form>
     </div>
 
-    <!-- ================= PAGINATION ================= -->
-    <div class="pagination">
-
-        {% if products.has_prev %}
-        <a href="{{ url_for('main.shop', page=products.prev_num, category=selected_category, sort=selected_sort) }}" class="page-btn">
-            Prev
-        </a>
-        {% endif %}
-
-        <span class="page-info">
-            Page {{ products.page }} of {{ products.pages }}
-        </span>
-
-        {% if products.has_next %}
-        <a href="{{ url_for('main.shop', page=products.next_num, category=selected_category, sort=selected_sort) }}" class="page-btn">
-            Next
-        </a>
-        {% endif %}
-
+    <!-- Product grid -->
+    {% if products.items %}
+    <div class="product-grid" role="list">
+      {% for product in products.items %}
+      {% include "includes/product_card.html" %}
+      {% endfor %}
     </div>
 
-</section>
+    <!-- Pagination -->
+    <nav class="pagination" aria-label="Product pages">
+      {% if products.has_prev %}
+      <a href="{{ url_for('main.shop', page=products.prev_num, category=selected_category, sort=selected_sort) }}"
+         class="page-btn" aria-label="Previous page">
+        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+      </a>
+      {% endif %}
 
-<!-- ================= STYLES (MATCH HOMEPAGE DESIGN SYSTEM) ================= -->
-<style>
-    /* HERO (MATCH YOUR HOMEPAGE STYLE) */
-    .shop-hero {
-        background: linear-gradient(135deg, #0f172a, #22c55e);
-        color: #fff;
-        padding: 70px 20px;
-        text-align: center;
-    }
+      {% for page_num in products.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {% if page_num %}
+          <a href="{{ url_for('main.shop', page=page_num, category=selected_category, sort=selected_sort) }}"
+             class="page-btn {% if page_num == products.page %}active{% endif %}"
+             aria-label="Page {{ page_num }}"
+             {% if page_num == products.page %}aria-current="page"{% endif %}>
+            {{ page_num }}
+          </a>
+        {% else %}
+          <span class="page-info">…</span>
+        {% endif %}
+      {% endfor %}
 
-    .shop-hero h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-    }
+      {% if products.has_next %}
+      <a href="{{ url_for('main.shop', page=products.next_num, category=selected_category, sort=selected_sort) }}"
+         class="page-btn" aria-label="Next page">
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      {% endif %}
+    </nav>
 
-    .shop-hero p {
-        opacity: 0.85;
-        margin-top: 10px;
-    }
+    {% else %}
+    <div class="empty-state">
+      <i class="fa-solid fa-box-open" aria-hidden="true"></i>
+      <h2>No products found</h2>
+      <p>Try a different category or check back soon.</p>
+      <a href="{{ url_for('main.shop') }}" class="btn btn--primary">View All Products</a>
+    </div>
+    {% endif %}
 
-    /* SHOP WRAPPER */
-    .shop-wrapper {
-        padding: 30px 15px;
-    }
-
-    /* FILTER BAR */
-    .shop-filters {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 25px;
-    }
-
-    .filter-input,
-    .filter-select {
-        padding: 12px 14px;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        outline: none;
-        transition: 0.3s;
-    }
-
-    .filter-input:focus,
-    .filter-select:focus {
-        border-color: #38bdf8;
-        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-    }
-
-    /* PRODUCT GRID (MATCH HOMEPAGE CARDS) */
-    .product-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-        gap: 20px;
-    }
-
-    /* PAGINATION */
-    .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 12px;
-        margin-top: 35px;
-    }
-
-    .page-btn {
-        padding: 8px 14px;
-        border: 1px solid #22c55e;
-        border-radius: 8px;
-        text-decoration: none;
-        color: #0f172a;
-        transition: 0.3s;
-    }
-
-    .page-btn:hover {
-        background: #0f172a;
-        color: #16a34a;
-    }
-
-    .page-info {
-        font-weight: 500;
-   
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-        .shop-filters {
-            flex-direction: column;
-        }
-    }
-</style>
-
-
-
-
+  </section>
+</div>
 
 {% endblock %}

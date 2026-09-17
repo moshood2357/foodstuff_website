@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #f1f5f9; padding: 24px; }
+        h1 { font-size: 22px; font-weight: 700; color: #22c55e; margin-bottom: 24px; }
+        .back { display: inline-block; margin-bottom: 20px; color: #22c55e; text-decoration: none; font-size: 14px; }
+        .back:hover { text-decoration: underline; }
+
+        .flash { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+        .flash.success { background: #0f2d1a; border: 1px solid #22c55e; color: #22c55e; }
+        .flash.warning { background: #2d2a0f; border: 1px solid #f59e0b; color: #f59e0b; }
+        .flash.danger  { background: #2d0f0f; border: 1px solid #ef4444; color: #ef4444; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            background: #334155;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: .06em;
+        }
+        td { padding: 12px 16px; border-bottom: 1px solid #334155; font-size: 14px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #243044; }
+
+        .badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-green  { background: #dcfce7; color: #166534; }
+        .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+        .badge-yellow { background: #fef3c7; color: #92400e; }
+        .badge-gray   { background: #f1f5f9; color: #64748b; }
+
+        select {
+            background: #0f172a;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        select:focus { outline: none; border-color: #22c55e; }
+
+        .btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-save   { background: #22c55e; color: #fff; }
+        .btn-save:hover { background: #16a34a; }
+        .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-delete:hover { background: #fca5a5; }
+
+        .action-col { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+        .you-badge {
+            font-size: 10px;
+            color: #64748b;
+            margin-left: 4px;
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ url_for('pos.till') }}" class="back">← Back to Till</a>
+    <h1>👥 Staff Management</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>POS Role</th>
+                <th>Is Admin</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in staff %}
+            <tr>
+                <td>
+                    {{ user.first_name }} {{ user.last_name }}
+                    {% if user.id == current_user.id %}
+                    <span class="you-badge">(you)</span>
+                    {% endif %}
+                </td>
+                <td style="color:#94a3b8;">{{ user.email }}</td>
+
+                <td>
+                    {% if user.pos_role == 'manager' %}
+                    <span class="badge badge-blue">Manager</span>
+                    {% elif user.pos_role == 'cashier' %}
+                    <span class="badge badge-green">Cashier</span>
+                    {% else %}
+                    <span class="badge badge-gray">No POS</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if user.is_admin %}
+                    <span class="badge badge-yellow">Admin</span>
+                    {% else %}
+                    <span class="badge badge-gray">No</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    <form method="POST" action="{{ url_for('pos.update_staff', user_id=user.id) }}"
+                          style="display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <select name="pos_role">
+                            <option value="" {% if not user.pos_role %}selected{% endif %}>No POS Access</option>
+                            <option value="cashier" {% if user.pos_role == 'cashier' %}selected{% endif %}>Cashier</option>
+                            <option value="manager" {% if user.pos_role == 'manager' %}selected{% endif %}>Manager</option>
+                        </select>
+
+                        <select name="is_admin">
+                            <option value="0" {% if not user.is_admin %}selected{% endif %}>Not Admin (0)</option>
+                            <option value="1" {% if user.is_admin %}selected{% endif %}>Admin (1)</option>
+                        </select>
+
+                        <button type="submit" class="btn btn-save">Save</button>
+                    </form>
+
+                    {% if user.id != current_user.id %}
+                    <form method="POST" action="{{ url_for('pos.delete_staff', user_id=user.id) }}"
+                          style="display:inline-block;margin-left:6px;"
+                          onsubmit="return confirm('Revoke access for {{ user.first_name }} {{ user.last_name }}? This will remove their POS and admin access.')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-delete">🗑 Revoke Access</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

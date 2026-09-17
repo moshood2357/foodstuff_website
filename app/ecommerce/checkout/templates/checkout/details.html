@@ -19,6 +19,7 @@
         display: grid;
         grid-template-columns: 1fr;
         gap: 25px;
+        padding: 0 16px;
     }
 
     .card {
@@ -33,6 +34,13 @@
         font-weight: 700;
         margin-bottom: 18px;
         color: #0f172a;
+    }
+
+    .card h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 14px;
     }
 
     .input-grid {
@@ -79,6 +87,12 @@
 
     .btn-primary:hover {
         background: #16a34a;
+    }
+
+    .btn-primary:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        opacity: 0.6;
     }
 
     .lookup-btn {
@@ -133,7 +147,32 @@
         color: #ef4444;
     }
 
-    /* Billing */
+    .distance-box {
+        grid-column: span 2;
+        padding: 12px 14px;
+        border-radius: 10px;
+        font-size: 14px;
+        display: none;
+    }
+
+    .distance-box.success {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+    }
+
+    .distance-box.warning {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412;
+    }
+
+    .distance-box.error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+    }
+
     .custom-checkbox {
         display: flex;
         align-items: center;
@@ -152,122 +191,403 @@
     }
 
     .error-msg {
-    display: block;
-    margin-top: 5px;
-    font-size: 12px;
-    color: #ef4444;
-}
+        display: block;
+        margin-top: 5px;
+        font-size: 12px;
+        color: #ef4444;
+    }
 
-.input-error {
-    border: 1px solid #ef4444 !important;
-}
+    .input-error {
+        border: 1px solid #ef4444 !important;
+    }
+
+    /* FULFILLMENT TOGGLE */
+    .fulfillment-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .fulfillment-card {
+        border: 2px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 18px 16px;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        position: relative;
+    }
+
+    .fulfillment-card:hover {
+        border-color: #22c55e;
+        background: #f0fdf4;
+    }
+
+    .fulfillment-card.selected {
+        border-color: #22c55e;
+        background: #f0fdf4;
+    }
+
+    .fulfillment-card input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .fulfillment-card__icon {
+        font-size: 22px;
+    }
+
+    .fulfillment-card__title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .fulfillment-card__subtitle {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .fulfillment-card__check {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        transition: 0.2s;
+    }
+
+    .fulfillment-card.selected .fulfillment-card__check {
+        background: #22c55e;
+        border-color: #22c55e;
+        color: white;
+    }
+
+    /* SECTION PANELS */
+    .section-panel {
+        display: none;
+    }
+
+    .section-panel.active {
+        display: block;
+    }
+
+    /* PICKUP INFO BOX */
+    .pickup-info-box {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .pickup-info-box h4 {
+        font-size: 14px;
+        font-weight: 700;
+        color: #166534;
+        margin-bottom: 8px;
+    }
+
+    .pickup-info-box p {
+        font-size: 13px;
+        color: #166534;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .divider {
+        border: none;
+        border-top: 1px solid #e5e7eb;
+        margin: 20px 0;
+    }
+
+    @media (max-width: 480px) {
+        .fulfillment-options {
+            grid-template-columns: 1fr;
+        }
+
+        .input-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .full {
+            grid-column: span 1;
+        }
+
+        .distance-box {
+            grid-column: span 1;
+        }
+    }
 </style>
 
 <div class="checkout-page">
     <div class="checkout-container">
-
         <div class="card">
 
             <h2>Checkout Details</h2>
 
             <form method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="fulfillment_type" id="fulfillmentTypeInput"
+                    value="{{ draft.fulfillment_type or 'delivery' }}">
+                <input type="hidden" name="delivery_miles" id="deliveryMilesInput"
+                    value="{{ draft.delivery_miles or '' }}">
+                <input type="hidden" name="delivery_fee" id="deliveryFeeInput" value="{{ draft.delivery_fee or '' }}">
 
-                <!-- CONTACT -->
-                <div class="input-grid mb-3">
-                    <div class="">
-                        <input type="text" id='name' name="full_name" value="{{ draft.full_name or '' }}" placeholder="Full Name" required>
-                        <small class="error-msg" id="nameError"></small>
-                    </div>
-                    <div class="">
-                        <input  type = 'email' id="email" name="email" value="{{ draft.email or '' }}" placeholder="Email" required>
-                        <small class="error-msg" id="emailError"></small>
-                    </div>
-                    <div class="full">
-                        <input type="tel" name="phone" id="phone" value="{{ draft.phone or '' }}" placeholder="Phone Number" class= "full" required>
-                        <small class="error-msg" id="phoneError"></small>
-                    </div>
-                </div>
+                <!-- STEP 1: FULFILLMENT TYPE -->
+                <h3>How would you like to receive your order?</h3>
+                <div class="fulfillment-options">
 
-                <!-- ADDRESS -->
-                <div class="input-grid mb-3">
+                    <label
+                        class="fulfillment-card {% if not draft.fulfillment_type or draft.fulfillment_type == 'delivery' %}selected{% endif %}"
+                        id="card-delivery">
+                        <input type="radio" name="_fulfillment" value="delivery" {% if not draft.fulfillment_type or
+                            draft.fulfillment_type=='delivery' %}checked{% endif %}>
+                        <div class="fulfillment-card__icon">🚚</div>
+                        <div class="fulfillment-card__title">Delivery</div>
+                        <div class="fulfillment-card__subtitle">Delivered to your door</div>
+                        <div class="fulfillment-card__check">
+                            {% if not draft.fulfillment_type or draft.fulfillment_type == 'delivery' %}✓{% endif %}
+                        </div>
+                    </label>
 
-                    <input id="postcode" name="postal_code" value="{{ draft.postal_code or '' }}" placeholder="Postcode">
-
-
-                    <button type="button" class="lookup-btn" onclick="lookupAddress(event)">
-                        Find Address
-                    </button>
-
-                    <div id="addressDropdown" class="address-dropdown hidden full"></div>
-
-                    <input name="address_line_1" value="{{ draft.address_line_1 or '' }}" placeholder="Address Line 1">
-                    
-                    <input name="address_line_2" value="{{ draft.address_line_2 or '' }}" placeholder="Address Line 2">
-                    
-                    <input name="city" value="{{ draft.city or '' }}" placeholder="City">
-                    
-                    <input name="state" value="{{ draft.state or '' }}" placeholder="State / County">
+                    <label class="fulfillment-card {% if draft.fulfillment_type == 'pickup' %}selected{% endif %}"
+                        id="card-pickup">
+                        <input type="radio" name="_fulfillment" value="pickup" {% if draft.fulfillment_type=='pickup'
+                            %}checked{% endif %}>
+                        <div class="fulfillment-card__icon">🏪</div>
+                        <div class="fulfillment-card__title">Pick up in store</div>
+                        <div class="fulfillment-card__subtitle">Free · Ready in ~30 mins</div>
+                        <div class="fulfillment-card__check">
+                            {% if draft.fulfillment_type == 'pickup' %}✓{% endif %}
+                        </div>
+                    </label>
 
                 </div>
 
-                <!-- BILLING (RESTORED) -->
-                <label class="custom-checkbox mb-3">
-                    <input type="checkbox" id="sameAsDelivery" checked>
-                    Billing same as delivery
-                </label>
+                <hr class="divider">
 
-                <div id="billingSection" style="display:none;" class="mb-3">
+                <!-- PICKUP PANEL -->
+                <div class="section-panel {% if draft.fulfillment_type == 'pickup' %}active{% endif %}"
+                    id="pickupPanel">
+
+                    <div class="pickup-info-box">
+                        <h4>📍 Store Location</h4>
+                        <p>🏠 311 High Street, Cheltenham GL50 3HW</p>
+                        <p>🕐 Mon–Sat: 9:00 AM – 7:00 PM</p>
+                        <p>📞 +44 7306 011093</p>
+                    </div>
+
                     <div class="input-grid">
-                        <input name="billing_address_line_1" placeholder="Billing Address Line 1">
-                        <input name="billing_address_line_2" placeholder="Billing Address Line 2">
-                        <input name="billing_city" placeholder="Billing City">
-                        <input name="billing_state" placeholder="Billing State">
-                        <input name="billing_postcode" placeholder="Billing Postcode" class="full">
+                        <div>
+                            <input type="text" id="pickupName" name="pickup_name" value="{{ draft.full_name or '' }}"
+                                placeholder="Full Name">
+                            <small class="error-msg" id="pickupNameError"></small>
+                        </div>
+                        <div>
+                            <input type="tel" id="pickupPhone" name="pickup_phone" value="{{ draft.phone or '' }}"
+                                placeholder="Contact Number">
+                            <small class="error-msg" id="pickupPhoneError"></small>
+                        </div>
+                        <div>
+                            <input type="email" id="pickupEmail" name="pickup_email" value="{{ draft.email or '' }}"
+                                placeholder="Email (for confirmation)">
+                            <small class="error-msg" id="pickupEmailError"></small>
+                        </div>
+                        <div>
+                            <input type="date" name="pickup_date" value="{{ draft.pickup_date or '' }}">
+                        </div>
+                        <select name="pickup_time" class="full">
+                            <option value="">Select pickup time</option>
+                            {% for slot in [
+                            ('9:00-10:00','9:00 AM – 10:00 AM'),
+                            ('10:00-11:00','10:00 AM – 11:00 AM'),
+                            ('11:00-12:00','11:00 AM – 12:00 PM'),
+                            ('12:00-13:00','12:00 PM – 1:00 PM'),
+                            ('13:00-14:00','1:00 PM – 2:00 PM'),
+                            ('14:00-15:00','2:00 PM – 3:00 PM'),
+                            ('15:00-16:00','3:00 PM – 4:00 PM'),
+                            ('16:00-17:00','4:00 PM – 5:00 PM'),
+                            ('17:00-18:00','5:00 PM – 6:00 PM'),
+                            ('18:00-19:00','6:00 PM – 7:00 PM'),
+                            ('19:00-20:00','7:00 PM – 8:00 PM')
+                            ] %}
+                            <option value="{{ slot[0] }}" {% if draft.pickup_time==slot[0] %}selected{% endif %}>
+                                {{ slot[1] }}
+                            </option>
+                            {% endfor %}
+                        </select>
                     </div>
-                </div>
-                <!-- DELIVERY METHOD -->
-                <label class="" style="font-weight: 600;">
-                    Delivery Method
-                </label>
-                <div class="input-grid mb-3">
-                    <select name="delivery_method" class="full">
-                        <option value="standard" {% if draft and draft.delivery_method=='standard' %}selected{% endif %}>
-                            Standard Delivery(45 min)
-                        </option>
-                        <option value="express" {% if draft and draft.delivery_method=='express' %}selected{% endif %}>
-                            Express Delivery(25 min)
-                        </option>           
-                    </select>
+
                 </div>
 
-                <button class="btn-primary" type="submit">
+                <!-- DELIVERY PANEL -->
+                <div class="section-panel {% if not draft.fulfillment_type or draft.fulfillment_type == 'delivery' %}active{% endif %}"
+                    id="deliveryPanel">
+
+                    <!-- CONTACT -->
+                    <div class="input-grid mb-3">
+                        <div>
+                            <input type="text" id="name" name="full_name" value="{{ draft.full_name or '' }}"
+                                placeholder="Full Name">
+                            <small class="error-msg" id="nameError"></small>
+                        </div>
+                        <div>
+                            <input type="email" id="email" name="email" value="{{ draft.email or '' }}"
+                                placeholder="Email">
+                            <small class="error-msg" id="emailError"></small>
+                        </div>
+                        <div class="full">
+                            <input type="tel" name="phone" id="phone" value="{{ draft.phone or '' }}"
+                                placeholder="Phone Number">
+                            <small class="error-msg" id="phoneError"></small>
+                        </div>
+                    </div>
+
+                    <!-- ADDRESS -->
+                    <div class="input-grid mb-3">
+                        <input id="postcode" name="postal_code" value="{{ draft.postal_code or '' }}"
+                            placeholder="Postcode">
+                        <button type="button" class="lookup-btn" onclick="lookupAddress(event)">
+                            Find Address
+                        </button>
+
+                        <div id="addressDropdown" class="address-dropdown hidden full"></div>
+                        <div id="distanceBox" class="distance-box full"></div>
+
+                        <input name="address_line_1" value="{{ draft.address_line_1 or '' }}"
+                            placeholder="Address Line 1">
+                        <input name="address_line_2" value="{{ draft.address_line_2 or '' }}"
+                            placeholder="Address Line 2">
+                        <input name="city" value="{{ draft.city or '' }}" placeholder="City">
+                        <input name="state" value="{{ draft.state or '' }}" placeholder="State / County">
+                    </div>
+
+                    <!-- BILLING -->
+                    <label class="custom-checkbox mb-3">
+                        <input type="checkbox" id="sameAsDelivery" checked>
+                        Billing same as delivery
+                    </label>
+
+                    <div id="billingSection" style="display:none;" class="mb-3">
+                        <div class="input-grid">
+                            <input name="billing_address_line_1" placeholder="Billing Address Line 1">
+                            <input name="billing_address_line_2" placeholder="Billing Address Line 2">
+                            <input name="billing_city" placeholder="Billing City">
+                            <input name="billing_state" placeholder="Billing State">
+                            <input name="billing_postcode" placeholder="Billing Postcode" class="full">
+                        </div>
+                    </div>
+
+                </div>
+
+                <hr class="divider">
+
+                <!-- ORDER NOTE (SHARED) -->
+                <div style="margin-top: 4px;">
+                    <label
+                        style="font-weight: 600; font-size: 14px; color: #0f172a; display:block; margin-bottom: 6px;">
+                        Order Note <span style="color:#94a3b8; font-weight:400;">(optional)</span>
+                    </label>
+                    <textarea name="note" rows="3" placeholder="Any special instructions or notes for your order..."
+                        style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid #e5e7eb;
+                               outline:none; font-size:14px; resize:vertical; font-family:inherit;
+                               transition:0.2s; background:#fff;">{{ draft.note or '' }}</textarea>
+                </div>
+
+                <button class="btn-primary" type="submit" id="submitBtn">
                     Continue to Summary
                 </button>
 
             </form>
-
         </div>
     </div>
 </div>
 
 <script>
+    // =========================
+    // FULFILLMENT TOGGLE
+    // =========================
+    const fulfillmentCards = document.querySelectorAll('.fulfillment-card');
+
+    fulfillmentCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const radio = card.querySelector('input[type="radio"]');
+            radio.checked = true;
+            selectFulfillment(radio.value);
+        });
+    });
+
+    function selectFulfillment(type) {
+        document.getElementById('fulfillmentTypeInput').value = type;
+
+        fulfillmentCards.forEach(c => {
+            const r = c.querySelector('input[type="radio"]');
+            const check = c.querySelector('.fulfillment-card__check');
+            if (r.value === type) {
+                c.classList.add('selected');
+                check.textContent = '✓';
+            } else {
+                c.classList.remove('selected');
+                check.textContent = '';
+            }
+        });
+
+        document.getElementById('deliveryPanel').classList.toggle('active', type === 'delivery');
+        document.getElementById('pickupPanel').classList.toggle('active', type === 'pickup');
+
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (type === 'pickup') {
+            document.getElementById('deliveryFeeInput').value = '0';
+            document.getElementById('deliveryMilesInput').value = '';
+            submitBtn.disabled = false;
+        } else {
+            const savedFee = document.getElementById('deliveryFeeInput').value;
+            submitBtn.disabled = !savedFee || savedFee === '0';
+        }
+    }
+
+    // Set today as min date for pickup
+    const pickupDateInput = document.querySelector('[name="pickup_date"]');
+    if (pickupDateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        pickupDateInput.min = today;
+        if (!pickupDateInput.value) pickupDateInput.value = today;
+    }
+
+    // =========================
+    // ADDRESS LOOKUP + DISTANCE
+    // =========================
     async function lookupAddress(event) {
         if (event) event.preventDefault();
 
         const postcode = document.getElementById("postcode").value.trim();
         const dropdown = document.getElementById("addressDropdown");
 
-        if (!postcode) return alert("Enter postcode");
+        if (!postcode) return alert("Enter a postcode");
 
         dropdown.classList.remove("hidden");
-        dropdown.innerHTML = `<div class="address-loading">Searching...</div>`;
+        dropdown.innerHTML = `<div class="address-loading">Searching addresses...</div>`;
 
         try {
-            const res = await fetch(`/api/lookup-address?postcode=${postcode}`, {
+            const res = await fetch(`/api/lookup-address?postcode=${encodeURIComponent(postcode)}`, {
                 credentials: "include"
             });
-
             const data = await res.json();
 
             if (!data.addresses || data.addresses.length === 0) {
@@ -276,26 +596,21 @@
             }
 
             dropdown.innerHTML = "";
-
             data.addresses.forEach(a => {
                 const div = document.createElement("div");
                 div.className = "address-option";
-
                 div.textContent = `${a.line_1}, ${a.post_town}`;
-
-                div.onclick = () => {
+                div.onclick = async () => {
                     document.querySelector('[name="address_line_1"]').value = a.line_1;
                     document.querySelector('[name="address_line_2"]').value = a.line_2 || "";
                     document.querySelector('[name="city"]').value = a.post_town;
                     document.querySelector('[name="state"]').value = a.county;
-
                     dropdown.classList.add("hidden");
-
                     if (document.getElementById("sameAsDelivery").checked) {
                         copyBilling();
                     }
+                    await calculateDistance(postcode);
                 };
-
                 dropdown.appendChild(div);
             });
 
@@ -304,17 +619,64 @@
         }
     }
 
-    /* BILLING LOGIC */
+    async function calculateDistance(postcode) {
+        const distanceBox = document.getElementById("distanceBox");
+        const submitBtn = document.getElementById("submitBtn");
+
+        distanceBox.style.display = "block";
+        distanceBox.className = "distance-box full";
+        distanceBox.innerHTML = "📍 Calculating delivery distance...";
+
+        try {
+            const res = await fetch(`/api/calculate-delivery?postcode=${encodeURIComponent(postcode)}`, {
+                credentials: "include"
+            });
+            const data = await res.json();
+
+            if (data.error) {
+                distanceBox.classList.add("error");
+                distanceBox.innerHTML = `⚠️ ${data.error}`;
+                document.getElementById("deliveryMilesInput").value = "";
+                document.getElementById("deliveryFeeInput").value = "";
+                submitBtn.disabled = false;
+                return;
+            }
+
+            document.getElementById("deliveryMilesInput").value = data.miles;
+
+            if (data.contact_for_quote) {
+                distanceBox.classList.add("warning");
+                distanceBox.innerHTML = `
+                    📍 Distance: <strong>${data.miles} miles</strong> —
+                    Outside our standard delivery area.
+                    Please <a href="/contact" style="color:#9a3412; font-weight:600;">contact us</a> for a delivery quote.
+                `;
+                document.getElementById("deliveryFeeInput").value = "";
+                submitBtn.disabled = true;
+            } else {
+                distanceBox.classList.add("success");
+                distanceBox.innerHTML = `
+                    📍 Distance: <strong>${data.miles} miles</strong> —
+                    🚚 Delivery fee: <strong>£${data.fee.toFixed(2)}</strong>
+                `;
+                document.getElementById("deliveryFeeInput").value = data.fee;
+                submitBtn.disabled = false;
+            }
+
+        } catch (e) {
+            distanceBox.classList.add("error");
+            distanceBox.innerHTML = `⚠️ Distance check failed. You may still proceed.`;
+            submitBtn.disabled = false;
+        }
+    }
+
     function copyBilling() {
         document.querySelector('[name="billing_address_line_1"]').value =
             document.querySelector('[name="address_line_1"]').value;
-
         document.querySelector('[name="billing_city"]').value =
             document.querySelector('[name="city"]').value;
-
         document.querySelector('[name="billing_state"]').value =
             document.querySelector('[name="state"]').value;
-
         document.querySelector('[name="billing_postcode"]').value =
             document.getElementById("postcode").value;
     }
@@ -322,134 +684,148 @@
     document.addEventListener("DOMContentLoaded", () => {
         const box = document.getElementById("sameAsDelivery");
         const section = document.getElementById("billingSection");
+
         function toggleBilling() {
-    if (box.checked) {
-        section.style.display = "none";
-        copyBilling();
-    } else {
-        section.style.display = "block";
-
-        // CLEAR billing fields when user unchecks
-        document.querySelector('[name="billing_address_line_1"]').value = "";
-        document.querySelector('[name="billing_address_line_2"]').value = "";
-        document.querySelector('[name="billing_city"]').value = "";
-        document.querySelector('[name="billing_state"]').value = "";
-        document.querySelector('[name="billing_postcode"]').value = "";
-    }
-}
-        toggleBilling();
-        box.addEventListener("change", toggleBilling);
-    });
-
-
-        function validatePhone(phone) {
-            return /^[0-9+\s-]{7,15}$/.test(phone);
-        }
-
-        function showError(id, message) {
-            document.getElementById(id).innerText = message;
-        }
-
-        function clearErrors() {
-            document.querySelectorAll(".error-msg").forEach(el => el.innerText = "");
-        }
-
-    async function saveDraft() {
-            const payload = {
-                full_name: document.querySelector('[name="full_name"]').value,
-                email: document.querySelector('[name="email"]').value,
-                phone: document.querySelector('[name="phone"]').value,
-
-                postal_code: document.getElementById("postcode").value,
-                address_line_1: document.querySelector('[name="address_line_1"]').value,
-                address_line_2: document.querySelector('[name="address_line_2"]').value,
-                city: document.querySelector('[name="city"]').value,
-                state: document.querySelector('[name="state"]').value,
-
-                billing_address_line_1: document.querySelector('[name="billing_address_line_1"]')?.value,
-                billing_address_line_2: document.querySelector('[name="billing_address_line_2"]')?.value,
-                billing_city: document.querySelector('[name="billing_city"]')?.value,
-                billing_state: document.querySelector('[name="billing_state"]')?.value,
-                billing_postcode: document.querySelector('[name="billing_postcode"]')?.value,
-
-                delivery_method: document.querySelector('[name="delivery_method"]')?.value
-            };
-
-            try {
-                await fetch("/api/checkout/save-draft", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify(payload)
-                });
-            } catch (e) {
-                console.log("Draft save failed");
+            if (box.checked) {
+                section.style.display = "none";
+                copyBilling();
+            } else {
+                section.style.display = "block";
+                document.querySelector('[name="billing_address_line_1"]').value = "";
+                document.querySelector('[name="billing_address_line_2"]').value = "";
+                document.querySelector('[name="billing_city"]').value = "";
+                document.querySelector('[name="billing_state"]').value = "";
+                document.querySelector('[name="billing_postcode"]').value = "";
             }
         }
 
-        document.querySelector("form").addEventListener("submit", function (e) {
-                clearErrors();
+        toggleBilling();
+        box.addEventListener("change", toggleBilling);
 
-                let valid = true;
+        // Restore distance box on page return
+        const savedMiles = document.getElementById("deliveryMilesInput").value;
+        const savedFee = document.getElementById("deliveryFeeInput").value;
+        const distanceBox = document.getElementById("distanceBox");
+        const currentType = document.getElementById("fulfillmentTypeInput").value;
 
-                const emailEl = document.getElementById("email");
-                const phoneEl = document.getElementById("phone");
-                const nameEl = document.querySelector('[name="full_name"]');
+        if (currentType === 'delivery' && savedMiles) {
+            distanceBox.style.display = "block";
+            if (savedFee && savedFee !== '0') {
+                distanceBox.className = "distance-box full success";
+                distanceBox.innerHTML = `
+                    📍 Distance: <strong>${savedMiles} miles</strong> —
+                    🚚 Delivery fee: <strong>£${parseFloat(savedFee).toFixed(2)}</strong>
+                `;
+            } else {
+                distanceBox.className = "distance-box full warning";
+                distanceBox.innerHTML = `
+                    📍 Distance: <strong>${savedMiles} miles</strong> —
+                    Outside our standard delivery area.
+                    Please <a href="/contact" style="color:#9a3412; font-weight:600;">contact us</a> for a quote.
+                `;
+                document.getElementById("submitBtn").disabled = true;
+            }
+        }
 
-                const email = emailEl?.value.trim() || "";
-                const phone = phoneEl?.value.trim() || "";
-                const name = nameEl?.value.trim() || "";
+        // Init submit button state on load
+        if (currentType === 'delivery') {
+            const fee = document.getElementById("deliveryFeeInput").value;
+            document.getElementById("submitBtn").disabled = !fee || fee === '0';
+        }
+    });
 
-                document.querySelectorAll("input:not([type='hidden']), select, textarea").forEach(el => {
-                el.classList.remove("input-error");
-            });
+    // =========================
+    // VALIDATION
+    // =========================
+    function validateEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
 
-                if (!name) {
-                    showError("nameError", "Full name is required");
-                    nameEl.classList.add("input-error");
-                    valid = false;
-                }
+    function validatePhone(phone) {
+        return /^[0-9+\s-]{7,15}$/.test(phone);
+    }
 
-                if (!validateEmail(email)) {
-                    showError("emailError", "Incorrect email address");
-                    emailEl.classList.add("input-error")
-                    valid = false;
-                }
+    function showError(id, message) {
+        document.getElementById(id).innerText = message;
+    }
 
-                if (!validatePhone(phone)) {
-                    showError("phoneError", "Invalid phone number");
-                    phoneEl.classList.add("input-error");
-                    valid = false;
-                }
+    function clearErrors() {
+        document.querySelectorAll(".error-msg").forEach(el => el.innerText = "");
+    }
 
-                if (!valid) {
-                    e.preventDefault();
-                }
-            });
+    document.querySelector("form").addEventListener("submit", function (e) {
+        clearErrors();
+        let valid = true;
+        const type = document.getElementById("fulfillmentTypeInput").value;
 
-            // =========================
-                // CLEAR ERRORS ON INPUT
-                // =========================
-                document.getElementById("email").addEventListener("input", function () {
-                    if (validateEmail(this.value.trim())) {
-                        showError("emailError", "");
-                        this.classList.remove("input-error");
-                    }
-                });
+        document.querySelectorAll("input:not([type='hidden']), select, textarea").forEach(el => {
+            el.classList.remove("input-error");
+        });
 
-                document.getElementById("phone").addEventListener("input", function () {
-                    if (validatePhone(this.value.trim())) {
-                        showError("phoneError", "");
-                        this.classList.remove("input-error");
-                    }
-                });
+        if (type === 'delivery') {
+            const emailEl = document.getElementById("email");
+            const phoneEl = document.getElementById("phone");
+            const nameEl = document.querySelector('[name="full_name"]');
+            const email = emailEl?.value.trim() || "";
+            const phone = phoneEl?.value.trim() || "";
+            const name = nameEl?.value.trim() || "";
 
-                document.querySelector('[name="full_name"]').addEventListener("input", function () {
-                    if (this.value.trim()) {
-                        showError("nameError", "");
-                        this.classList.remove("input-error");
-                    }
-                });
+            if (!name) {
+                showError("nameError", "Full name is required");
+                nameEl.classList.add("input-error");
+                valid = false;
+            }
+            if (!validateEmail(email)) {
+                showError("emailError", "Incorrect email address");
+                emailEl.classList.add("input-error");
+                valid = false;
+            }
+            if (!validatePhone(phone)) {
+                showError("phoneError", "Invalid phone number");
+                phoneEl.classList.add("input-error");
+                valid = false;
+            }
+        } else {
+            const nameEl = document.getElementById("pickupName");
+            const phoneEl = document.getElementById("pickupPhone");
+            const emailEl = document.getElementById("pickupEmail");
+            const name = nameEl?.value.trim() || "";
+            const phone = phoneEl?.value.trim() || "";
+            const email = emailEl?.value.trim() || "";
+
+            if (!name) {
+                showError("pickupNameError", "Full name is required");
+                nameEl.classList.add("input-error");
+                valid = false;
+            }
+            if (!validatePhone(phone)) {
+                showError("pickupPhoneError", "Invalid phone number");
+                phoneEl.classList.add("input-error");
+                valid = false;
+            }
+            if (email && !validateEmail(email)) {
+                showError("pickupEmailError", "Incorrect email address");
+                emailEl.classList.add("input-error");
+                valid = false;
+            }
+        }
+
+        if (!valid) e.preventDefault();
+    });
+
+    // Live validation
+    document.getElementById("email")?.addEventListener("input", function () {
+        if (validateEmail(this.value.trim())) { showError("emailError", ""); this.classList.remove("input-error"); }
+    });
+    document.getElementById("phone")?.addEventListener("input", function () {
+        if (validatePhone(this.value.trim())) { showError("phoneError", ""); this.classList.remove("input-error"); }
+    });
+    document.querySelector('[name="full_name"]')?.addEventListener("input", function () {
+        if (this.value.trim()) { showError("nameError", ""); this.classList.remove("input-error"); }
+    });
+    document.getElementById("pickupPhone")?.addEventListener("input", function () {
+        if (validatePhone(this.value.trim())) { showError("pickupPhoneError", ""); this.classList.remove("input-error"); }
+    });
 </script>
 
 {% endblock %}

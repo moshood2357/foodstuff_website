@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Label — {{ product.name }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .page {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 420px;
+            width: 100%;
+        }
+        .label-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .label {
+            border: 2px solid #0f5c2e;
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+        .label__store {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #0f5c2e;
+            margin-bottom: 6px;
+        }
+        .label__name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        .label__sku {
+            font-size: 9px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        .label__qr {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 8px;
+            display: block;
+        }
+        .label__price {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f5c2e;
+            margin-bottom: 2px;
+        }
+        .label__scan {
+            font-size: 8px;
+            color: #94a3b8;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-print { background: #0f5c2e; color: white; }
+        .btn-back  { background: #e2e8f0; color: #1e293b; }
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .qty-control label { font-size: 14px; font-weight: 600; color: #0f172a; }
+        .qty-control input {
+            width: 60px;
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+        }
+        @media print {
+            body { background: white; padding: 0; }
+            .actions, .qty-control, h2 { display: none !important; }
+            .page { box-shadow: none; padding: 0; border-radius: 0; max-width: 100%; }
+            .label-grid { gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <h2 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:16px;">
+        🔲 QR Code Label — {{ product.name }}
+    </h2>
+
+    <div class="actions">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-back">← Back</a>
+        <button class="btn btn-print" onclick="window.print()">🖨️ Print QR Labels</button>
+    </div>
+
+    <div class="qty-control">
+        <label>Copies:</label>
+        <input type="number" id="qty" value="4" min="1" max="50"
+            oninput="renderLabels(this.value)">
+    </div>
+
+    <div class="label-grid" id="label-grid"></div>
+</div>
+
+<script>
+    const productName  = {{ product.name | tojson }};
+    const productPrice = "£{{ '%.2f' | format(product.price) }}";
+    const productSku   = {{ (product.sku or '') | tojson }};
+    const productQr    = "{{ url_for('static', filename='uploads/qrcodes/' + product.qr_code) if product.qr_code else '' }}";
+
+    function renderLabels(qty) {
+        const count = parseInt(qty) || 4;
+        const grid = document.getElementById("label-grid");
+        grid.innerHTML = "";
+
+        for (let i = 0; i < count; i++) {
+            grid.innerHTML += `
+                <div class="label">
+                    <div class="label__store">Judith Ethnic Food Store</div>
+                    <div class="label__name">${productName}</div>
+                    ${productSku ? `<div class="label__sku">SKU: ${productSku}</div>` : ''}
+                    ${productQr
+                        ? `<img class="label__qr" src="${productQr}" alt="QR Code">`
+                        : `<div style="width:100px;height:100px;background:#f1f5f9;margin:0 auto 8px;
+                            border-radius:6px;display:flex;align-items:center;justify-content:center;
+                            font-size:11px;color:#94a3b8;">No QR</div>`
+                    }
+                    <div class="label__price">${productPrice}</div>
+                    <div class="label__scan">Scan to view product</div>
+                </div>
+            `;
+        }
+    }
+
+    
+    
+    document.getElementById("qty").addEventListener("input", function() {
+        renderLabels(this.value);
+    });
+
+    renderLabels(document.getElementById("qty").value);
+</script>
+</body>
+</html>

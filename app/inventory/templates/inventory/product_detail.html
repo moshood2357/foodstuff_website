@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .inv-page {
+        padding: 90px 24px 40px;
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
+        margin-bottom: 20px;
+    }
+
+    .card h2 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #64748b;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .badge {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .badge-green {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-red {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge-gray {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: #22c55e;
+        color: #fff;
+    }
+
+    .btn-outline {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        color: #374151;
+    }
+
+    .btn-blue {
+        background: #3b82f6;
+        color: #fff;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        text-align: left;
+        padding: 8px 12px;
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        background: #f8fafc;
+    }
+
+    td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 13px;
+    }
+
+    label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 5px;
+    }
+
+    input,
+    select {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 7px;
+        font-size: 13px;
+        outline: none;
+        font-family: inherit;
+    }
+
+    input:focus,
+    select:focus {
+        border-color: #22c55e;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .full {
+        grid-column: span 2;
+    }
+</style>
+
+<div class="inv-page">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+            <h1 style="font-size:22px;font-weight:800;color:#0f172a;">{{ product.name }}</h1>
+            <span style="font-size:13px;color:#64748b;">SKU: {{ product.sku or '—' }}</span>
+        </div>
+        <div style="display:flex;gap:10px;">
+            <a href="{{ url_for('inventory.edit_product', id=product.id) }}" class="btn btn-blue">Edit Product</a>
+            <form method="POST" action="{{ url_for('inventory.delete_product', id=product.id) }}"
+                  onsubmit="return confirm('Delete {{ product.name }}? This cannot be undone.')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn" style="background:#ef4444;color:#fff;">Delete Product</button>
+            </form>
+            <a href="{{ url_for('inventory.products') }}" class="btn btn-outline">← Back</a>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Bin Location</span>
+            <span class="info-value">
+                {{ product.bin_location.name if product.bin_location else '' }}
+            </span>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div>
+            <div class="card">
+                <h2>Product Details</h2>
+                {% if product.image %}
+                <img src="{{ url_for('static', filename='uploads/' + product.image) }}"
+                    style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;">
+                {% endif %}
+                <div class="info-row"><span class="info-label">Category</span><span class="info-value">{{
+                        product.category.name if product.category else '—' }}</span></div>
+                <div class="info-row"><span class="info-label">Supplier</span><span class="info-value">{{
+                        product.supplier.name if product.supplier else '—' }}</span></div>
+                <div class="info-row"><span class="info-label">Brand</span><span class="info-value">{{ product.brand or '—'
+                        }}</span></div>
+                <div class="info-row"><span class="info-label">Selling Price</span><span class="info-value">£{{
+                        "%.2f"|format(product.price) }}</span></div>
+                <div class="info-row"><span class="info-label">Cost Price</span><span class="info-value">{{
+                        '£%.2f'|format(product.cost_price) if product.cost_price else '—' }}</span></div>
+                {% if product.cost_price %}
+                <div class="info-row">
+                    <span class="info-label">Margin</span>
+                    <span class="info-value" style="color:#16a34a;">
+                        £{{ "%.2f"|format(product.price - product.cost_price) }}
+                        ({{ "%.0f"|format(((product.price - product.cost_price) / product.price) * 100) }}%)
+                    </span>
+                </div>
+                {% endif %}
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="badge {% if product.is_active %}badge-green{% else %}badge-red{% endif %}">
+                        {{ 'Active' if product.is_active else 'Inactive' }}
+                    </span>
+                </div>
+                <div class="info-row"><span class="info-label">Has Variants</span><span class="info-value">{{ 'Yes' if
+                        product.has_variants else 'No' }}</span></div>
+            </div>
+
+            {% if product.qr_code %}
+        <div class="card" style="text-align:center;">
+            <h2 style="justify-content:center;">QR Code</h2>
+            <img src="{{ url_for('static', filename='uploads/qrcodes/' + product.qr_code) }}"
+                style="width:140px;height:140px;margin:0 auto;">
+            <div style="font-size:12px;color:#94a3b8;margin-top:8px;">{{ product.sku }}</div>
+            <a href="{{ url_for('admin.product_qr_label', id=product.id) }}" class="btn btn-outline"
+                style="margin-top:12px;font-size:12px;">🏷️ Print QR Label</a>
+        </div>
+        {% endif %}
+        </div>
+
+
+        <div>
+            <div class="card">
+                <h2>Stock Level</h2>
+                {% if not product.has_variants %}
+                <div style="text-align:center;padding:20px 0;">
+                    <div
+                        style="font-size:48px;font-weight:800;color:{% if product.stock_quantity <= (product.low_stock_threshold or 10) %}#dc2626{% else %}#16a34a{% endif %};">
+                        {{ product.stock_quantity }}
+                    </div>
+                    <div style="font-size:13px;color:#64748b;">units in stock</div>
+                    <div style="font-size:12px;color:#94a3b8;margin-top:4px;">Alert threshold: {{
+                        product.low_stock_threshold or 10 }}</div>
+                </div>
+
+                <form method="POST" action="{{ url_for('inventory.adjust_stock') }}"
+                    style="border-top:1px solid #f1f5f9;padding-top:16px;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <div class="form-grid">
+                        <div>
+                            <label>Adjustment Type</label>
+                            <select name="movement_type">
+                                <option value="adjustment">Manual Adjustment</option>
+                                <option value="damage">Damage/Loss</option>
+                                <option value="return_in">Customer Return</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Quantity (+/-)</label>
+                            <input type="number" name="quantity" placeholder="e.g. +10 or -5">
+                        </div>
+                        <div class="full">
+                            <label>Note</label>
+                            <input type="text" name="note" placeholder="Reason for adjustment">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="margin-top:12px;width:100%;">Apply
+                        Adjustment</button>
+                </form>
+                {% else %}
+                <p style="color:#64748b;font-size:14px;">Stock is managed per variant. See variants below.</p>
+                {% endif %}
+            </div>
+            
+        {% if product.barcode_image %}
+        <div class="card" style="text-align:center;">
+            <h2 style="justify-content:center;">Barcode</h2>
+            <img src="{{ url_for('static', filename='uploads/qrcodes/' + product.barcode_image) }}"
+                style="width:200px;height:80px;object-fit:contain;margin:0 auto;">
+            <div style="font-size:12px;color:#94a3b8;margin-top:8px;">{{ product.sku }}</div>
+            <a href="{{ url_for('admin.product_label', id=product.id) }}" class="btn btn-outline"
+                style="margin-top:12px;font-size:12px;">🏷️ Print Barcode Label</a>
+        </div>
+        {% endif %}
+        </div>
+    </div>
+
+  
+
+    {% if product.has_variants %}
+    <div class="card">
+        <h2>
+            Variants
+            <button onclick="document.getElementById('add-variant-form').style.display='block'" class="btn btn-primary"
+                style="font-size:12px;">+ Add Variant</button>
+        </h2>
+
+        <div id="add-variant-form"
+            style="display:none;background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:16px;">
+            <form method="POST" action="{{ url_for('inventory.add_variant', product_id=product.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-grid">
+                    <div>
+                        <label>Variant Name *</label>
+                        <input type="text" name="name" placeholder="e.g. 5kg" required>
+                    </div>
+                    <div>
+                        <label>Selling Price (£) *</label>
+                        <input type="number" name="price" step="0.01" min="0" required>
+                    </div>
+                    <div>
+                        <label>Cost Price (£)</label>
+                        <input type="number" name="cost_price" step="0.01" min="0">
+                    </div>
+                    <div>
+                        <label>Initial Stock</label>
+                        <input type="number" name="stock_quantity" min="0" value="0">
+                    </div>
+                    <div>
+                        <label>Low Stock Threshold</label>
+                        <input type="number" name="low_stock_threshold" min="0" value="10">
+                    </div>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:12px;">
+                    <button type="submit" class="btn btn-primary">Save Variant</button>
+                    <button type="button" class="btn btn-outline"
+                        onclick="document.getElementById('add-variant-form').style.display='none'">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Variant</th>
+                    <th>SKU</th>
+                    <th>Price</th>
+                    <th>Cost</th>
+                    <th>Stock</th>
+                    <th>Threshold</th>
+                    <th>Status</th>
+                    <th>Adjust Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in product.variants %}
+                <tr>
+                    <td><strong>{{ v.name }}</strong></td>
+                    <td style="font-family:monospace;font-size:12px;">{{ v.sku }}</td>
+                    <td>£{{ "%.2f"|format(v.price) }}</td>
+                    <td>{{ '£%.2f'|format(v.cost_price) if v.cost_price else '—' }}</td>
+                    <td>
+                        <span
+                            class="badge {% if v.stock_quantity <= (v.low_stock_threshold or 10) %}badge-red{% else %}badge-green{% endif %}">
+                            {{ v.stock_quantity }}
+                        </span>
+                    </td>
+                    <td>{{ v.low_stock_threshold or 10 }}</td>
+                    <td>
+                        <span class="badge {% if v.is_active %}badge-green{% else %}badge-gray{% endif %}">
+                            {{ 'Active' if v.is_active else 'Inactive' }}
+                        </span>
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('inventory.adjust_stock') }}"
+                            style="display:flex;gap:6px;align-items:center;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <input type="hidden" name="variant_id" value="{{ v.id }}">
+                            <input type="hidden" name="movement_type" value="adjustment">
+                            <input type="number" name="quantity" placeholder="+/-" style="width:70px;padding:5px 8px;">
+                            <button type="submit" class="btn btn-primary"
+                                style="padding:5px 10px;font-size:12px;">Apply</button>
+                        </form>
+                    </td>
+                    <td>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <form method="POST" action="{{ url_for('inventory.delete_variant', id=v.id) }}"
+                            onsubmit="return confirm('Delete variant {{ v.name }}?')"
+                            style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-primary" 
+                            style="padding:5px 10px;font-size:12px;background:#ef4444;">Delete</button>
+                        </form>
+
+                        <a href="{{ url_for('inventory.edit_variant', id=v.id) }}"
+                          class="btn btn-blue" style="padding:5px 10px;font-size:12px;">Edit
+                        </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <h2>Recent Stock Movements</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Qty</th>
+                    <th>Before</th>
+                    <th>After</th>
+                    <th>Reference</th>
+                    <th>By</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in movements %}
+                <tr>
+                    <td>{{ m.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>
+                        <span class="badge {% if m.quantity > 0 %}badge-green{% else %}badge-red{% endif %}">
+                            {{ m.movement_type.value }}
+                        </span>
+                    </td>
+                    <td>{{ '+' if m.quantity > 0 else '' }}{{ m.quantity }}</td>
+                    <td>{{ m.stock_before }}</td>
+                    <td>{{ m.stock_after }}</td>
+                    <td style="font-size:12px;color:#64748b;">{{ m.reference or '—' }}</td>
+                    <td>{{ m.staff.first_name if m.staff else '—' }}</td>
+                    <td style="color:#64748b;font-size:12px;">{{ m.note or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

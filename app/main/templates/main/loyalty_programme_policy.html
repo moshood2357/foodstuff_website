@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Loyalty Programme Policy — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Terms for the Judith Ethnic Food Store Ltd loyalty programme — joining, rewards, usage, and misuse policy.{% endblock %}
+
+{% block content %}
+<section class="hero hero--sub mt-5" aria-labelledby="page-title">
+  <div style="position:relative;z-index:1;text-align:center;">
+    <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+      <i class="fa-solid fa-star" aria-hidden="true"></i> Legal &amp; Policies
+    </p>
+    <h1 class="hero__title" id="page-title">Loyalty Programme Policy</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:760px;margin:0 auto;">
+    <div class="policy-body">
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">1</span> Introduction</h2>
+        <p>Judith Ethnic Food Store Ltd may introduce customer loyalty rewards, points, or membership benefits from time to time. This policy explains the general terms that apply to any loyalty programme operated by us.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">2</span> Joining the Loyalty Programme</h2>
+        <p>Where available, customers may join by creating an account, providing required customer information, and accepting the loyalty programme terms. Membership is subject to accurate customer information being provided.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">3</span> Loyalty Rewards</h2>
+        <p>Rewards may include:</p>
+        <ul>
+          <li>points earned on purchases;</li>
+          <li>member-only discounts;</li>
+          <li>promotional benefits;</li>
+          <li>special offers.</li>
+        </ul>
+        <p style="margin-top:12px;">The details of rewards may change from time to time.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">4</span> Use of Rewards</h2>
+        <p>Rewards:</p>
+        <ul>
+          <li>cannot normally be exchanged for cash;</li>
+          <li>may have expiry dates;</li>
+          <li>may have minimum purchase requirements;</li>
+          <li>may not be transferred unless stated otherwise.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">5</span> Misuse of Loyalty Benefits</h2>
+        <p>We reserve the right to suspend or cancel accounts where we identify fraudulent activity, abuse of rewards, or creation of multiple accounts to gain unfair benefits.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">6</span> Changes to the Loyalty Programme</h2>
+        <p>We may change or end the loyalty programme by providing reasonable notice where appropriate.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title">Contact</h2>
+        <address style="font-style:normal;line-height:2;">
+          <strong>Judith Ethnic Food Store Ltd</strong><br>
+          311 High Street, Cheltenham, England, GL50 3HW<br>
+          <a href="tel:07306011093">07306 011093</a><br>
+          <a href="mailto:info@judithethnicstore.co.uk">info@judithethnicstore.co.uk</a>
+        </address>
+      </div>
+
+    </div>
+    <div style="margin-top:48px;padding:32px 24px;background:var(--green-50);border-radius:var(--radius-lg);text-align:center;">
+      <p class="about-eyebrow" style="margin-bottom:8px;">Questions about rewards?</p>
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:20px;color:var(--green-800);">Get in touch</h2>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ url_for('main.contact') }}" class="btn btn--primary">Contact Us</a>
+        <a href="mailto:info@judithethnicstore.co.uk" class="btn btn--outline"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Email Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Loyalty Programme Policy — Judith Ethnic Food Store Ltd","url":"{{ request.url }}","publisher":{"@type":"Organization","name":"Judith Ethnic Food Store Ltd","url":"https://judithethnicstore.co.uk"}}
+</script>
+{% endblock %}

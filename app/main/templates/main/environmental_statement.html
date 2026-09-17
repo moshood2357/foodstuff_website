@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Environmental Statement — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Read the environmental statement for Judith Ethnic Food Store Ltd — our commitment to
+reducing waste, responsible packaging, and improving our environmental practices.{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="hero hero--sub mt-5" aria-labelledby="env-title">
+    <div style="position:relative;z-index:1;text-align:center;">
+        <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+            <i class="fa-solid fa-seedling" aria-hidden="true"></i> Our Responsibility
+        </p>
+        <h1 class="hero__title" id="env-title">Environmental Statement</h1>
+    </div>
+</section>
+
+<!-- Statement Body -->
+<section class="section">
+    <div class="container" style="max-width:760px;margin:0 auto;">
+        <div class="policy-body">
+
+            <!-- Our Commitment -->
+            <div class="policy-section">
+                <h2 class="policy-section__title">Our Commitment</h2>
+                <p>
+                    Judith Ethnic Food Store Ltd recognises the importance of reducing environmental impact.
+                    We are committed to operating our business in a way that is mindful of the environment
+                    and the communities we serve.
+                </p>
+            </div>
+
+            <!-- Responsible Practices -->
+            <div class="policy-section">
+                <h2 class="policy-section__title">Responsible Practices</h2>
+                <p>Where reasonably possible, we aim to:</p>
+                <ul>
+                    <li>reduce unnecessary waste;</li>
+                    <li>encourage responsible packaging practices;</li>
+                    <li>improve operational efficiency;</li>
+                    <li>comply with environmental requirements.</li>
+                </ul>
+            </div>
+
+            <!-- Future Improvements -->
+            <div class="policy-section">
+                <h2 class="policy-section__title">Future Improvements</h2>
+                <p>
+                    We will continue to explore ways to improve our environmental responsibility while
+                    providing quality products and services to our customers. As our business grows, we
+                    remain committed to reviewing and improving our environmental practices.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Contact CTA -->
+        <div
+            style="margin-top:56px;padding:32px 24px;background:var(--green-50);border-radius:var(--radius-lg);text-align:center;">
+            <p class="about-eyebrow" style="margin-bottom:8px;">Have a question or suggestion?</p>
+            <h2
+                style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:12px;color:var(--green-800);">
+                We'd love to hear from you
+            </h2>
+            <p
+                style="color:var(--slate-600);margin-bottom:24px;line-height:1.7;max-width:440px;margin-left:auto;margin-right:auto;">
+                If you have any questions about our environmental practices or have a suggestion for how
+                we can do better, please get in touch.
+            </p>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                <a href="{{ url_for('main.contact') }}" class="btn btn--primary">Contact Us</a>
+                <a href="mailto:info@judithethnicstore.co.uk" class="btn btn--outline">
+                    <i class="fa-solid fa-envelope" aria-hidden="true"></i> info@judithethnicstore.co.uk
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Environmental Statement — Judith Ethnic Food Store Ltd",
+  "description": "Judith Ethnic Food Store Ltd's commitment to reducing environmental impact through responsible packaging, waste reduction, and operational efficiency.",
+  "url": "{{ request.url }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Judith Ethnic Food Store Ltd",
+    "url": "https://judithethnicstore.co.uk"
+  }
+}
+</script>
+
+{% endblock %}

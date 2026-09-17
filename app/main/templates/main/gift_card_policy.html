@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Gift Card Policy — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Read the gift card policy for Judith Ethnic Food Store Ltd — how to use gift cards, lost or
+stolen cards, expiry, and refunds.{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="hero hero--sub mt-5" aria-labelledby="giftcard-title">
+    <div style="position:relative;z-index:1;text-align:center;">
+        <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+            <i class="fa-solid fa-gift" aria-hidden="true"></i> Legal &amp; Policies
+        </p>
+        <h1 class="hero__title" id="giftcard-title">Gift Card Policy</h1>
+    </div>
+</section>
+
+<!-- Policy Body -->
+<section class="section">
+    <div class="container" style="max-width:760px;margin:0 auto;">
+
+        <div class="policy-body">
+
+            <!-- 1. Introduction -->
+            <div class="policy-section">
+                <h2 class="policy-section__title">
+                    <span class="policy-section__num">1</span> Introduction
+                </h2>
+                <p>
+                    Judith Ethnic Food Store Ltd may offer gift cards or vouchers for customers to purchase
+                    products from our store or online services.
+                </p>
+            </div>
+
+            <!-- 2. Using Gift Cards -->
+            <div class="policy-section">
+                <h2 class="policy-section__title">
+                    <span class="policy-section__num">2</span> Using Gift Cards
+                </h2>
+                <p>Gift cards:</p>
+                <ul>
+                    <li>may only be used for eligible purchases;</li>
+                    <li>must be presented at the time of purchase;</li>
+                    <li>cannot normally be exchanged for cash.</li>
+                </ul>
+            </div>
+
+            <!-- 3. Lost or Stolen Gift Cards -->
+            <div class="policy-section">
+                <h2 class="policy-section__title">
+                    <span class="policy-section__num">3</span> Lost or Stolen Gift Cards
+                </h2>
+                <p>
+                    Customers are responsible for keeping gift cards secure. Lost, stolen, or damaged gift
+                    cards may not be replaced unless proof of purchase is available.
+                </p>
+            </div>
+
+            <!-- 4. Expiry -->
+            <div class="policy-section">
+                <h2 class="policy-section__title">
+                    <span class="policy-section__num">4</span> Expiry
+                </h2>
+                <p>
+                    Gift cards may have an expiry period. Customers should check the terms provided when
+                    purchasing the gift card.
+                </p>
+            </div>
+
+            <!-- 5. Refunds -->
+            <div class="policy-section">
+                <h2 class="policy-section__title">
+                    <span class="policy-section__num">5</span> Refunds
+                </h2>
+                <p>
+                    Gift card purchases are generally non-refundable unless required by law.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Contact CTA -->
+        <div
+            style="margin-top:56px;padding:32px 24px;background:var(--green-50);border-radius:var(--radius-lg);text-align:center;">
+            <p class="about-eyebrow" style="margin-bottom:8px;">Questions?</p>
+            <h2
+                style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:12px;color:var(--green-800);">
+                Get in touch with us
+            </h2>
+            <p
+                style="color:var(--slate-600);margin-bottom:24px;line-height:1.7;max-width:440px;margin-left:auto;margin-right:auto;">
+                If you have a question about gift cards, please contact us and we'll be happy to help.
+            </p>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                <a href="{{ url_for('main.contact') }}" class="btn btn--primary">Contact Us</a>
+                <a href="mailto:info@judithethnicstore.co.uk" class="btn btn--outline">
+                    <i class="fa-solid fa-envelope" aria-hidden="true"></i> info@judithethnicstore.co.uk
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Gift Card Policy — Judith Ethnic Food Store Ltd",
+  "description": "How to use gift cards, lost or stolen card procedures, expiry terms, and refund conditions for Judith Ethnic Food Store Ltd.",
+  "url": "{{ request.url }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Judith Ethnic Food Store Ltd",
+    "url": "https://judithethnicstore.co.uk"
+  }
+}
+</script>
+
+{% endblock %}

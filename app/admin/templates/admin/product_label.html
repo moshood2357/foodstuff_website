@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Label — {{ product.name }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .page {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .label-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .label {
+        border: 2px solid #0f5c2e;
+        border-radius: 10px;
+        padding: 14px;
+        text-align: center;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .label__store {
+        font-size: 8px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #0f5c2e;
+        margin-bottom: 4px;
+    }
+
+    .label__name {
+        font-size: 12px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 2px;
+        line-height: 1.3;
+    }
+
+    .label__sku {
+        font-size: 8px;
+        color: #94a3b8;
+        margin-bottom: 6px;
+    }
+
+    .label__barcode {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        margin: 6px auto;
+        display: block;
+    }
+
+    .label__price {
+        font-size: 16px;
+        font-weight: 800;
+        color: #0f5c2e;
+        margin-top: 4px;
+    }
+
+    .label__url {
+        font-size: 7px;
+        color: #94a3b8;
+        margin-top: 2px;
+    }
+        /* ACTIONS — hidden on print */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-print {
+            background: #0f5c2e;
+            color: white;
+        }
+
+        .btn-back {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .qty-control label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .qty-control input {
+            width: 60px;
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+
+
+        @media print {
+            body { background: white; padding: 0; margin: 0; }
+        .actions, .qty-control, h2 { display: none !important; }
+        .page {
+            box-shadow: none;
+            padding: 5px;
+            border-radius: 0;
+            max-width: 100%;
+        }
+        .label-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+        .label {
+            border: 1.5px solid #0f5c2e;
+            padding: 14px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+}
+    </style>
+</head>
+
+<body>
+
+    <div class="page">
+
+        <h2 style="font-size:16px; font-weight:700; color:#0f172a; margin-bottom:16px;">
+            🏷️ Print Label — {{ product.name }}
+        </h2>
+
+        <div class="actions">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-back">← Back</a>
+            <button class="btn btn-print" onclick="window.print()">🖨️ Print Labels</button>
+        </div>
+
+        <div class="qty-control">
+            <label>Copies:</label>
+            <input type="number" id="qty" value="4" min="1" max="50" oninput="renderLabels(this.value)">
+        </div>
+
+        <div class="label-grid" id="label-grid">
+            <!-- rendered by JS -->
+        </div>
+
+    </div>
+
+    <script>
+    const productName    = {{ product.name | tojson }};
+    const productPrice   = "£{{ '%.2f' | format(product.price) }}";
+    const productSku     = {{ (product.sku or '') | tojson }};
+    const productBarcode = "{{ url_for('static', filename='uploads/qrcodes/' + product.barcode_image) if product.barcode_image else '' }}";
+
+    function renderLabels(qty) {
+        const count = parseInt(qty) || 4;
+        const grid  = document.getElementById("label-grid");
+        grid.innerHTML = "";
+
+        for (let i = 0; i < count; i++) {
+            const div       = document.createElement("div");
+            div.className   = "label";
+            div.innerHTML   = `
+                <div class="label__store">Judith Ethnic Food Store</div>
+                <div class="label__name">${productName}</div>
+                ${productSku ? `<div class="label__sku">SKU: ${productSku}</div>` : ''}
+                ${productBarcode
+                    ? `<img class="label__barcode" src="${productBarcode}" alt="Barcode">`
+                    : `<div style="height:80px;display:flex;align-items:center;justify-content:center;
+                        font-size:11px;color:#94a3b8;">No barcode</div>`
+                }
+                <div class="label__price">${productPrice}</div>
+                <div class="label__url">judithethnicstore.co.uk</div>
+            `;
+            grid.appendChild(div);
+        }
+    }
+
+    
+    document.getElementById("qty").addEventListener("input", function() {
+        renderLabels(this.value);
+    });
+
+    renderLabels(document.getElementById("qty").value);
+    </script>
+
+</body>
+
+</html>

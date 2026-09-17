@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .inv-page {
+        padding: 90px 24px 40px;
+        max-width: 900px;
+        margin: auto;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 28px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .full {
+        grid-column: span 2;
+    }
+
+    label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: 6px;
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        font-family: inherit;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #22c55e;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: #22c55e;
+        color: #fff;
+    }
+
+    .btn-outline {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        color: #374151;
+    }
+
+    .section-label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 20px 0 12px;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 8px;
+    }
+
+    .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .checkbox-row input {
+        width: auto;
+    }
+</style>
+
+<div class="inv-page">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h1 style="font-size:22px;font-weight:800;color:#0f172a;">Edit — {{ product.name }}</h1>
+        <a href="{{ url_for('inventory.product_detail', id=product.id) }}" class="btn btn-outline">← Back</a>
+    </div>
+
+    <div class="card">
+        <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="section-label">Basic Information</div>
+            <div class="form-grid">
+                <div class="full">
+                    <label>Product Name *</label>
+                    <input type="text" name="name" value="{{ product.name }}" required>
+                </div>
+                <div>
+                    <label>Category *</label>
+                    <select name="category_id" required>
+                        {% for c in categories %}
+                        <option value="{{ c.id }}" {% if c.id==product.category_id %}selected{% endif %}>{{ c.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>Bin Location (optional)</label>
+                    <select name="bin_location_id">
+                        <option value="">No bin assigned</option>
+                        {% for bin in bins %}
+                        <option value="{{ bin.id }}" {% if product.bin_location_id == bin.id %}selected{% endif %}>
+                            {{ bin.name }} {% if bin.description %}— {{ bin.description }}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>Supplier</label>
+                    <select name="supplier_id">
+                        <option value="">No supplier</option>
+                        {% for s in suppliers %}
+                        <option value="{{ s.id }}" {% if product.supplier_id==s.id %}selected{% endif %}>{{ s.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="full">
+                    <label>Short Description</label>
+                    <input type="text" name="short_description" value="{{ product.short_description or '' }}">
+                </div>
+                <div class="full">
+                    <label>Description</label>
+                    <textarea name="description" rows="4">{{ product.description or '' }}</textarea>
+                </div>
+                <div>
+                    <label>Brand</label>
+                    <input type="text" name="brand" value="{{ product.brand or '' }}">
+                </div>
+                <div>
+                    <label>Product Image</label>
+                    <input type="file" name="image" accept="image/*">
+                    {% if product.image %}
+                    <p style="font-size:11px;color:#94a3b8;margin-top:4px;">Current: {{ product.image }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="section-label">Pricing</div>
+            <div class="form-grid">
+                <div>
+                    <label>Selling Price (£) *</label>
+                    <input type="number" name="price" step="0.01" min="0" value="{{ product.price }}" required>
+                </div>
+                <div>
+                    <label>Cost Price (£)</label>
+                    <input type="number" name="cost_price" step="0.01" min="0" value="{{ product.cost_price or '' }}">
+                </div>
+                <div>
+                    <label>Low Stock Threshold</label>
+                    <input type="number" name="low_stock_threshold" min="0" value="{{ product.low_stock_threshold }}">
+                </div>
+            </div>
+
+            <div class="section-label">Options</div>
+            <div class="form-grid">
+                <div>
+                    <label class="checkbox-row">
+                        <input type="checkbox" name="is_active" {% if product.is_active %}checked{% endif %}>
+                        Product is active (visible in store)
+                    </label>
+                </div>
+                <div>
+                    <label class="checkbox-row">
+                        <input type="checkbox" name="is_featured" {% if product.is_featured %}checked{% endif %}>
+                        Feature on homepage
+                    </label>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-top:24px;">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{{ url_for('inventory.product_detail', id=product.id) }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

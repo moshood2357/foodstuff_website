@@ -32,35 +32,42 @@ def register():
     if request.method == 'POST':
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
-        username = request.form.get('username')
         email = request.form.get('email')
+        username = request.form.get('username') or email.split('@')[0]
+        
         phone = request.form.get('phone')
         password = request.form.get('password')
 
-        # check if user exists
-        existing_user = User.query.filter(
-            (User.email == email) | (User.username == username)
-        ).first()
+        try:
+            existing_user = User.query.filter(
+                (User.email == email) | (User.username == username)
+            ).first()
 
-        if existing_user:
-            flash("User with email or username already exists", "danger")
-            return redirect(url_for('auth.register'))
+            if existing_user:
+                flash("User with email or username already exists", "danger")
+                return redirect(url_for('auth.register'))
 
-        new_user = User(
-            first_name=first_name,
-            last_name=last_name,
-            username=username,
-            email=email,
-            phone=phone,
-            password_hash=ph.hash(password),
-            role="customer"   # default role
-        )
+            new_user = User(
+                first_name=first_name,
+                last_name=last_name,
+                username=username,
+                email=email,
+                phone=phone,
+                password_hash=ph.hash(password),
+                role="customer"
+            )
 
-        db.session.add(new_user)
-        db.session.commit()
+            db.session.add(new_user)
+            db.session.commit()
 
-        flash("Account created successfully!", "success")
-        return redirect(url_for('auth.login'))
+            flash("Account created successfully!", "success")
+            return redirect(url_for('auth.login'))
+
+        except Exception as e:
+            db.session.rollback()
+            import traceback
+            traceback.print_exc()
+            return f"<pre>ERROR: {traceback.format_exc()}</pre>", 500
 
     return render_template('auth/register.html')
 
@@ -70,7 +77,6 @@ def register():
 # =========================
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-
     if request.method == 'POST':
         action = request.form.get("action")
 
@@ -82,7 +88,7 @@ def login():
             get_user_key()  # ensures guest ID exists
 
             flash("Continuing as guest", "info")
-            return redirect(url_for('cart.start_checkout')) 
+            return redirect(url_for('cart.start_checkout'))
 
         # =========================
         # LOGIN FLOW
@@ -95,9 +101,8 @@ def login():
         ).first()
 
         if user and ph.verify(user.password_hash, password):
-
             login_user(user)
-            flash("Login successful", "success")
+            # flash("Login successful", "success")
 
             # =========================
             # MERGE GUEST DATA → USER
@@ -112,14 +117,17 @@ def login():
             # =========================
             # ROLE-BASED REDIRECT
             # =========================
-            if user.role == "admin":
+            if current_user.pos_role == 'cashier':
+                return redirect(url_for('pos.index'))
+            elif current_user.is_admin:
                 return redirect(url_for('admin.dashboard'))
-
-            return redirect(url_for('main.home'))
+            else:
+                return redirect(url_for('main.home'))
 
         flash("Invalid credentials", "danger")
 
     return render_template('auth/login.html')
+
 
 
 # =========================

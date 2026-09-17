@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .edit-page { padding:90px 20px 40px; max-width:900px; margin:auto; }
+    .card { background:#fff; border-radius:12px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,.05); margin-bottom:20px; }
+    .card h2 { font-size:15px; font-weight:700; color:#0f172a; margin-bottom:16px; border-bottom:1px solid #f1f5f9; padding-bottom:10px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .full { grid-column:span 2; }
+    label { display:block; font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+    input, select, textarea { width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; font-size:14px; outline:none; font-family:inherit; }
+    input:focus, select:focus, textarea:focus { border-color:#22c55e; }
+    .btn { padding:10px 20px; border-radius:8px; border:none; cursor:pointer; font-size:13px; font-weight:600; text-decoration:none; display:inline-block; }
+    .btn-green { background:#22c55e; color:#fff; }
+    .btn-outline { background:#fff; border:1px solid #e2e8f0; color:#374151; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; padding:8px 12px; font-size:11px; text-transform:uppercase; color:#94a3b8; background:#f8fafc; }
+    td { padding:10px 12px; border-bottom:1px solid #f1f5f9; font-size:14px; vertical-align:middle; }
+    .qty-input { width:70px; padding:6px 8px; text-align:center; }
+</style>
+
+<div class="edit-page">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+            <a href="{{ url_for('orders.order_detail', id=order.id) }}"
+               style="color:#22c55e;text-decoration:none;font-size:13px;">← Back to Order</a>
+            <h1 style="font-size:22px;font-weight:800;color:#0f172a;margin-top:4px;">
+                Edit Order — {{ order.order_number }}
+            </h1>
+        </div>
+    </div>
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- CUSTOMER DETAILS -->
+        <div class="card">
+            <h2>Customer Details</h2>
+            <div class="form-grid">
+                <div>
+                    <label>Full Name</label>
+                    <input type="text" name="full_name"
+                           value="{{ order.address.full_name if order.address else '' }}">
+                </div>
+                <div>
+                    <label>Phone</label>
+                    <input type="tel" name="phone"
+                           value="{{ order.address.phone if order.address else '' }}">
+                </div>
+                <div class="full">
+                    <label>Email</label>
+                    <input type="email" name="email"
+                           value="{{ order.user.email if order.user else (order.guest_email or '') }}"
+                           {% if order.user %}readonly style="background:#f8fafc;color:#94a3b8;"{% endif %}>
+                    {% if order.user %}
+                    <small style="color:#94a3b8;font-size:11px;">Registered user email cannot be changed here.</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- FULFILMENT -->
+        <div class="card">
+            <h2>Fulfilment Details</h2>
+            <div class="form-grid">
+                <div class="full">
+                    <label>Fulfilment Type</label>
+                    <select name="fulfillment_type">
+                        <option value="delivery" {% if order.fulfillment_type == 'delivery' %}selected{% endif %}>Delivery</option>
+                        <option value="pickup" {% if order.fulfillment_type == 'pickup' %}selected{% endif %}>Click & Collect</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Pickup Date</label>
+                    <input type="date" name="pickup_date" value="{{ order.pickup_date or '' }}">
+                </div>
+                <div>
+                    <label>Pickup Time</label>
+                    <input type="time" name="pickup_time" value="{{ order.pickup_time or '' }}">
+                </div>
+                <div class="full">
+                    <label>Order Notes</label>
+                    <textarea name="note" rows="3"
+                              placeholder="Any special instructions...">{{ order.note or '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- DELIVERY ADDRESS -->
+        <div class="card">
+            <h2>Delivery Address</h2>
+            <div class="form-grid">
+                <div class="full">
+                    <label>Address Line 1</label>
+                    <input type="text" name="address_line_1"
+                           value="{{ order.address.address_line_1 if order.address else '' }}">
+                </div>
+                <div class="full">
+                    <label>Address Line 2</label>
+                    <input type="text" name="address_line_2"
+                           value="{{ order.address.address_line_2 if order.address else '' }}">
+                </div>
+                <div>
+                    <label>City</label>
+                    <input type="text" name="city"
+                           value="{{ order.address.city if order.address else '' }}">
+                </div>
+                <div>
+                    <label>County/State</label>
+                    <input type="text" name="state"
+                           value="{{ order.address.state if order.address else '' }}">
+                </div>
+                <div>
+                    <label>Postcode</label>
+                    <input type="text" name="postal_code"
+                           value="{{ order.address.postal_code if order.address else '' }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- ORDER ITEMS -->
+        <div class="card">
+            <h2>Order Items</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Unit Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items %}
+                    <tr id="row-{{ item.id }}">
+                        <td>
+                            <input type="hidden" name="item_id[]" value="{{ item.id }}">
+                            <div style="font-weight:600;">{{ item.product_name }}</div>
+                        </td>
+                        <td>£{{ "%.2f"|format(item.price) }}</td>
+                        <td>
+                            <input type="number" name="item_quantity[]"
+                                   class="qty-input" min="0" max="999"
+                                   value="{{ item.quantity }}">
+                        </td>
+                        <td>£{{ "%.2f"|format(item.price * item.quantity) }}</td>
+                        <td>
+                            <button type="button" onclick="removeItem({{ item.id }})"
+                                style="background:#fee2e2;color:#991b1b;border:none;
+                                       padding:5px 10px;border-radius:6px;cursor:pointer;
+                                       font-size:12px;font-weight:600;">
+                                Remove
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p style="font-size:12px;color:#94a3b8;margin-top:10px;">
+                Change quantity to update. Click Remove to delete an item.
+            </p>
+        </div>
+
+        <!-- ADD NEW ITEMS -->
+        <div class="card">
+            <h2>Add New Items</h2>
+            <div id="new-items-container"></div>
+            <button type="button" onclick="addNewItem()"
+                style="padding:8px 16px;background:#f0fdf4;color:#166534;
+                       border:1px solid #22c55e;border-radius:8px;
+                       font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;">
+                + Add Product
+            </button>
+        </div>
+
+        <!-- ACTIONS -->
+        <div style="display:flex;gap:12px;margin-bottom:40px;">
+            <button type="submit" class="btn btn-green">Save Changes</button>
+            <a href="{{ url_for('orders.order_detail', id=order.id) }}" class="btn btn-outline">Cancel</a>
+        </div>
+
+    </form>
+
+    <!-- pre-rendered product options for JS — rendered by Jinja, cloned by JS -->
+    <select id="product-options-template" style="display:none;">
+        <option value="">Select product</option>
+        {% for p in products %}
+        <option value="{{ p.id }}">{{ p.name }} — £{{ "%.2f"|format(p.price) }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<script>
+    let newItemCount = 0;
+
+    function removeItem(itemId) {
+        if (!confirm('Remove this item from the order?')) return;
+        const row      = document.getElementById('row-' + itemId);
+        const qtyInput = row.querySelector('input[name="item_quantity[]"]');
+        qtyInput.value = 0;
+        row.style.opacity        = '0.3';
+        row.style.textDecoration = 'line-through';
+    }
+
+    function addNewItem() {
+        newItemCount++;
+        const container   = document.getElementById('new-items-container');
+        const template    = document.getElementById('product-options-template');
+        const optionsHTML = template.innerHTML;
+
+        const div = document.createElement('div');
+        div.id    = 'new-item-' + newItemCount;
+        div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e5e7eb;';
+
+        const currentCount = newItemCount;
+        div.innerHTML = `
+            <div>
+                <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">PRODUCT</label>
+                <select name="new_product_id[]"
+                    style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;">
+                    ${optionsHTML}
+                </select>
+            </div>
+            <div>
+                <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">QUANTITY</label>
+                <input type="number" name="new_quantity[]" min="1" value="1"
+                    style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;">
+            </div>
+            <div>
+                <label style="display:block;margin-bottom:5px;">&nbsp;</label>
+                <button type="button"
+                    onclick="document.getElementById('new-item-${currentCount}').remove()"
+                    style="padding:10px 14px;background:#fee2e2;color:#991b1b;
+                           border:none;border-radius:8px;cursor:pointer;font-weight:600;">
+                    &times;
+                </button>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+</script>
+
+{% endblock %}

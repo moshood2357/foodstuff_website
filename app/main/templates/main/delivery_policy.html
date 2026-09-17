@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Delivery Policy — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Judith Ethnic Food Store Ltd's delivery policy — delivery areas, options, charges, timescales, food safety, and what to do if something goes wrong.{% endblock %}
+
+{% block content %}
+<section class="hero hero--sub mt-5" aria-labelledby="page-title">
+  <div style="position:relative;z-index:1;text-align:center;">
+    <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+      <i class="fa-solid fa-truck-fast" aria-hidden="true"></i> Legal &amp; Policies
+    </p>
+    <h1 class="hero__title" id="page-title">Delivery Policy</h1>
+    <p style="color:var(--green-100);margin-top:8px;font-size:0.9rem;">Effective Date: 1 August 2026</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:760px;margin:0 auto;">
+    <div class="policy-body">
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">1</span> Introduction</h2>
+        <p>At Judith Ethnic Food Store Ltd, we aim to provide a reliable and convenient delivery service for our customers. This Delivery Policy explains how we process, prepare, and deliver orders placed through <a href="https://judithethnicstore.co.uk" target="_blank" rel="noopener">judithethnicstore.co.uk</a>, and applies to online grocery orders including African food products, international groceries, and household items.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">2</span> Delivery Areas</h2>
+        <p>We currently provide delivery services within the areas shown during checkout. Delivery availability may depend on customer location, product type, delivery method selected, and courier availability. We reserve the right to decline delivery where we cannot safely or reasonably complete the order.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">3</span> Delivery Options</h2>
+
+        <h3 style="font-size:1rem;font-weight:600;margin:20px 0 8px;color:var(--green-800);">Standard Delivery</h3>
+        <p>Suitable for ambient groceries, packaged food, household products, and non-perishable items. Estimated delivery times will be displayed during checkout.</p>
+
+        <h3 style="font-size:1rem;font-weight:600;margin:20px 0 8px;color:var(--green-800);">Local Delivery</h3>
+        <p>Where available, local customers may receive faster delivery options, scheduled delivery times, and local driver delivery.</p>
+
+        <h3 style="font-size:1rem;font-weight:600;margin:20px 0 8px;color:var(--green-800);">Click &amp; Collect</h3>
+        <p>Where available, customers may collect their orders from our store. Collection details will be provided after order confirmation.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">4</span> Delivery Charges</h2>
+        <p>Delivery charges depend on delivery location, order size and weight, and delivery method selected. The applicable delivery charge will be displayed before payment is completed. From time to time, we may offer free delivery promotions or special delivery offers, which may have separate terms.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">5</span> Order Processing Time</h2>
+        <p>We aim to process orders promptly after payment confirmation. Processing times may vary due to order volume, product availability, weekends, public holidays, and seasonal demand.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">6</span> Delivery of Food Products</h2>
+        <p>Food products require appropriate handling. Customers are responsible for checking deliveries promptly, storing products according to instructions, and refrigerating or freezing items where required. For chilled and frozen products, customers should be available to receive delivery and store products immediately after delivery.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">7</span> Delivery Times</h2>
+        <p>Delivery times are estimates only. Although we aim to meet delivery estimates, delays may occur due to courier delays, traffic conditions, adverse weather, public holidays, or circumstances outside our control. A delay does not automatically entitle a customer to compensation unless required by law.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">8</span> Delivery Address</h2>
+        <p>Customers are responsible for providing accurate delivery information. Please check your house number, postcode, contact telephone number, and delivery instructions. We are not responsible for failed deliveries caused by incorrect information provided by the customer.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">9</span> Receiving Your Delivery</h2>
+        <p>When receiving your order, customers should check packaging condition, product quantity, and visible damage. If there is an issue, please <a href="{{ url_for('main.contact') }}">contact us</a> as soon as possible.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">10</span> Missing or Damaged Items</h2>
+        <p>If your order contains missing items, incorrect items, damaged products, or spoiled products, please <a href="{{ url_for('main.contact') }}">contact us</a> promptly with your order number, a description of the problem, and photographs where appropriate. We will investigate and provide an appropriate resolution.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">11</span> Failed Delivery</h2>
+        <p>If delivery cannot be completed because nobody is available, access is unavailable, or incorrect address details were provided, we may rearrange delivery, charge an additional delivery fee, or return items to the store. Perishable items may not be suitable for redelivery for food safety reasons.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">12</span> Delivery of Age-Restricted Products</h2>
+        <p>Where applicable, we may require proof of age for restricted products. Delivery staff may refuse delivery where legal age requirements cannot be verified.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">13</span> Click &amp; Collect</h2>
+        <p>Where Click &amp; Collect is available, customers will receive confirmation when their order is ready. Customers should bring order confirmation, collect during store opening hours, and ensure collection details are correct. Orders not collected within a reasonable period may be cancelled.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">14</span> Refunds Related to Delivery Issues</h2>
+        <p>Where we are responsible for incorrect delivery, damaged goods, or missing items, we may offer a replacement, refund, store credit, or alternative resolution. Refunds are processed according to our Returns &amp; Refund Policy.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">15</span> Contact Us</h2>
+        <address style="font-style:normal;line-height:2;">
+          <strong>Judith Ethnic Food Store Ltd</strong><br>
+          311 High Street, Cheltenham, England, GL50 3HW<br>
+          <a href="tel:07306011093">07306 011093</a><br>
+          <a href="mailto:info@judithethnicstore.co.uk">info@judithethnicstore.co.uk</a>
+        </address>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">16</span> Changes to This Policy</h2>
+        <p>We may update this Delivery Policy from time to time. The latest version will always be available on <a href="https://judithethnicstore.co.uk" target="_blank" rel="noopener">judithethnicstore.co.uk</a>.</p>
+      </div>
+
+    </div>
+    <div style="margin-top:48px;padding:32px 24px;background:var(--green-50);border-radius:var(--radius-lg);text-align:center;">
+      <p class="about-eyebrow" style="margin-bottom:8px;">Delivery question?</p>
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:20px;color:var(--green-800);">We're here to help</h2>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ url_for('main.contact') }}" class="btn btn--primary">Contact Us</a>
+        <a href="tel:07306011093" class="btn btn--outline"><i class="fa-solid fa-phone" aria-hidden="true"></i> 07306 011093</a>
+      </div>
+    </div>
+  </div>
+</section>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Delivery Policy — Judith Ethnic Food Store Ltd","url":"{{ request.url }}","publisher":{"@type":"Organization","name":"Judith Ethnic Food Store Ltd","url":"https://judithethnicstore.co.uk"}}
+</script>
+{% endblock %}

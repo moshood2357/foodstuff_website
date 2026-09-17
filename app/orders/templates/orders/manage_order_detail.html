@@ -1,0 +1,603 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    /* Global & Container Reset */
+    .detail-page {
+        padding: 40px 24px 60px;
+        max-width: 1200px;
+        margin: 0 auto;
+        color: #0f172a;
+        font-family: inherit;
+    }
+
+    /* Page Navigation & Title Bar */
+    .top-nav { margin-bottom: 16px; }
+    .back-link {
+        color: #64748b;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.15s ease;
+    }
+    .back-link:hover { color: #0f172a; }
+
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    .title-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .title-group h1 { font-size: 24px; font-weight: 800; tracking: -0.02em; margin: 0; }
+    .header-meta { font-size: 13px; color: #64748b; margin-top: 4px; display: flex; align-items: center; gap: 8px; }
+
+    /* Asymmetric Grid Layout (UX Standard) */
+    .order-grid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 24px;
+        align-items: start;
+    }
+    .main-column, .side-column { display: flex; flex-direction: column; gap: 24px; }
+
+    /* Surface Cards */
+    .card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .card h2 { font-size: 15px; font-weight: 700; color: #0f172a; margin: 0; }
+
+    /* Key-Value Data Pairs */
+    .info-list { display: flex; flex-direction: column; gap: 10px; }
+    .info-row { display: flex; justify-content: space-between; align-items: flex-start; font-size: 13px; }
+    .info-label { color: #64748b; font-weight: 500; }
+    .info-value { font-weight: 600; color: #0f172a; text-align: right; }
+
+    /* Unified Badge System */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+    .badge-new { background: #eff6ff; color: #1d4ed8; }
+    .badge-payment_confirmed { background: #ecfdf5; color: #047857; }
+    .badge-processing { background: #fffbeb; color: #b45309; }
+    .badge-picking { background: #eef2ff; color: #4338ca; }
+    .badge-picked { background: #ecfeff; color: #0e7490; }
+    .badge-packed { background: #fdf2f8; color: #be185d; }
+    .badge-ready_for_dispatch { background: #fefce8; color: #a16207; }
+    .badge-dispatched { background: #f0fdf4; color: #15803d; }
+    .badge-delivered, .badge-completed { background: #ecfdf5; color: #047857; }
+    .badge-on_hold { background: #fffbeb; color: #b45309; }
+    .badge-cancelled, .badge-payment_failed { background: #fef2f2; color: #b91c1c; }
+    .badge-refunded, .badge-returned { background: #fdf2f8; color: #be185d; }
+
+    /* Tables */
+    .table-container { overflow-x: auto; margin: 0 -20px -20px -20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 10px 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+
+    /* Action Toolbar & Buttons */
+    .action-card { background: #f8fafc; border: 1px solid #e2e8f0; }
+    .action-bar { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn {
+        padding: 8px 14px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-primary { background: #0f172a; color: #fff; }
+    .btn-primary:hover { background: #1e293b; }
+    .btn-secondary { background: #ffffff; color: #334155; border-color: #cbd5e1; }
+    .btn-secondary:hover { background: #f8fafc; border-color: #94a3b8; }
+    .btn-danger { background: #ffffff; color: #dc2626; border-color: #fca5a5; }
+    .btn-danger:hover { background: #fef2f2; }
+
+    /* Form Panels */
+    .form-panel {
+        display: none;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #e2e8f0;
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group.full-width { grid-column: span 2; }
+    label { display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+    input, select, textarea {
+        width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1;
+        border-radius: 6px; font-size: 13px; outline: none; box-sizing: border-box;
+    }
+    input:focus, select:focus, textarea:focus { border-color: #0f172a; box-shadow: 0 0 0 1px #0f172a; }
+
+    /* Timeline Section */
+    .timeline { position: relative; padding-left: 20px; }
+    .timeline::before { content: ''; position: absolute; left: 6px; top: 4px; bottom: 4px; width: 2px; background: #e2e8f0; }
+    .tl-item { position: relative; margin-bottom: 16px; }
+    .tl-item:last-child { margin-bottom: 0; }
+    .tl-dot {
+        position: absolute; left: -20px; top: 4px; width: 10px; height: 10px;
+        border-radius: 50%; background: #0f172a; border: 2px solid #fff; box-shadow: 0 0 0 2px #e2e8f0;
+    }
+    .tl-status { font-size: 13px; font-weight: 600; color: #0f172a; }
+    .tl-meta { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .tl-note { font-size: 12px; color: #334155; margin-top: 4px; background: #f8fafc; padding: 6px 10px; border-radius: 4px; border: 1px solid #e2e8f0; }
+
+    /* Responsive Adjustments */
+    @media (max-width: 900px) {
+        .order-grid { grid-template-columns: 1fr; }
+        .form-grid { grid-template-columns: 1fr; }
+        .form-group.full-width { grid-column: span 1; }
+    }
+</style>
+
+<div class="detail-page">
+    
+    <div class="top-nav">
+        <a href="{{ url_for('orders.order_list') }}" class="back-link">
+            <span>←</span> Back to All Orders
+        </a>
+    </div>
+
+    <!-- Header Section -->
+    <div class="detail-header">
+        <div>
+            <div class="title-group">
+                <h1>Order {{ order.order_number }}</h1>
+                <span class="badge badge-{{ order.status.value if order.status else 'new' }}">
+                    {{ order.status.value.replace('_',' ').title() if order.status else 'New' }}
+                </span>
+            </div>
+            <div class="header-meta">
+                <span>Placed {{ order.created_at.strftime('%d %b %Y at %H:%M') }}</span>
+                <span>•</span>
+                
+                {% if order.fulfillment_type == 'pickup' %}
+                    <span>🏪 Pick Up in Store</span>
+                {% else %}
+                    <span>🚚 Standard Delivery</span>
+                {% endif %}
+
+                {% if order.status and order.status.value not in ['completed', 'cancelled', 'refunded', 'returned'] %}
+                <a href="{{ url_for('orders.edit_order', id=order.id) }}"
+                   class="action-link" style="color:#3b82f6;margin-left:8px;">
+                    ✏️ Edit
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if order.picking_list and order.status == OrderStatus.picking %}
+        <a href="{{ url_for('orders.picking_interface', id=order.id) }}" class="btn btn-secondary" target="_blank">
+            📱 Open Mobile Picking View
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="order-grid">
+        
+        <!-- Left Main Content Column -->
+        <div class="main-column">
+            
+            <!-- Contextual Actions Card -->
+            <div class="card action-card">
+                <div class="card-header" style="margin-bottom: 12px; padding-bottom: 0; border: none;">
+                    <h2>Order Actions</h2>
+                </div>
+                <div class="action-bar">
+                    {% if order.status.value == 'new' %}
+                    <form method="POST" action="{{ url_for('orders.confirm_payment', id=order.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-primary">Confirm Payment</button>
+                    </form>
+
+                    {% elif order.status.value == 'payment_confirmed' %}
+                    <form method="POST" action="{{ url_for('orders.process_order', id=order.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-primary">Process Order</button>
+                    </form>
+
+                    {% elif order.status.value == 'processing' %}
+                    <form method="POST" action="{{ url_for('orders.start_picking', id=order.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-primary">Generate Picking List</button>
+                    </form>
+
+                    {% elif order.status.value == 'picked' %}
+                    <form method="POST" action="{{ url_for('orders.pack_order', id=order.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-primary">Mark as Packed</button>
+                    </form>
+
+                    {% elif order.status.value == 'packed' %}
+                    <form method="POST" action="{{ url_for('orders.ready_for_dispatch', id=order.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-primary">
+                            {% if order.fulfillment_type == 'pickup' %}
+                            Mark Ready for Collection
+                            {% else %}
+                            Mark Ready for Dispatch
+                            {% endif %}
+                        </button>
+                    </form>
+
+                    {% elif order.status.value == 'ready_for_dispatch' and order.fulfillment_type != 'pickup' %}
+                    <button class="btn btn-primary" onclick="toggleForm('dispatch-form')">
+                        Dispatch Order
+                    </button>
+
+                    {% elif order.status.value in ['dispatched', 'ready_for_dispatch'] %}
+                    <form method="POST" action="{{ url_for('orders.deliver_order', id=order.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-primary">Mark Delivered / Collected</button>
+                    </form>
+
+                    {% elif order.status.value == 'delivered' %}
+                    <form method="POST" action="{{ url_for('orders.complete_order', id=order.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-primary">Complete Order</button>
+                    </form>
+                    {% endif %}
+
+                    {% if order.status.value not in ['completed', 'cancelled', 'refunded', 'returned'] %}
+                    <button class="btn btn-secondary" onclick="toggleForm('hold-form')">Hold</button>
+                    <button class="btn btn-danger" onclick="toggleForm('cancel-form')">Cancel</button>
+                    {% endif %}
+
+                    {% if order.status.value in ['delivered', 'completed'] %}
+                    <button class="btn btn-secondary" onclick="toggleForm('return-form')">Process Return</button>
+                    {% endif %}
+
+                    {% if order.status.value not in ['new', 'payment_failed', 'cancelled'] %}
+                    <button class="btn btn-secondary" onclick="toggleForm('refund-form')">Issue Refund</button>
+                    {% endif %}
+                </div>
+
+                <!-- Hidden Inline Action Forms -->
+                <div id="dispatch-form" class="form-panel">
+                    <form method="POST" action="{{ url_for('orders.dispatch_order', id=order.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Driver Name</label>
+                                <input type="text" name="driver_name" placeholder="Full name">
+                            </div>
+                            <div class="form-group">
+                                <label>Driver Phone</label>
+                                <input type="tel" name="driver_phone" placeholder="+44...">
+                            </div>
+                            <div class="form-group">
+                                <label>Tracking Reference</label>
+                                <input type="text" name="tracking_ref" placeholder="Optional">
+                            </div>
+                            <div class="form-group">
+                                <label>Notes</label>
+                                <input type="text" name="notes" placeholder="Dispatch notes">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Confirm Dispatch</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleForm('dispatch-form')">Cancel</button>
+                    </form>
+                </div>
+
+                <div id="hold-form" class="form-panel">
+                    <form method="POST" action="{{ url_for('orders.hold_order', id=order.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="form-group full-width">
+                            <label>Reason for Hold</label>
+                            <textarea name="reason" rows="2" placeholder="Provide a reason..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Confirm Hold</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleForm('hold-form')">Cancel</button>
+                    </form>
+                </div>
+
+                <div id="cancel-form" class="form-panel">
+                    <form method="POST" action="{{ url_for('orders.cancel_order', id=order.id) }}" onsubmit="return confirm('Cancel this order? Stock will be restored.')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="form-group full-width">
+                            <label>Reason for Cancellation</label>
+                            <textarea name="reason" rows="2" placeholder="Provide a reason..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleForm('cancel-form')">Dismiss</button>
+                    </form>
+                </div>
+
+                <div id="return-form" class="form-panel">
+                    <form method="POST" action="{{ url_for('orders.return_order', id=order.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="form-group full-width">
+                            <label>Reason for Return</label>
+                            <textarea name="reason" rows="2" placeholder="Provide details..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Confirm Return & Restock</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleForm('return-form')">Cancel</button>
+                    </form>
+                </div>
+
+                <div id="refund-form" class="form-panel">
+                    <form method="POST" action="{{ url_for('orders.refund_order', id=order.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Refund Amount (£)</label>
+                                <input type="number" name="amount" step="0.01" min="0" value="{{ '%.2f'|format(order.total_amount or 0) }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Reason</label>
+                                <input type="text" name="reason" placeholder="Reason for refund">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" onclick="return confirm('Process refund? This action cannot be reversed.')">Confirm Refund</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleForm('refund-form')">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Line Items Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Items Ordered</h2>
+                    {% if order.picking_list %}
+                    <span style="font-size:12px; color:#64748b;">
+                        Picking Progress: {{ order.picking_list.items|selectattr('is_picked')|list|length }}/{{ order.picking_list.items|length }} items
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>SKU</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                                {% if order.picking_list %}<th>Pick State</th>{% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                            <tr>
+                                <td>
+                                    <div style="font-weight:600; color:#0f172a;">{{ item.product_name }}</div>
+                                </td>
+                                <td style="font-family:monospace; color:#64748b;">
+                                    {{ item.product.sku if item.product else '—' }}
+                                </td>
+                                <td>£{{ "%.2f"|format(item.price) }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td><strong>£{{ "%.2f"|format(item.price * item.quantity) }}</strong></td>
+                                {% if order.picking_list %}
+                                <td>
+                                    {% set pl_item = order.picking_list.items|selectattr('order_item_id', 'equalto', item.id)|first %}
+                                    {% if pl_item %}
+                                    <span class="badge {% if pl_item.is_picked %}badge-payment_confirmed{% else %}badge-processing{% endif %}">
+                                        {% if pl_item.is_picked %}Picked{% else %}Pending{% endif %}
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Logistics/Shipment Info -->
+            {% if order.shipment %}
+            <div class="card">
+                <div class="card-header">
+                    <h2>Shipment & Dispatch</h2>
+                </div>
+                <div class="info-list">
+                    <div class="info-row">
+                        <span class="info-label">Courier/Driver</span>
+                        <span class="info-value">{{ order.shipment.driver_name or '—' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Driver Contact</span>
+                        <span class="info-value">{{ order.shipment.driver_phone or '—' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Tracking Ref</span>
+                        <span class="info-value">{{ order.shipment.tracking_ref or '—' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Dispatched Date</span>
+                        <span class="info-value">{{ order.shipment.dispatched_at.strftime('%d/%m/%Y %H:%M') if order.shipment.dispatched_at else '—' }}</span>
+                    </div>
+                    {% if order.shipment.delivered_at %}
+                    <div class="info-row">
+                        <span class="info-label">Delivered Date</span>
+                        <span class="info-value">{{ order.shipment.delivered_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                    </div>
+                    {% endif %}
+                    {% if order.shipment.notes %}
+                    <div class="info-row">
+                        <span class="info-label">Notes</span>
+                        <span class="info-value">{{ order.shipment.notes }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Activity / Status History Timeline -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Order History</h2>
+                </div>
+                <div class="timeline">
+                    {% for log in status_logs %}
+                    <div class="tl-item">
+                        <div class="tl-dot"></div>
+                        <div class="tl-status">
+                            {{ log.from_status.replace('_',' ').title() if log.from_status else 'Created' }}
+                            → {{ log.to_status.replace('_',' ').title() }}
+                        </div>
+                        <div class="tl-meta">
+                            {{ log.created_at.strftime('%d %b %Y, %H:%M') }}
+                            {% if log.staff %} • {{ log.staff.first_name }} {{ log.staff.last_name }}{% endif %}
+                        </div>
+                        {% if log.note %}
+                        <div class="tl-note">{{ log.note }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="tl-item">
+                        <div class="tl-dot" style="background:#94a3b8; box-shadow: 0 0 0 2px #e2e8f0;"></div>
+                        <div class="tl-status" style="color:#64748b;">Order Created</div>
+                        <div class="tl-meta">{{ order.created_at.strftime('%d %b %Y, %H:%M') }}</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Side Panel Column -->
+        <div class="side-column">
+            
+            <!-- Order Financial Summary -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Financial Summary</h2>
+                </div>
+                <div class="info-list">
+                    <div class="info-row">
+                        <span class="info-label">Subtotal</span>
+                        <span class="info-value">£{{ "%.2f"|format(order.subtotal or 0) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Fulfillment</span>
+                        <span class="info-value">
+                            {% if order.fulfillment_type == 'pickup' %}
+                                Free (Pickup)
+                            {% else %}
+                                £{{ "%.2f"|format(order.delivery_fee or 0) }}
+                                {% if order.delivery_miles %}
+                                <span style="font-weight: normal; color: #64748b;">({{ order.delivery_miles }} mi)</span>
+                                {% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-row" style="padding-top: 8px; border-top: 1px dashed #e2e8f0; margin-top: 4px;">
+                        <span class="info-label" style="font-weight: 700; color: #0f172a;">Total</span>
+                        <span class="info-value" style="font-size: 16px; font-weight: 800; color: #0f172a;">
+                            £{{ "%.2f"|format(order.total_amount or 0) }}
+                        </span>
+                    </div>
+                    <div class="info-row" style="align-items: center; margin-top: 6px;">
+                        <span class="info-label">Payment Status</span>
+                        <span class="badge {% if order.payment_status and order.payment_status.value == 'paid' %}badge-payment_confirmed{% else %}badge-payment_failed{% endif %}">
+                            {{ order.payment_status.value.upper() if order.payment_status else 'UNPAID' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Details -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Customer Details</h2>
+                </div>
+                <div class="info-list">
+                    <div class="info-row">
+                        <span class="info-label">Name</span>
+                        <span class="info-value">{{ order.address.full_name if order.address else '—' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value" style="word-break: break-all;">
+                            {{ order.user.email if order.user else (order.guest_email or '—') }}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Phone</span>
+                        <span class="info-value">{{ order.address.phone if order.address else '—' }}</span>
+                    </div>
+                    
+                    {% if order.fulfillment_type == 'pickup' %}
+                    <div class="info-row">
+                        <span class="info-label">Pickup Date</span>
+                        <span class="info-value">{{ order.pickup_date or '—' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Pickup Time</span>
+                        <span class="info-value">{{ order.pickup_time or '—' }}</span>
+                    </div>
+                    {% else %}
+                    <div class="info-row">
+                        <span class="info-label">Delivery Address</span>
+                        <span class="info-value" style="max-width: 60%;">
+                            {{ order.address.address_line_1 if order.address else '—' }}
+                            {% if order.address and order.address.address_line_2 %}<br>{{ order.address.address_line_2 }}{% endif %}
+                            {% if order.address %}<br>{{ order.address.city }}, {{ order.address.postal_code }}{% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    {% if order.note %}
+                    <div class="info-row" style="flex-direction: column; gap: 4px; border-top: 1px solid #f1f5f9; padding-top: 8px;">
+                        <span class="info-label">Customer Note</span>
+                        <span class="info-value" style="text-align: left; font-weight: normal; color: #334155; background: #fffbeb; padding: 8px; border-radius: 4px; border: 1px solid #fef3c7;">
+                            {{ order.note }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function toggleForm(formId) {
+        const form = document.getElementById(formId);
+        const isVisible = form.style.display === 'block';
+        
+        // Hide all action forms
+        document.querySelectorAll('.form-panel').forEach(el => el.style.display = 'none');
+        
+        // Toggle target form
+        if (!isVisible) {
+            form.style.display = 'block';
+        }
+    }
+</script>
+{% endblock %}

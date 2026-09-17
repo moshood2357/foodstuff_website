@@ -407,10 +407,15 @@ function toggleCart() {
 // LIVE SEARCH
 // =========================
 const searchInput = document.getElementById("searchInput");
-const resultsBox = document.getElementById("searchResults");
+const resultsBox  = document.getElementById("searchResults");
 
 if (searchInput && resultsBox) {
   let timeout;
+
+  // style the results box for scrolling
+  resultsBox.style.maxHeight   = "400px";
+  resultsBox.style.overflowY   = "auto";
+  resultsBox.style.borderRadius = "10px";
 
   searchInput.addEventListener("input", function () {
     clearTimeout(timeout);
@@ -419,45 +424,123 @@ if (searchInput && resultsBox) {
 
     if (query.length < 2) {
       resultsBox.style.display = "none";
-      resultsBox.innerHTML = "";
+      resultsBox.innerHTML     = "";
       return;
     }
 
     timeout = setTimeout(() => {
-      fetch(`/api/search?q=${encodeURIComponent(query)}`)
-        .then((res) => res.json())
-        .then((data) => {
-          resultsBox.innerHTML = "";
+      // fetch products and categories in parallel
+      Promise.all([
+        fetch(`/api/search?q=${encodeURIComponent(query)}&limit=30`).then(r => r.json()),
+        fetch(`/api/categories`).then(r => r.json())
+      ]).then(([products, categories]) => {
+        resultsBox.innerHTML = "";
 
-          if (data.length === 0) {
-            resultsBox.innerHTML = `
-              <div class="list-group-item text-muted">
-                No products found
+        // match categories by name
+        const matchedCategories = categories.filter(c =>
+          c.name.toLowerCase().includes(query.toLowerCase())
+        );
+
+        let hasResults = false;
+
+        // show matching categories first
+        if (matchedCategories.length > 0) {
+          hasResults = true;
+
+          const catHeader = document.createElement("div");
+          catHeader.className = "list-group-item fw-semibold text-muted"
+          catHeader.style.cssText = "font-size:11px;text-transform:uppercase;letter-spacing:.08em;background:#f8f9fa;padding:6px 12px;";
+          catHeader.textContent = "Categories";
+          resultsBox.appendChild(catHeader);
+
+          matchedCategories.forEach(cat => {
+            const el = document.createElement("a");
+            el.href      = `/shop?category=${cat.id}`;
+            el.className = "list-group-item list-group-item-action d-flex align-items-center gap-2";
+            el.innerHTML = `
+              <span style="width:40px;height:40px;background:#e8f5e9;border-radius:6px;
+                           display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+                🏷️
+              </span>
+              <div>
+                <div style="font-weight:600;">${cat.name}</div>
+                <small class="text-muted">Browse all ${cat.name} products</small>
               </div>
             `;
-          } else {
-            data.forEach((item) => {
-              const el = document.createElement("a");
-              el.href = `/product/${item.slug}`;
-              el.className =
-                "list-group-item list-group-item-action d-flex align-items-center gap-2";
+            resultsBox.appendChild(el);
+          });
+        }
 
-              el.innerHTML = `
-                <img src="/static/uploads/${item.image}"
-                     width="40" height="40"
-                     style="object-fit:cover;border-radius:6px;">
-                <div>
-                  <div>${item.name}</div>
-                  <small class="text-success">£${item.price}</small>
+        // show matching products
+        if (products.length > 0) {
+          hasResults = true;
+
+          const prodHeader = document.createElement("div");
+          prodHeader.className = "list-group-item fw-semibold text-muted";
+          prodHeader.style.cssText = "font-size:11px;text-transform:uppercase;letter-spacing:.08em;background:#f8f9fa;padding:6px 12px;";
+          prodHeader.textContent = `Products (${products.length})`;
+          resultsBox.appendChild(prodHeader);
+
+          // show first 8 immediately, rest scrollable
+          products.forEach((item, index) => {
+            const el = document.createElement("a");
+            el.href      = `/product/${item.slug}`;
+            el.className = "list-group-item list-group-item-action d-flex align-items-center gap-2";
+            el.innerHTML = `
+              <img src="/static/uploads/${item.image || ''}"
+                   width="40" height="40"
+                   style="object-fit:cover;border-radius:6px;flex-shrink:0;"
+                   onerror="this.style.display='none'">
+              <div style="flex:1;min-width:0;">
+                <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                  ${item.name}
                 </div>
-              `;
+                <small class="text-success fw-semibold">£${item.price}</small>
+                ${item.category ? `<small class="text-muted ms-2">${item.category}</small>` : ''}
+              </div>
+            `;
+            resultsBox.appendChild(el);
+          });
 
-              resultsBox.appendChild(el);
-            });
+          // if more than 8 products, add a "view all" link
+          if (products.length > 8) {
+            const viewAll = document.createElement("a");
+
+            // if results are from a category match, link to that category
+            const matchedCat = categories.find((c) =>
+              c.name.toLowerCase().includes(query.toLowerCase()),
+            );
+
+            if (matchedCat) {
+              viewAll.href = `/shop?category=${matchedCat.id}`;
+            } else {
+              viewAll.href = `/shop?q=${encodeURIComponent(query)}`;
+            }
+
+            viewAll.className =
+              "list-group-item list-group-item-action text-center text-primary";
+            viewAll.style.cssText =
+              "font-size:13px;font-weight:600;padding:10px;";
+            viewAll.textContent = `View all ${products.length} results →`;
+            resultsBox.appendChild(viewAll);
           }
+        }
 
-          resultsBox.style.display = "block";
-        });
+        if (!hasResults) {
+          resultsBox.innerHTML = `
+            <div class="list-group-item text-muted text-center py-3">
+              No products or categories found for "<strong>${query}</strong>"
+            </div>
+          `;
+        }
+
+        resultsBox.style.display = "block";
+      }).catch(() => {
+        resultsBox.innerHTML = `
+          <div class="list-group-item text-muted">Search unavailable. Please try again.</div>
+        `;
+        resultsBox.style.display = "block";
+      });
     }, 300);
   });
 

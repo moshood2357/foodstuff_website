@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Picking — {{ order.order_number }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0f172a;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #1e293b;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header h1 { font-size: 16px; font-weight: 700; color: #22c55e; }
+        .header .meta { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+        .progress-bar-wrap {
+            height: 4px;
+            background: #334155;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #22c55e;
+            transition: width 0.4s ease;
+        }
+
+        .scanner-section {
+            padding: 16px;
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+        }
+
+        .scanner-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 8px;
+        }
+
+        .scanner-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            color: #f1f5f9;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .scanner-input:focus { border-color: #22c55e; }
+
+        .items-list { padding: 12px; }
+
+        .pick-item {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+            border: 2px solid #334155;
+            transition: 0.2s;
+        }
+
+        .pick-item.picked {
+            border-color: #22c55e;
+            background: #0f2d1a;
+            opacity: 0.7;
+        }
+
+        .pick-item.scanning {
+            border-color: #3b82f6;
+            background: #0f1e2d;
+            animation: pulse 1s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { border-color: #3b82f6; }
+            50%       { border-color: #60a5fa; }
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .item-name { font-size: 15px; font-weight: 700; color: #f1f5f9; }
+        .item-variant { font-size: 12px; color: #64748b; margin-top: 2px; }
+        .item-sku { font-size: 11px; color: #475569; font-family: monospace; margin-top: 2px; }
+
+        .item-qty {
+            font-size: 22px;
+            font-weight: 800;
+            color: #22c55e;
+            white-space: nowrap;
+        }
+
+        .item-barcode {
+            width: 100%;
+            height: 50px;
+            object-fit: contain;
+            margin: 8px 0;
+            filter: invert(1);
+        }
+
+        .bin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #1d4ed820;
+            border: 1px solid #3b82f6;
+            color: #60a5fa;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .pick-btn {
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .pick-btn:hover { background: #2563eb; }
+        .pick-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+
+        .picked-tick {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #22c55e;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* COMPLETE BANNER */
+        .complete-banner {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .complete-banner.show { display: flex; }
+
+        .complete-card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 40px 32px;
+            text-align: center;
+            max-width: 320px;
+            width: 90%;
+        }
+
+        .complete-card .tick { font-size: 64px; margin-bottom: 16px; }
+        .complete-card h2 { font-size: 22px; font-weight: 800; color: #22c55e; margin-bottom: 8px; }
+        .complete-card p { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+        .complete-card a {
+            display: block;
+            padding: 14px;
+            background: #22c55e;
+            color: #fff;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div>
+            <h1>📋 Picking — {{ order.order_number }}</h1>
+            <div class="meta">
+                {{ order.address.full_name if order.address else '—' }} ·
+                {{ order.picking_list.items|length }} items
+            </div>
+        </div>
+        <div style="text-align:right;">
+            <div style="font-size:20px;font-weight:800;color:#22c55e;" id="progressText">
+                0/{{ order.picking_list.items|length }}
+            </div>
+            <div style="font-size:11px;color:#64748b;">picked</div>
+        </div>
+    </div>
+
+    <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+
+    <!-- BARCODE SCANNER INPUT -->
+    <div class="scanner-section">
+        <div class="scanner-label">🔍 Scan barcode to confirm item</div>
+        <input type="text" id="scannerInput" class="scanner-input"
+            placeholder="Scan or type SKU..."
+            autocomplete="off" autocorrect="off"
+            oninput="handleScan(this.value)">
+    </div>
+
+    <!-- ITEMS -->
+    <div class="items-list">
+        {% for pl_item in picking_list.items %}
+        <div class="pick-item {% if pl_item.is_picked %}picked{% endif %}"
+             id="item-{{ pl_item.id }}"
+             data-sku="{{ pl_item.sku }}"
+             data-item-id="{{ pl_item.id }}">
+
+            <div class="item-header">
+                <div>
+                    <div class="item-name">{{ pl_item.product_name }}</div>
+                    {% if pl_item.variant_name %}
+                    <div class="item-variant">{{ pl_item.variant_name }}</div>
+                    {% endif %}
+                    <div class="item-sku">{{ pl_item.sku }}</div>
+                </div>
+                <div class="item-qty">× {{ pl_item.quantity_to_pick }}</div>
+            </div>
+
+            {% if pl_item.barcode_image %}
+            <img class="item-barcode"
+                 src="{{ url_for('static', filename='uploads/qrcodes/' + pl_item.barcode_image) }}"
+                 alt="Barcode">
+            {% endif %}
+
+            {% if pl_item.bin_location %}
+            <div class="bin-badge">📍 {{ pl_item.bin_location.name }}</div>
+            {% endif %}
+
+            {% if pl_item.is_picked %}
+            <div class="picked-tick">✅ Picked</div>
+            {% else %}
+            <button class="pick-btn" onclick="manualPick({{ pl_item.id }}, '{{ pl_item.sku }}')">
+                ✓ Mark as Picked
+            </button>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- COMPLETE BANNER -->
+    <div class="complete-banner" id="completeBanner">
+        <div class="complete-card">
+            <div class="tick">✅</div>
+            <h2>All Items Picked!</h2>
+            <p>Order {{ order.order_number }} is fully picked and ready for packing.</p>
+            <a href="{{ url_for('orders.order_detail', id=order.id) }}">
+                Go to Order → Mark as Packed
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const totalItems = {{ picking_list.items|length }};
+        let pickedCount  = {{ picking_list.items|selectattr('is_picked')|list|length }};
+
+        updateProgress();
+
+        function updateProgress() {
+            document.getElementById('progressText').textContent = `${pickedCount}/${totalItems}`;
+            const pct = totalItems > 0 ? (pickedCount / totalItems) * 100 : 0;
+            document.getElementById('progressBar').style.width = pct + '%';
+
+            if (pickedCount >= totalItems) {
+                setTimeout(() => {
+                    document.getElementById('completeBanner').classList.add('show');
+                }, 500);
+            }
+        }
+
+        function handleScan(value) {
+            const v = value.trim();
+            if (v.length < 3) return;
+
+            // find matching item by SKU
+            const items = document.querySelectorAll('.pick-item:not(.picked)');
+            let matched = false;
+
+            items.forEach(item => {
+                if (item.dataset.sku === v) {
+                    matched = true;
+                    const itemId = item.dataset.itemId;
+                    confirmPickItem(itemId, v, item);
+                }
+            });
+
+            if (!matched && v.length > 5) {
+                // vibrate on wrong scan
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                document.getElementById('scannerInput').style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    document.getElementById('scannerInput').style.borderColor = '#334155';
+                    document.getElementById('scannerInput').value = '';
+                }, 1000);
+            }
+        }
+
+        async function manualPick(itemId, sku) {
+            const el = document.getElementById(`item-${itemId}`);
+            await confirmPickItem(itemId, sku, el);
+        }
+
+        async function confirmPickItem(itemId, sku, el) {
+            el.classList.add('scanning');
+
+            try {
+                const res  = await fetch(`manage/orders/picking-item/${itemId}/scan`, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ sku: sku })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    el.classList.remove('scanning');
+                    el.classList.add('picked');
+
+                    // replace button with tick
+                    const btn = el.querySelector('.pick-btn');
+                    if (btn) {
+                        btn.outerHTML = '<div class="picked-tick">✅ Picked</div>';
+                    }
+
+                    pickedCount++;
+                    updateProgress();
+
+                    // vibrate success
+                    if (navigator.vibrate) navigator.vibrate(100);
+
+                    // clear scanner
+                    document.getElementById('scannerInput').value = '';
+                    document.getElementById('scannerInput').focus();
+
+                } else {
+                    el.classList.remove('scanning');
+                    alert(data.error || 'Error confirming item.');
+                }
+            } catch (e) {
+                el.classList.remove('scanning');
+                alert('Network error. Please try again.');
+            }
+        }
+
+        // auto-focus scanner on load
+        document.getElementById('scannerInput').focus();
+
+        // re-focus scanner when page regains focus
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                document.getElementById('scannerInput').focus();
+            }
+        });
+    </script>
+
+</body>
+</html>

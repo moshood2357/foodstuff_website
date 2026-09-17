@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Returns & Refund Policy — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Judith Ethnic Food Store Ltd's returns and refund policy — food product rules, damaged goods, incorrect orders, refund process, and your statutory rights.{% endblock %}
+
+{% block content %}
+<section class="hero hero--sub mt-5" aria-labelledby="page-title">
+  <div style="position:relative;z-index:1;text-align:center;">
+    <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+      <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Legal &amp; Policies
+    </p>
+    <h1 class="hero__title" id="page-title">Returns &amp; Refund Policy</h1>
+    <p style="color:var(--green-100);margin-top:8px;font-size:0.9rem;">Effective Date: 1 August 2026</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:760px;margin:0 auto;">
+    <div class="policy-body">
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">1</span> Introduction</h2>
+        <p>At Judith Ethnic Food Store Ltd, we take pride in providing quality African and international food products and excellent customer service. This Returns &amp; Refund Policy explains how we handle returns, refunds, replacements, and complaints for purchases made in-store, online through judithethnicstore.co.uk, or through any approved ordering channels. This policy operates alongside your statutory rights under UK consumer law.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">2</span> Our Commitment</h2>
+        <p>We aim to ensure that products are supplied as described, meet acceptable quality standards, and orders are prepared accurately. If something goes wrong with your order, please <a href="{{ url_for('main.contact') }}">contact us</a> and we will investigate.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">3</span> Food and Grocery Returns</h2>
+        <p>Due to food safety regulations, we cannot normally accept returns of:</p>
+        <ul>
+          <li>fresh food;</li>
+          <li>chilled products;</li>
+          <li>frozen products;</li>
+          <li>opened food products;</li>
+          <li>perishable goods;</li>
+          <li>products requiring controlled storage conditions.</li>
+        </ul>
+        <p style="margin-top:12px;">This is because returning these products may affect food safety.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">4</span> When We Will Accept Food Product Complaints</h2>
+        <p>We will consider refunds or replacements where the wrong product was supplied, the product is damaged, the product is faulty, the product is unsafe to consume, or the product does not match the description. Customers should contact us as soon as possible after receiving the product.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">5</span> Damaged Products</h2>
+        <p>If your order arrives damaged, please provide your order number, product details, a description of the damage, and photographs where possible. We will review the issue and may offer a replacement, refund, partial refund, or alternative resolution.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">6</span> Incorrect Items</h2>
+        <p>If we send an incorrect item, please <a href="{{ url_for('main.contact') }}">contact us</a> promptly. We may arrange a replacement with the correct item, refund of the incorrect item, or collection or return where appropriate.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">7</span> Non-Food Items</h2>
+        <p>For eligible non-food products, returns may be accepted where the item is unused, remains in original packaging, and proof of purchase is provided. Items returned due to change of mind must meet these conditions.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">8</span> Online Order Cancellation Rights</h2>
+        <p>Under UK consumer law, customers may have cancellation rights for certain online purchases. However, cancellation rights generally do not apply to fresh food, chilled goods, frozen goods, perishable products, or sealed goods unsuitable for return due to health or hygiene reasons once opened.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">9</span> Refund Process</h2>
+        <p>Approved refunds will normally be issued using the original payment method. Refunds may take several working days depending on your bank, payment provider, and processing times.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">10</span> Refund Eligibility</h2>
+        <p>A refund may be issued where goods are faulty, damaged, or incorrect, or as required by applicable law. Refunds may not be available where products have been consumed, products were damaged after delivery due to incorrect storage, incorrect information was provided by the customer, or the issue resulted from misuse.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">11</span> Proof of Purchase</h2>
+        <p>To process a return, replacement, or refund, we may request a receipt, order confirmation, invoice, or transaction reference.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">12</span> Food Quality Concerns</h2>
+        <p>If you believe a food product is unsafe or unsuitable, please stop using it and <a href="{{ url_for('main.contact') }}">contact us immediately</a>. Please provide the product name, batch information, expiry or best-before date, and photographs if available. We take food safety concerns seriously.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">13</span> Exchanges</h2>
+        <p>Where appropriate, we may offer exchanges instead of refunds. Exchanges depend on product availability, product condition, and the reason for return.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">14</span> Store Purchases</h2>
+        <p>For items purchased directly from our physical store, please retain your receipt. Return requests should be made within a reasonable timeframe and food safety restrictions apply.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">15</span> Customer Responsibilities</h2>
+        <p>Customers are responsible for checking products upon delivery, storing food correctly, following storage instructions, and contacting us promptly about problems.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">16</span> Contact Us</h2>
+        <address style="font-style:normal;line-height:2;">
+          <strong>Judith Ethnic Food Store Ltd</strong><br>
+          311 High Street, Cheltenham, England, GL50 3HW<br>
+          <a href="tel:07306011093">07306 011093</a><br>
+          <a href="mailto:info@judithethnicstore.co.uk">info@judithethnicstore.co.uk</a>
+        </address>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">17</span> Your Legal Rights</h2>
+        <p>This policy does not affect your statutory rights under UK law. Consumers have legal rights relating to goods being of satisfactory quality, fit for purpose, and as described.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">18</span> Changes to This Policy</h2>
+        <p>We may update this Returns &amp; Refund Policy from time to time. The latest version will always be available on <a href="https://judithethnicstore.co.uk" target="_blank" rel="noopener">judithethnicstore.co.uk</a>.</p>
+      </div>
+
+    </div>
+    <div style="margin-top:48px;padding:32px 24px;background:var(--green-50);border-radius:var(--radius-lg);text-align:center;">
+      <p class="about-eyebrow" style="margin-bottom:8px;">Issue with your order?</p>
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:20px;color:var(--green-800);">We'll make it right</h2>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ url_for('main.contact') }}" class="btn btn--primary">Contact Us</a>
+        <a href="tel:07306011093" class="btn btn--outline"><i class="fa-solid fa-phone" aria-hidden="true"></i> 07306 011093</a>
+      </div>
+    </div>
+  </div>
+</section>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Returns & Refund Policy — Judith Ethnic Food Store Ltd","url":"{{ request.url }}","publisher":{"@type":"Organization","name":"Judith Ethnic Food Store Ltd","url":"https://judithethnicstore.co.uk"}}
+</script>
+{% endblock %}

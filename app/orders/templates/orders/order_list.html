@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .orders-page { padding: 90px 20px 40px; max-width: 1400px; margin: auto; }
+
+    .page-header {
+        display: flex; justify-content: space-between;
+        align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+    }
+
+    .page-header h1 { font-size: 22px; font-weight: 800; color: #0f172a; }
+
+    .layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
+
+    /* SIDEBAR */
+    .sidebar { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.05); height: fit-content; }
+    .sidebar h3 { font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
+
+    .status-link {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 8px 10px; border-radius: 7px; text-decoration: none;
+        font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 4px;
+        transition: 0.15s;
+    }
+    .status-link:hover { background: #f1f5f9; }
+    .status-link.active { background: #0f172a; color: #fff; }
+    .status-link.active .count { background: #22c55e; color: #fff; }
+
+    .count {
+        font-size: 11px; font-weight: 700; padding: 2px 7px;
+        border-radius: 10px; background: #f1f5f9; color: #64748b;
+    }
+
+    /* STATUS GROUPS */
+    .group-label {
+        font-size: 10px; font-weight: 700; color: #94a3b8;
+        text-transform: uppercase; letter-spacing: .1em;
+        padding: 10px 10px 4px; margin-top: 6px;
+    }
+
+    /* TABLE */
+    .orders-table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.05); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 12px 16px; text-align: left; font-size: 11px; text-transform: uppercase; color: #94a3b8; background: #f8fafc; font-weight: 700; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; font-size: 13px; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+
+    .badge {
+        padding: 3px 10px; border-radius: 20px;
+        font-size: 11px; font-weight: 700; white-space: nowrap;
+    }
+    .badge-new              { background: #dbeafe; color: #1d4ed8; }
+    .badge-payment_confirmed { background: #d1fae5; color: #065f46; }
+    .badge-processing       { background: #fef3c7; color: #92400e; }
+    .badge-picking          { background: #e0e7ff; color: #3730a3; }
+    .badge-picked           { background: #cffafe; color: #0e7490; }
+    .badge-packed           { background: #fce7f3; color: #9d174d; }
+    .badge-ready_for_dispatch { background: #fef9c3; color: #854d0e; }
+    .badge-dispatched       { background: #dcfce7; color: #166534; }
+    .badge-delivered        { background: #d1fae5; color: #065f46; }
+    .badge-completed        { background: #f0fdf4; color: #15803d; }
+    .badge-on_hold          { background: #fef3c7; color: #92400e; }
+    .badge-cancelled        { background: #fee2e2; color: #991b1b; }
+    .badge-payment_failed   { background: #fee2e2; color: #991b1b; }
+    .badge-out_of_stock     { background: #fee2e2; color: #991b1b; }
+    .badge-refunded         { background: #fce7f3; color: #9d174d; }
+    .badge-returned         { background: #fce7f3; color: #9d174d; }
+
+    .action-link { color: #22c55e; text-decoration: none; font-size: 12px; font-weight: 600; }
+    .action-link:hover { text-decoration: underline; }
+
+    .fulfillment-pill {
+        font-size: 11px; padding: 2px 8px; border-radius: 10px;
+        font-weight: 600;
+    }
+    .pill-delivery { background: #f0fdf4; color: #166534; }
+    .pill-pickup   { background: #eff6ff; color: #1d4ed8; }
+
+    .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
+    .page-btn { padding: 6px 12px; border-radius: 6px; background: #e2e8f0; color: #1e293b; text-decoration: none; font-size: 13px; }
+    .page-btn.active { background: #0f172a; color: #fff; }
+
+    @media (max-width: 768px) {
+        .layout { grid-template-columns: 1fr; }
+        .sidebar { display: none; }
+    }
+</style>
+
+<!-- SOUND ENABLE BANNER — outside orders-page so it never gets swapped -->
+<div id="sound-prompt" style="
+    background:#0f5c2e; color:#fff; padding:12px 20px;
+    display:flex; justify-content:space-between; align-items:center;
+    border-bottom:2px solid #22c55e; position:sticky; top:70px; z-index:100;">
+    <span style="font-size:14px;">
+        🔔 Click <strong>Enable Sound</strong> to hear new order alerts
+    </span>
+    <button onclick="enableOrderSound()" id="sound-btn" style="
+        padding:8px 20px; background:#22c55e; color:#fff;
+        border:none; border-radius:8px; cursor:pointer;
+        font-weight:700; font-size:14px;">
+        🔊 Enable Sound
+    </button>
+</div>
+
+<div class="orders-page">
+    <div class="page-header">
+        <h1>📦 Order Management</h1>
+        <a href="{{ url_for('orders.bin_locations') }}"
+           style="padding:8px 16px;background:#f1f5f9;color:#374151;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;">
+            📍 Bin Locations
+        </a>
+    </div>
+
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <h3>Filter by Status</h3>
+
+            <a href="{{ url_for('orders.order_list') }}"
+               class="status-link {% if not status_filter %}active{% endif %}">
+                All Orders
+                <span class="count">{{ total_orders }}</span>
+            </a>
+
+            <div class="group-label">Active</div>
+            {% for s in ['new', 'payment_confirmed', 'processing', 'picking', 'picked', 'packed', 'ready_for_dispatch', 'dispatched'] %}
+            <a href="{{ url_for('orders.order_list', status=s) }}"
+               class="status-link {% if status_filter == s %}active{% endif %}">
+                {{ s.replace('_', ' ').title() }}
+                <span class="count">{{ status_counts.get(s, 0) }}</span>
+            </a>
+            {% endfor %}
+
+            <div class="group-label">Completed</div>
+            {% for s in ['delivered', 'completed'] %}
+            <a href="{{ url_for('orders.order_list', status=s) }}"
+               class="status-link {% if status_filter == s %}active{% endif %}">
+                {{ s.replace('_', ' ').title() }}
+                <span class="count">{{ status_counts.get(s, 0) }}</span>
+            </a>
+            {% endfor %}
+
+            <div class="group-label">Exceptions</div>
+            {% for s in ['payment_failed', 'on_hold', 'out_of_stock', 'cancelled', 'refunded', 'returned'] %}
+            <a href="{{ url_for('orders.order_list', status=s) }}"
+               class="status-link {% if status_filter == s %}active{% endif %}">
+                {{ s.replace('_', ' ').title() }}
+                <span class="count">{{ status_counts.get(s, 0) }}</span>
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- TABLE -->
+        <div>
+            <div class="orders-table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Fulfilment</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders.items %}
+                        <tr>
+                            <td>
+                                <strong>{{ order.order_number }}</strong>
+                            </td>
+                            <td>
+                                <div>{{ order.address.full_name if order.address else (order.guest_email or '—') }}</div>
+                                <small style="color:#94a3b8;">{{ order.address.phone if order.address else '' }}</small>
+                            </td>
+                            <td>
+                                <span class="fulfillment-pill {% if order.fulfillment_type == 'pickup' %}pill-pickup{% else %}pill-delivery{% endif %}">
+                                    {% if order.fulfillment_type == 'pickup' %}🏪 Pickup{% else %}🚚 Delivery{% endif %}
+                                </span>
+                            </td>
+                            <td>{{ order.items|length }}</td>
+                            <td><strong>£{{ "%.2f"|format(order.total_amount or 0) }}</strong></td>
+                            <td>
+                                <span class="badge badge-{{ order.status.value if order.status and not order.status is string else (order.status or 'new') }}">
+                                    {{ order.status.value.replace('_',' ').title() if order.status and not order.status is string else (order.status or 'New') }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge {% if order.payment_status and order.payment_status.value == 'paid' %}badge-payment_confirmed{% else %}badge-payment_failed{% endif %}">
+                                    {{ order.payment_status.value.upper() if order.payment_status else 'UNPAID' }}
+                                </span>
+                            </td>
+                            <td style="color:#64748b;">{{ order.created_at.strftime('%d/%m %H:%M') }}</td>
+                            <td>
+                                <a href="{{ url_for('orders.order_detail', id=order.id) }}" class="action-link">
+                                    View →
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="9" style="text-align:center;padding:40px;color:#94a3b8;">
+                                No orders found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if orders.pages > 1 %}
+            <div class="pagination">
+                {% if orders.has_prev %}
+                <a href="{{ url_for('orders.order_list', page=orders.prev_num, status=status_filter) }}" class="page-btn">← Prev</a>
+                {% endif %}
+                {% for p in orders.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if p %}
+                    <a href="{{ url_for('orders.order_list', page=p, status=status_filter) }}"
+                       class="page-btn {% if p == orders.page %}active{% endif %}">{{ p }}</a>
+                    {% else %}
+                    <span style="padding:6px 4px;color:#94a3b8;">…</span>
+                    {% endif %}
+                {% endfor %}
+                {% if orders.has_next %}
+                <a href="{{ url_for('orders.order_list', page=orders.next_num, status=status_filter) }}" class="page-btn">Next →</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<!-- AUDIO + TOAST -->
+<audio id="order-sound" preload="auto">
+    <source src="{{ url_for('static', filename='sounds/order.mp3') }}" type="audio/mpeg">
+</audio>
+
+<div id="order-toast" style="display:none; position:fixed; bottom:24px; right:24px;
+    background:#0f172a; color:#22c55e; padding:14px 20px; border-radius:10px;
+    border:1px solid #22c55e; font-weight:600; font-size:14px; z-index:9999;
+    box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+    🛎️ New order received!
+</div>
+
+<script>
+    (function () {
+    const POLL_INTERVAL = 2000;
+    const STORAGE_KEY   = "last_seen_order_id";
+    const AUDIO_KEY     = "audio_unlocked";
+    const sound         = document.getElementById("order-sound");
+    const toast         = document.getElementById("order-toast");
+
+    // restore audio state from localStorage — persists across page navigations
+    let audioUnlocked = localStorage.getItem(AUDIO_KEY) === 'true';
+
+    // restore button state on page load if already unlocked
+    if (audioUnlocked) {
+        const btn = document.getElementById("sound-btn");
+        if (btn) {
+            btn.textContent      = "✅ Sound Enabled";
+            btn.style.background = "#166534";
+            btn.disabled         = true;
+        }
+    }
+
+    window.enableOrderSound = function () {
+        if (!sound) return;
+        sound.play().then(() => {
+            sound.pause();
+            sound.currentTime = 0;
+            audioUnlocked = true;
+            localStorage.setItem(AUDIO_KEY, 'true');
+
+            const btn = document.getElementById("sound-btn");
+            if (btn) {
+                btn.textContent      = "✅ Sound Enabled";
+                btn.style.background = "#166534";
+                btn.disabled         = true;
+            }
+
+            setTimeout(() => {
+                sound.currentTime = 0;
+                sound.play().catch(() => {});
+                setTimeout(() => { sound.pause(); sound.currentTime = 0; }, 1500);
+            }, 200);
+
+        }).catch(() => {
+            alert("Could not enable sound. Please check your browser settings.");
+        });
+    };
+
+    fetch("/admin/orders/latest-id")
+        .then(res => res.json())
+        .then(data => {
+            if (!localStorage.getItem(STORAGE_KEY)) {
+                localStorage.setItem(STORAGE_KEY, data.latest_id);
+            }
+        }).catch(() => {});
+
+    function checkForNewOrders() {
+        fetch("/admin/orders/latest-id")
+            .then(res => res.json())
+            .then(data => {
+                const lastSeen = parseInt(localStorage.getItem(STORAGE_KEY) || "0");
+                const latestId = parseInt(data.latest_id || 0);
+
+                if (latestId > lastSeen) {
+                    localStorage.setItem(STORAGE_KEY, latestId);
+
+                    if (audioUnlocked && sound) {
+                        sound.currentTime = 0;
+                        sound.play().catch(() => {});
+                    }
+
+                    if (toast) {
+                        toast.style.display = "block";
+                        setTimeout(() => { toast.style.display = "none"; }, 6000);
+                    }
+
+                    if (Notification.permission === "granted") {
+                        new Notification("🛎️ New Order!", {
+                            body: "A new order just came in.",
+                            icon: "/static/images/judith-logo.png",
+                        });
+                    }
+
+                    // refresh table and counts without page reload
+                    fetch(window.location.href)
+                        .then(res => res.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc    = parser.parseFromString(html, 'text/html');
+                            const newTable = doc.querySelector('.orders-table-wrap');
+                            const oldTable = document.querySelector('.orders-table-wrap');
+                            if (newTable && oldTable) oldTable.innerHTML = newTable.innerHTML;
+                            const newCounts = doc.querySelectorAll('.sidebar .count');
+                            const oldCounts = document.querySelectorAll('.sidebar .count');
+                            newCounts.forEach((el, i) => { if (oldCounts[i]) oldCounts[i].textContent = el.textContent; });
+                            const newPag = doc.querySelector('.pagination');
+                            const oldPag = document.querySelector('.pagination');
+                            if (newPag && oldPag) oldPag.innerHTML = newPag.innerHTML;
+                        }).catch(() => {});
+                }
+            }).catch(() => {});
+    }
+
+    if (Notification.permission === "default") { Notification.requestPermission(); }
+    setInterval(checkForNewOrders, POLL_INTERVAL);
+})();
+</script>
+
+{% endblock %}

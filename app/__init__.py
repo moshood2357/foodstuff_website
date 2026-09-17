@@ -1,10 +1,11 @@
+from datetime import datetime
 import os
 import uuid
 
 from dotenv import load_dotenv
-import stripe
+# import stripe
 
-from flask import Flask, send_from_directory, session
+from flask import Flask, app, send_from_directory, session
 from flask_ckeditor import CKEditor
 from flask_compress import Compress
 from flask_login import current_user
@@ -14,10 +15,15 @@ from app.services.cart_service import get_cart_count, get_wishlist_count
 from .extensions import db, migrate, login_manager
 from app.models import Cart, CartItem, Wishlist, User
 
+
+from app.extensions import limiter
+
 load_dotenv()
 
 ckeditor = CKEditor()
 csrf = CSRFProtect()
+
+
 
 
 
@@ -32,8 +38,17 @@ def create_app(config_class="config.Config"):
     app.config["BREVO_API_KEY"]           = os.getenv("BREVO_API_KEY")
     app.config["BREVO_SENDER_EMAIL"]      = os.getenv("BREVO_SENDER_EMAIL")
     app.config["ADMIN_EMAIL"]             = os.getenv("ADMIN_EMAIL", "info@r2systemsolution.co.uk")
+    app.config["GOOGLE_MAPS_API_KEY"]     = os.getenv("GOOGLE_MAPS_API_KEY")
+    app.config["TWILIO_ACCOUNT_SID"]   = os.getenv("TWILIO_ACCOUNT_SID")
+    app.config["TWILIO_AUTH_TOKEN"]    = os.getenv("TWILIO_AUTH_TOKEN")
+    app.config["TWILIO_WHATSAPP_FROM"] = os.getenv("TWILIO_WHATSAPP_FROM")
 
-    stripe.api_key = app.config["STRIPE_SECRET_KEY"]
+    app.config["DOJO_API_BASE"]  = os.getenv("DOJO_API_BASE", "https://api.dojo.tech")
+    app.config["DOJO_API_KEY"] = os.environ.get("DOJO_API_KEY")
+    app.config["DOJO_WEBHOOK_SECRET"] = os.environ.get("DOJO_WEBHOOK_SECRET")
+
+
+    # stripe.api_key = app.config["STRIPE_SECRET_KEY"]
 
     upload_folder = os.path.join(app.root_path, "static", "uploads")
     app.config["UPLOAD_FOLDER"] = upload_folder
@@ -43,9 +58,13 @@ def create_app(config_class="config.Config"):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     ckeditor.init_app(app)
+
+    limiter.init_app(app)
+
     csrf.init_app(app)
     Compress(app)
     
+
 
     login_manager.login_view = "auth.login"
     login_manager.login_message_category = "info"
@@ -60,6 +79,14 @@ def create_app(config_class="config.Config"):
             "cart_count":     get_cart_count(),
             "wishlist_count": get_wishlist_count()
         }
+    
+    
+
+    @app.context_processor
+    def inject_year():
+        return {
+        'current_year': datetime.now().year
+    }
 
     @app.context_processor
     def inject_cart_data():
@@ -104,6 +131,8 @@ def create_app(config_class="config.Config"):
     from app.ecommerce.checkout import checkout_bp
     from app.ecommerce.orders import order_bp
     from app.kitchen import kitchen_bp
+    from app.pos import pos_bp
+    from app.inventory import inventory_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(admin_bp,     url_prefix="/admin")
@@ -114,6 +143,8 @@ def create_app(config_class="config.Config"):
     app.register_blueprint(api_bp,       url_prefix="/api")
     app.register_blueprint(order_bp,     url_prefix="/orders")
     app.register_blueprint(kitchen_bp,   url_prefix="/kitchen")
+    app.register_blueprint(pos_bp, url_prefix="/pos")
+    app.register_blueprint(inventory_bp, url_prefix="/admin/inventory")
 
     print("url_map:", app.url_map)
 

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Social Media Policy — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Judith Ethnic Food Store Ltd's social media policy — how we interact with customers online, acceptable behaviour, moderation, and privacy.{% endblock %}
+
+{% block content %}
+<section class="hero hero--sub mt-5" aria-labelledby="page-title">
+  <div style="position:relative;z-index:1;text-align:center;">
+    <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+      <i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Legal &amp; Policies
+    </p>
+    <h1 class="hero__title" id="page-title">Social Media Policy</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:760px;margin:0 auto;">
+    <div class="policy-body">
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">1</span> Introduction</h2>
+        <p>Judith Ethnic Food Store Ltd uses social media channels to communicate with customers, share updates, and promote products.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">2</span> Customer Interaction</h2>
+        <p>We welcome questions, feedback, product suggestions, and comments. We aim to respond professionally and respectfully to all customer interactions on our social media channels.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">3</span> Acceptable Behaviour</h2>
+        <p>Customers should not post:</p>
+        <ul>
+          <li>abusive comments;</li>
+          <li>threats;</li>
+          <li>discriminatory content;</li>
+          <li>spam;</li>
+          <li>misleading information.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">4</span> Moderation</h2>
+        <p>We reserve the right to remove content that violates our community standards and to restrict access to users who repeatedly breach this policy.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">5</span> Privacy</h2>
+        <p>Customers should avoid sharing personal information publicly through social media. Private matters — such as order queries, complaints, or personal details — should be discussed through our appropriate contact channels to protect your privacy.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title">Contact</h2>
+        <address style="font-style:normal;line-height:2;">
+          <strong>Judith Ethnic Food Store Ltd</strong><br>
+          311 High Street, Cheltenham, England, GL50 3HW<br>
+          <a href="tel:07306011093">07306 011093</a><br>
+          <a href="mailto:info@judithethnicstore.co.uk">info@judithethnicstore.co.uk</a>
+        </address>
+      </div>
+
+    </div>
+    <div style="margin-top:48px;padding:32px 24px;background:var(--green-50);border-radius:var(--radius-lg);text-align:center;">
+      <p class="about-eyebrow" style="margin-bottom:8px;">Prefer to message us directly?</p>
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:20px;color:var(--green-800);">Use our contact form</h2>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ url_for('main.contact') }}" class="btn btn--primary">Contact Us</a>
+        <a href="mailto:info@judithethnicstore.co.uk" class="btn btn--outline"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Email Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Social Media Policy — Judith Ethnic Food Store Ltd","url":"{{ request.url }}","publisher":{"@type":"Organization","name":"Judith Ethnic Food Store Ltd","url":"https://judithethnicstore.co.uk"}}
+</script>
+{% endblock %}

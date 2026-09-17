@@ -42,7 +42,7 @@
             <form class="newsletter-footer-forms" action="{{ url_for('main.subscribe') }}" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="email" name="email" placeholder="Your email" required />
-                <button type="submit">Subscribe</button>
+                <button type="submit" class="btn btn--gold btn--lg">Subscribe</button>
             </form>
         </div>
 

@@ -1,94 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f5c2e" />
 
-    <title>{% block title %}Foodstuff Store{% endblock %}</title>
+  <title>{% block title %}Judith Ethnic Food Store — Authentic African & Ethnic Groceries, Cheltenham{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Judith Ethnic Food Store — your one-stop shop for authentic African and ethnic groceries in Cheltenham. Fresh produce, pantry staples & fast local delivery.{% endblock %}">
+  <meta name="keywords" content="ethnic food store, African groceries Cheltenham, Nigerian food UK, Caribbean food store, authentic ethnic food delivery">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="{{ request.url }}" />
 
-    <meta name="description"
-        content="{% block meta_description %}Fresh foodstuff, groceries, vegetables, grains, spices, and household essentials delivered to your doorstep.{% endblock %}">
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:site_name"   content="Judith Ethnic Food Store" />
+  <meta property="og:title"       content="{% block og_title %}Judith Ethnic Food Store{% endblock %}" />
+  <meta property="og:description" content="{% block og_description %}Authentic African & ethnic groceries in Cheltenham. Fast delivery, quality you can trust.{% endblock %}" />
+  <meta property="og:image"       content="{{ url_for('static', filename='images/judith.png', _external=True) }}" />
+  <meta property="og:url"         content="{{ request.url }}" />
 
-    <meta name="author" content="{% block meta_author %}Judith Kitchen Takeaway{% endblock %}">
-    <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="{% block tw_title %}Judith Ethnic Food Store{% endblock %}" />
+  <meta name="twitter:description" content="{% block tw_desc %}Authentic African & ethnic groceries in Cheltenham.{% endblock %}" />
+  <meta name="twitter:image"       content="{{ url_for('static', filename='images/judith.png', _external=True) }}" />
 
-    <link rel="canonical" href="{% block canonical_url %}{{ request.url }}{% endblock %}">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Open Graph -->
-    <meta property="og:title"
-        content="{% block og_title %}Fresh Food and Essentials in Cheltenham and beyond{% endblock %}">
-    <meta property="og:description"
-        content="{% block og_description %}Shop fresh food and essentials online with fast delivery in Cheltenham and beyond.{% endblock %}">
-    <meta property="og:image"
-        content="{% block og_image %}{{ url_for('static', filename='images/judith.png', _external=True) }}{% endblock %}">
-    <meta property="og:url" content="{% block og_url %}{{ request.url }}{% endblock %}">
-    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 
-    <!-- Bootstrap -->
-    <!-- <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet"> -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  {% block head %}{% endblock %}
 
-    <!-- Custom CSS -->
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-
-    <style>
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-            color: #212529;
-            margin-top: 50px;
-        }
-
-        .page-wrapper {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        a {
-            text-decoration: none;
-        }
-
-        .btn-success {
-            background-color: #198754;
-            border-color: #198754;
-        }
-
-        .btn-success:hover {
-            background-color: #157347;
-            border-color: #157347;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            font-weight: 700;
-        }
-
-        .flash-message {
-            border-radius: 12px;
-        }
-
-        /* =========================
+  <style>
+     /* =========================
            FLOATING CART
         ========================= */
         .floating-cart {
@@ -192,6 +146,357 @@
             background: #fff;
         }
 
+        .story-btn {
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.story-btn:hover {
+    color: #117843;
+}
+
+.footer__col ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 8px 24px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer__col ul li {
+    margin: 0;
+}
+
+.footer__col ul li a {
+    display: block;
+}
+
+.footer__newsletter__subsribe{
+    width:100%;
+    margin-top:3rem;
+    padding-top:2rem;
+    border-top:1px solid rgba(255,255,255,.15);
+    text-align:center;
+}
+
+.footer__newsletter__subsribe p{
+    margin-bottom:1rem;
+}
+
+.newsletter-form{
+    width:100%;
+}
+
+.newsletter-input-group{
+    max-width:650px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.newsletter-input-group input{
+    flex:1;
+    min-width:0;
+}
+
+.newsletter-input-group button{
+    white-space:nowrap;
+    flex-shrink:0;
+}
+
+.footer__socials__links{
+    margin-top:20px;
+    display:flex;
+    justify-content:center;
+    gap:16px;
+}
+
+.hero__image video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: inherit; 
+}
+
+.hero--contact {
+    background: url("../images/view.jpeg") center/cover no-repeat;
+}
+
+      #cookieBanner {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #0f172a;
+        border-top: 1px solid #1e293b;
+        padding: 16px 24px;
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.4s ease forwards;
+      }
+  
+  
+      .cookie-text {
+        font-size: 13px;
+        color: #94a3b8;
+        flex: 1;
+        min-width: 260px;
+        line-height: 1.6;
+        font-family: 'Inter', Arial, sans-serif;
+      }
+  
+      .cookie-text a {
+        color: #22c55e;
+        text-decoration: underline;
+      }
+  
+      .cookie-text strong {
+        color: #f1f5f9;
+      }
+  
+      .cookie-btns {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+  
+      .cookie-btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        white-space: nowrap;
+        font-family: inherit;
+      }
+  
+      .cookie-btn-accept {
+        background: #22c55e;
+        color: #fff;
+      }
+  
+      .cookie-btn-accept:hover {
+        background: #16a34a;
+      }
+  
+      .cookie-btn-necessary {
+        background: transparent;
+        color: #64748b;
+        border: 1px solid #334155;
+      }
+  
+      .cookie-btn-necessary:hover {
+        background: #1e293b;
+        color: #94a3b8;
+      }
+  
+      .cookie-btn-settings {
+        background: transparent;
+        color: #64748b;
+        border: none;
+        text-decoration: underline;
+        font-size: 12px;
+        padding: 10px 8px;
+      }
+  
+      .cookie-btn-settings:hover {
+        color: #94a3b8;
+      }
+  
+      /* COOKIE SETTINGS MODAL */
+      #cookieModal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 100000;
+        align-items: center;
+        justify-content: center;
+      }
+  
+      #cookieModal.active {
+        display: flex;
+      }
+  
+      .cookie-modal-box {
+        background: #1e293b;
+        border-radius: 14px;
+        padding: 28px;
+        width: 100%;
+        max-width: 480px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        margin: 16px;
+      }
+  
+      .cookie-modal-box h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #f1f5f9;
+        margin-bottom: 6px;
+        font-family: 'Inter', Arial, sans-serif;
+      }
+  
+      .cookie-modal-box p {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 20px;
+        line-height: 1.6;
+        font-family: 'Inter', Arial, sans-serif;
+      }
+  
+      .cookie-toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 0;
+        border-bottom: 1px solid #334155;
+      }
+  
+      .cookie-toggle-row:last-of-type {
+        border-bottom: none;
+      }
+  
+      .cookie-toggle-label strong {
+        display: block;
+        font-size: 14px;
+        color: #f1f5f9;
+        margin-bottom: 2px;
+        font-family: 'Inter', Arial, sans-serif;
+      }
+  
+      .cookie-toggle-label span {
+        font-size: 12px;
+        color: #64748b;
+        font-family: 'Inter', Arial, sans-serif;
+      }
+  
+      .toggle-switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        flex-shrink: 0;
+      }
+  
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+  
+      .toggle-slider {
+        position: absolute;
+        inset: 0;
+        background: #334155;
+        border-radius: 24px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+  
+      .toggle-slider:before {
+        content: '';
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        left: 3px;
+        top: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: 0.3s;
+      }
+  
+      .toggle-switch input:checked+.toggle-slider {
+        background: #22c55e;
+      }
+  
+      .toggle-switch input:checked+.toggle-slider:before {
+        transform: translateX(20px);
+      }
+  
+      .toggle-switch input:disabled+.toggle-slider {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+  
+      .cookie-modal-btns {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+  
+      .cookie-modal-btns button {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+      }
+  
+      .btn-save-prefs {
+        background: #22c55e;
+        color: #fff;
+      }
+  
+      .btn-save-prefs:hover {
+        background: #16a34a;
+      }
+  
+      .btn-accept-all-modal {
+        background: #334155;
+        color: #f1f5f9;
+      }
+  
+      .btn-accept-all-modal:hover {
+        background: #475569;
+      }
+  
+
+      .footer__payments {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.payment-logo {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+
+@media (max-width:768px){
+
+    .newsletter-input-group{
+        flex-direction:column;
+    }
+
+    .newsletter-input-group input,
+    .newsletter-input-group button{
+        width:100%;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .footer__col ul {
+        grid-template-columns: 1fr;
+    }
+}
+        
+
         /* ONLY MOBILE */
         @media (min-width: 768px) {
 
@@ -200,97 +505,443 @@
                 display: none;
             }
         }
-    </style>
 
-    {% block extra_css %}{% endblock %}
+        @media (max-width: 600px) {
+        #cookieBanner {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 16px;
+        }
+  
+        .cookie-btns {
+          width: 100%;
+        }
+  
+        .cookie-btn {
+          flex: 1;
+          text-align: center;
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+  
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+        
+  </style>
+
+  <!-- Structured Data: Organisation -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "GroceryStore",
+    "name": "Judith Ethnic Food Store Ltd",
+    "image": "{{ url_for('static', filename='images/judith.png', _external=True) }}",
+    "url": "{{ request.host_url }}",
+    "telephone": "+447306011093",
+    "email": "judithanorue60@gmail.com",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "311 High Street",
+      "addressLocality": "Cheltenham",
+      "postalCode": "GL50 3HW",
+      "addressCountry": "GB"
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+      "opens": "09:00",
+      "closes": "19:00"
+    },
+    "sameAs": [
+      "https://instagram.com/judithethnicfoodstore",
+      "https://facebook.com/judithethnicfoodstore"
+    ]
+  }
+  </script>
 </head>
 
 <body>
 
-    <div class="page-wrapper">
+  <!-- ====== SKIP LINK (accessibility) ====== -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
-        {% include 'header.html' %}
+  <!-- ====== TOPBAR ====== -->
+  <div class="topbar" role="complementary" aria-label="Store info">
+    <div class="topbar__inner">
+      <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> 311 High Street, Cheltenham GL50 3HW</span>
+      <span><i class="fa-solid fa-phone" aria-hidden="true"></i> <a href="tel:+447306011093">+44 7306 011093</a></span>
+    </div>
+  </div>
 
-        <main class="main-content">
+  <!-- ====== NAVBAR ====== -->
+  {% include 'header.html'%}
 
-            <div class="container">
+  <!-- ====== FLASH MESSAGES ====== -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-container" role="alert" aria-live="assertive">
+    {% for category, message in messages %}
+    <div class="flash flash--{{ category }}">
+      <span>{{ message }}</span>
+      <button onclick="this.parentElement.remove()" aria-label="Dismiss notification" class="flash__close">&times;</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
 
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show flash-message mt-5" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                {% endfor %}
-                {% endif %}
-                {% endwith %}
+  <!-- ====== MAIN CONTENT ====== -->
+  <main id="main-content" tabindex="-1" class="pt-4">
+    {% block content %}{% endblock %}
+  </main>
 
-            </div>
+  <!-- ====== FOOTER ====== -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer__inner">
 
-            <!-- FLOATING CART -->
-            <div class="floating-cart" onclick="toggleCart()">
-                🛒
-                <span class="cart-count">{{ cart_count or 0 }}</span>
-            </div>
+      <div class="footer__brand">
+        <img src="{{ url_for('static', filename='images/white.png') }}" alt="Judith Ethnic Food Store" width="52" height="52" loading="lazy" />
+        <p class="footer__tagline">A one stop store for your<br>authentic ethnic food.</p>
+        <address class="footer__address">
+          311 High Street, Cheltenham, England, GL50 3HW<br>
+          <a href="tel:+447306011093">+44 7306 011093</a><br>
+          <a href="mailto:info@judithethnicstore.co.uk">info@judithethnicstore.co.uk</a>
+        </address>
+      </div>
 
-            <!-- DRAWER -->
-            <div id="cartDrawer" class="cart-drawer">
+      <nav class="footer__col" aria-label="Shop navigation">
+        <h3 class="footer__heading">Shop</h3>
+        <ul>
+          <li><a href="{{ url_for('main.shop') }}">All Products</a></li>
+          <li><a href="{{ url_for('main.shop') }}?category=fresh">Fresh Produce</a></li>
+          <li><a href="{{ url_for('main.shop') }}?category=pantry">Pantry Staples</a></li>
+          <li><a href="{{ url_for('main.shop') }}?category=drinks">Drinks</a></li>
+        </ul>
+      </nav>
 
-                <div class="cart-content">
+      <nav class="footer__col" aria-label="Company navigation">
+        <h3 class="footer__heading">Company</h3>
+        <ul>
+          <li><a href="{{ url_for('main.about') }}">About Us</a></li>
+          <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
+          <li><a href="{{ url_for('main.gift_card_policy') }}">Gift Card Policy</a></li>
+          <li><a href="{{ url_for('main.faq') }}">FAQs</a></li>
+          <li><a href="{{ url_for('main.acceptable_use_policy') }}">Acceptable Use Policy</a></li>
+          <li><a href="{{ url_for('main.environmental_statement') }}">Environmental Statement</a></li>
+          <li><a href="{{ url_for('main.privacy_policy') }}">Privacy Policy</a></li>
+          <li><a href="{{ url_for('main.accessibility_statement') }}">Accessibility Statement</a></li>
+          <li><a href="{{ url_for('main.allergy_policy') }}">Allergy Policy</a></li>
+          <li><a href="{{ url_for('main.click_and_collect_policy') }}">Click &amp; Collect Policy</a></li>
+          <li><a href="{{ url_for('main.complaints_procedure') }}">Complaints Procedure</a></li>
+          <li><a href="{{ url_for('main.cookie_policy') }}">Cookie Policy</a></li>
+          <li><a href="{{ url_for('main.data_protection_rights_policy') }}">Data Protection Rights Policy</a></li>
+          <li><a href="{{ url_for('main.delivery_policy') }}">Delivery Policy</a></li>
+          <li><a href="{{ url_for('main.legal_notices') }}">Legal Notices</a></li>
+          <li><a href="{{ url_for('main.loyalty_programme_policy') }}">Loyalty Programme Policy</a></li>
+          <li><a href="{{ url_for('main.modern_slavery_statement') }}">Modern Slavery Statement</a></li>
+          <li><a href="{{ url_for('main.payment_policy') }}">Payment Policy</a></li>
+          <li><a href="{{ url_for('main.returns_and_refund_policy') }}">Returns &amp; Refunds Policy</a></li>
+          <li><a href="{{ url_for('main.social_media_policy') }}">Social Media Policy</a></li>
+          <li><a href="{{ url_for('main.supplier_and_product_responsibility') }}">Supplier &amp; Product Responsibility</a></li>
+          <li><a href="{{ url_for('main.terms_and_conditions') }}">Terms &amp; Conditions</a></li>
+          <li><a href="{{ url_for('main.terms_of_sale') }}">Terms of Sale</a></li>
+          <li><a href="{{ url_for('main.website_legal_disclaimer') }}">Website Legal Disclaimer</a></li>
 
-                    <button class="cart-close-btn" onclick="toggleCart()">
-                        &times;
-                    </button>
-
-                    <h3>Your Cart</h3>
-
-                    <div id="mobile-cart-items"></div>
-
-                    <div class="mt-3">
-                        <h5 class="text-center">
-                            Total: £<span id="mobile-cart-total">0</span>
-                        </h5>              
-                    </div>
-
-                    <a href="{{ url_for('cart.start_checkout') }}" class="btn btn-success mt-3 px-4">
-                        Proceed to Checkout
-                    </a>
-
-                </div>
-            </div>
-
-            {% block content %}{% endblock %}
-
-        </main>
-
-        {% include 'footer.html' %}
-
+        </ul>
+      </nav>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous">
+
+    <div class="footer__col footer__newsletter__subsribe">
+      <h3 class="footer__heading">Stay in the loop</h3>
+      <p>Get weekly deals and new arrivals straight to your inbox.</p>
+      <form class="newsletter-form" action="{{ url_for('main.subscribe') }}" method="POST" aria-label="Newsletter signup">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+        <!-- HONEYPOT — bots fill this, humans don't see it -->
+        <div style="position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden;" aria-hidden="true">
+            <label for="website">Website</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+    
+        <label for="nl-email" class="sr-only">Email address</label>
+    
+        <div class="newsletter-input-group">
+            <input id="nl-email" type="email" name="email" placeholder="Your email address" required autocomplete="email">
+            <button type="submit" class="btn btn--lg btn--rounded px-4 fw-semibold"
+                style="background-color:#C5E4A9;color:#117843;">
+                Subscribe
+            </button>
+        </div>
+    </form>
+    
+      <div class="footer__socials__links" aria-label="Social media links">
+        <a href="#" aria-label="Follow us on Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" aria-label="Follow us on Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" aria-label="Contact us on WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+      </div>
+      </div>
+
+
+    <div class="footer__bottom">
+      <p>&copy; 2026 Judith Ethnic Food Store Ltd. All rights reserved. <span>
+        Developed by&nbsp;
+        <a
+          rel="noopener noreferrer"
+          className="underline text-[#4CD1FE]"
+          href="https://r2systemsolution.co.uk"
+          target="_blank"
+        >
+          R2 system solution Ltd.
+        </a>
+      </span></p>
+      <div class="footer__payments" aria-label="Accepted payment methods">
+        <img
+          src="{{ url_for('static', filename='images/mastercard.png') }}"
+          alt="mastercard"
+          class="payment-logo"
+        />
+        
+        <img
+          src="{{ url_for('static', filename='images/MAESTRO.png') }}"
+          alt="maestro card"
+          class="payment-logo"
+        />
+
+        <img
+          src="{{ url_for('static', filename='images/AMEX.png') }}"
+          alt="amex card"
+          class="payment-logo"
+        />
+      
+        <img
+          src="{{ url_for('static', filename='images/visa.png') }}"
+          alt="visa card"
+          class="payment-logo"
+        />
+      </div>
+    </div>
+  </footer>
+
+  <!-- FLOATING CART -->
+  <div class="floating-cart" onclick="toggleCart()">
+    🛒
+    <span class="cart-count">{{ cart_count or 0 }}</span>
+  </div>
+  
+  <!-- DRAWER -->
+  <div id="cartDrawer" class="cart-drawer">
+  
+    <div class="cart-content">
+  
+      <button class="cart-close-btn" onclick="toggleCart()">
+        &times;
+      </button>
+  
+      <h3>Your Cart</h3>
+  
+      <div id="mobile-cart-items"></div>
+  
+      <div class="mt-3">
+        <h5 class="text-center">
+          Total: £<span id="mobile-cart-total">0</span>
+        </h5>
+      </div>
+  
+      <a href="{{ url_for('cart.start_checkout') }}" class="btn btn-success mt-3 px-4">
+        Proceed to Checkout
+      </a>
+  
+    </div>
+  </div>
+
+  <!-- COOKIE BANNER -->
+  <div id="cookieBanner" style="display:none;">
+    <div class="cookie-text">
+      <strong>🍪 We use cookies</strong><br>
+      We use essential cookies to make our site work. With your consent, we may also use
+      analytics and marketing cookies to improve your experience.
+      <a href="{{ url_for('main.cookie_policy') }}">Learn more</a>
+    </div>
+  
+    <div class="cookie-btns">
+      <button class="cookie-btn cookie-btn-settings" onclick="openCookieSettings()">
+        Cookie Settings
+      </button>
+      <button class="cookie-btn cookie-btn-necessary" onclick="acceptNecessary()">
+        Necessary Only
+      </button>
+      <button class="cookie-btn cookie-btn-accept" onclick="acceptAll()">
+        Accept All
+      </button>
+    </div>
+  </div>
+  
+  <!-- COOKIE SETTINGS MODAL -->
+  <div id="cookieModal">
+    <div class="cookie-modal-box">
+      <h3>Cookie Preferences</h3>
+      <p>Choose which cookies you allow. You can change these settings at any time.</p>
+  
+      <div class="cookie-toggle-row">
+        <div class="cookie-toggle-label">
+          <strong>Strictly Necessary</strong>
+          <span>Required for the site to function. Cannot be disabled.</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" checked disabled>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+  
+      <div class="cookie-toggle-row">
+        <div class="cookie-toggle-label">
+          <strong>Analytics</strong>
+          <span>Help us understand how visitors use our site.</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="analyticsToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+  
+      <div class="cookie-toggle-row">
+        <div class="cookie-toggle-label">
+          <strong>Marketing</strong>
+          <span>Used to show relevant ads and track campaign performance.</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="marketingToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+  
+      <div class="cookie-modal-btns">
+        <button class="btn-accept-all-modal" onclick="savePreferences()">
+          Save Preferences
+        </button>
+        <button class="btn-save-prefs" onclick="acceptAll()">
+          Accept All
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
     </script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            setTimeout(function () {
-                let alerts = document.querySelectorAll(".flash-message");
+  <!-- ====== SCRIPTS ====== -->
+  <script>
+    // Hamburger toggle
+    const ham  = document.getElementById('hamburger');
+    const menu = document.getElementById('mobile-menu');
+    ham?.addEventListener('click', () => {
+      const open = ham.getAttribute('aria-expanded') === 'true';
+      ham.setAttribute('aria-expanded', String(!open));
+      menu.hidden = open;
+    });
 
-                alerts.forEach(function (alert) {
-                    let bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
+    // Account dropdown
+    const accToggle = document.getElementById('account-toggle');
+    const accMenu   = document.getElementById('account-menu');
+    accToggle?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = accToggle.getAttribute('aria-expanded') === 'true';
+      accToggle.setAttribute('aria-expanded', String(!open));
+      accMenu?.classList.toggle('open', !open);
+    });
+    document.addEventListener('click', () => {
+      accToggle?.setAttribute('aria-expanded', 'false');
+      accMenu?.classList.remove('open');
+    });
 
-            }, 2000);
+    // Auto-dismiss flash after 5s
+    setTimeout(() => {
+      document.querySelectorAll('.flash').forEach(el => el.remove());
+    }, 5000);
+
+
+    //  cookies
+
+    (function () {
+        const COOKIE_KEY = 'judith_cookie_consent';
+
+        function getConsent() {
+          try { return JSON.parse(localStorage.getItem(COOKIE_KEY)); }
+          catch { return null; }
+        }
+
+        function setConsent(prefs) {
+          localStorage.setItem(COOKIE_KEY, JSON.stringify({
+            ...prefs,
+            timestamp: new Date().toISOString()
+          }));
+        }
+
+        function hideBanner() {
+          const banner = document.getElementById('cookieBanner');
+          if (banner) banner.style.display = 'none';
+        }
+
+        function showBanner() {
+          const banner = document.getElementById('cookieBanner');
+          if (banner) banner.style.display = 'flex';
+        }
+
+        window.acceptAll = function () {
+          setConsent({ necessary: true, analytics: true, marketing: true });
+          hideBanner();
+          document.getElementById('cookieModal').classList.remove('active');
+        };
+
+        window.acceptNecessary = function () {
+          setConsent({ necessary: true, analytics: false, marketing: false });
+          hideBanner();
+        };
+
+        window.openCookieSettings = function () {
+          const consent = getConsent();
+          if (consent) {
+            document.getElementById('analyticsToggle').checked = consent.analytics || false;
+            document.getElementById('marketingToggle').checked = consent.marketing || false;
+          }
+          document.getElementById('cookieModal').classList.add('active');
+        };
+
+        window.savePreferences = function () {
+          setConsent({
+            necessary: true,
+            analytics: document.getElementById('analyticsToggle').checked,
+            marketing: document.getElementById('marketingToggle').checked,
+          });
+          hideBanner();
+          document.getElementById('cookieModal').classList.remove('active');
+        };
+
+        // close modal on backdrop click
+        document.getElementById('cookieModal').addEventListener('click', function (e) {
+          if (e.target === this) this.classList.remove('active');
         });
-    </script>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        // show banner if no consent stored
+        if (!getConsent()) {
+          showBanner();
+        }
+      })();
+  </script>
 
-    {% block js %}{% endblock %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
+  {% block js %}{% endblock %}
 </body>
-
 </html>

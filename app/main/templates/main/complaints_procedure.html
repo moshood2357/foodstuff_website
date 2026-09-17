@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Complaints Procedure — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}How to make a complaint to Judith Ethnic Food Store Ltd — our complaints procedure covers product issues, delivery problems, food safety, and escalation.{% endblock %}
+
+{% block content %}
+<section class="hero hero--sub mt-5" aria-labelledby="page-title">
+  <div style="position:relative;z-index:1;text-align:center;">
+    <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+      <i class="fa-solid fa-comment-dots" aria-hidden="true"></i> Legal &amp; Policies
+    </p>
+    <h1 class="hero__title" id="page-title">Complaints Procedure</h1>
+    <p style="color:var(--green-100);margin-top:8px;font-size:0.9rem;">Effective Date: 1 August 2026</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:760px;margin:0 auto;">
+    <div class="policy-body">
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">1</span> Our Commitment</h2>
+        <p>At Judith Ethnic Food Store Ltd, we are committed to providing high-quality products and excellent customer service. We understand that occasionally things may not go as expected. We welcome customer feedback because it helps us improve our products, services, and customer experience. This Complaints Procedure explains how we handle customer concerns fairly and professionally.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">2</span> What You Can Complain About</h2>
+        <p>Customers may contact us regarding:</p>
+        <ul>
+          <li>product quality;</li>
+          <li>damaged or missing items;</li>
+          <li>incorrect orders;</li>
+          <li>delivery problems;</li>
+          <li>payment issues;</li>
+          <li>website issues;</li>
+          <li>staff service;</li>
+          <li>food safety concerns;</li>
+          <li>any other concern relating to our services.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">3</span> How to Make a Complaint</h2>
+        <p>Customers can submit a complaint using the following methods:</p>
+        <ul>
+          <li><strong>Email:</strong> <a href="mailto:info@judithethnicstore.co.uk">info@judithethnicstore.co.uk</a></li>
+          <li><strong>Telephone:</strong> <a href="tel:07306011093">07306 011093</a></li>
+          <li><strong>In Store:</strong> Speak with a member of staff or store management.</li>
+          <li><strong>Post:</strong> Judith Ethnic Food Store Ltd, 311 High Street, Cheltenham, England, GL50 3HW</li>
+          <li><strong>Online:</strong> <a href="{{ url_for('main.contact') }}">Contact form</a></li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">4</span> Information to Include</h2>
+        <p>To help us investigate your complaint, please provide:</p>
+        <ul>
+          <li>your name and contact details;</li>
+          <li>order number (if applicable);</li>
+          <li>date of purchase;</li>
+          <li>product details;</li>
+          <li>receipt or proof of purchase where available;</li>
+          <li>details of the problem;</li>
+          <li>photographs or evidence where relevant.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">5</span> Acknowledgement of Complaints</h2>
+        <p>We aim to acknowledge complaints promptly and will confirm that we have received your complaint, who is handling the matter, and the next steps in our investigation.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">6</span> Investigation Process</h2>
+        <p>We will review complaints fairly and may check order records, review transaction information, speak with relevant staff, inspect products where appropriate, and contact suppliers where necessary. We aim to understand what happened and identify a suitable resolution.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">7</span> Resolution</h2>
+        <p>Depending on the circumstances, we may offer a replacement product, refund, exchange, explanation, corrective action, or apology where appropriate. The outcome will depend on the nature of the complaint, evidence available, and applicable consumer rights.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">8</span> Food Safety Complaints</h2>
+        <p>Food safety concerns are treated as a priority. If you believe a product is unsafe, contaminated, incorrectly labelled, or causing an allergic reaction, please <a href="{{ url_for('main.contact') }}">contact us immediately</a> and provide the product name, batch number, expiry or best-before date, purchase details, and photographs where possible.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">9</span> Damaged or Missing Delivery Complaints</h2>
+        <p>For delivery-related complaints, please contact us as soon as possible with your order number, delivery details, photographs of damaged packaging, and details of missing items.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">10</span> Escalation</h2>
+        <p>If you are unhappy with the outcome of your complaint, please ask for your complaint to be reviewed by a senior member of management. We will review the original complaint, the investigation completed, and the proposed resolution.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">11</span> Customer Service Standards</h2>
+        <p>We aim to treat all customers respectfully, investigate complaints fairly, communicate clearly, and resolve issues as quickly as reasonably possible.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">12</span> Abuse or Unreasonable Behaviour</h2>
+        <p>We respect the right of customers to complain. However, we reserve the right to manage complaints where communication becomes abusive, threatening, discriminatory, unreasonable or excessive. We will continue to handle genuine concerns professionally.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">13</span> Contact Us</h2>
+        <address style="font-style:normal;line-height:2;">
+          <strong>Judith Ethnic Food Store Ltd</strong><br>
+          311 High Street, Cheltenham, England, GL50 3HW<br>
+          <a href="tel:07306011093">07306 011093</a><br>
+          <a href="mailto:info@judithethnicstore.co.uk">info@judithethnicstore.co.uk</a>
+        </address>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">14</span> Changes to This Procedure</h2>
+        <p>We may update this Complaints Procedure from time to time. The latest version will always be available on <a href="https://judithethnicstore.co.uk" target="_blank" rel="noopener">judithethnicstore.co.uk</a>.</p>
+      </div>
+
+    </div>
+    <div style="margin-top:48px;padding:32px 24px;background:var(--green-50);border-radius:var(--radius-lg);text-align:center;">
+      <p class="about-eyebrow" style="margin-bottom:8px;">Have a concern?</p>
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:20px;color:var(--green-800);">Get in touch — we'll make it right</h2>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ url_for('main.contact') }}" class="btn btn--primary">Contact Us</a>
+        <a href="tel:07306011093" class="btn btn--outline"><i class="fa-solid fa-phone" aria-hidden="true"></i> 07306 011093</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Complaints Procedure — Judith Ethnic Food Store Ltd","url":"{{ request.url }}","publisher":{"@type":"Organization","name":"Judith Ethnic Food Store Ltd","url":"https://judithethnicstore.co.uk"}}
+</script>
+{% endblock %}

@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .inv-page {
+        padding: 90px 24px 40px;
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 28px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
+        margin-bottom: 20px;
+    }
+
+    .card h2 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 16px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .full {
+        grid-column: span 2;
+    }
+
+    label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: 6px;
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        font-family: inherit;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #22c55e;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: #22c55e;
+        color: #fff;
+    }
+
+    .btn-outline {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        color: #374151;
+    }
+
+    .btn-red {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .item-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr auto;
+        gap: 10px;
+        align-items: end;
+        margin-bottom: 10px;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+</style>
+
+<div class="inv-page">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h1 style="font-size:22px;font-weight:800;color:#0f172a;">+ New Purchase Order</h1>
+        <a href="{{ url_for('inventory.purchase_orders') }}" class="btn btn-outline">← Back</a>
+    </div>
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="card">
+            <h2>Order Details</h2>
+            <div class="form-grid">
+                <div>
+                    <label>Supplier *</label>
+                    <select name="supplier_id" required>
+                        <option value="">Select supplier</option>
+                        {% for s in suppliers %}
+                        <option value="{{ s.id }}">{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>Expected Delivery Date</label>
+                    <input type="date" name="expected_date">
+                </div>
+                <div class="full">
+                    <label>Notes</label>
+                    <textarea name="notes" rows="2" placeholder="Any notes for this order..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Order Items</h2>
+
+            <div id="items-container">
+                <div class="item-row" id="item-0">
+                    <div>
+                        <label>Product</label>
+                        <select name="product_id[]" onchange="loadVariants(this, 0)">
+                            <option value="">Select product</option>
+                            {% for p in products %}
+                            <option value="{{ p.id }}" data-has-variants="{{ 'true' if p.has_variants else 'false' }}">
+                                {{ p.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label>Variant</label>
+                        <select name="variant_id[]" id="variant-0">
+                            <option value="">No variant</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Quantity</label>
+                        <input type="number" name="quantity[]" min="1" value="1">
+                    </div>
+                    <div>
+                        <label>Unit Cost (£)</label>
+                        <input type="number" name="unit_cost[]" step="0.01" min="0" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label>&nbsp;</label>
+                        <button type="button" class="btn btn-red" onclick="removeItem(0)">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-outline" onclick="addItem()" style="margin-top:12px;">
+                + Add Another Item
+            </button>
+        </div>
+
+        <div style="display:flex;gap:12px;">
+            <button type="submit" class="btn btn-primary">Create Purchase Order</button>
+            <a href="{{ url_for('inventory.purchase_orders') }}" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    let itemCount = 1;
+    const products = {{ products | tojson(attribute = 'id') if false else '[]' }};
+
+    function addItem() {
+        const i = itemCount++;
+        const container = document.getElementById('items-container');
+        const div = document.createElement('div');
+        div.className = 'item-row';
+        div.id = `item-${i}`;
+        div.innerHTML = `
+            <div>
+                <label>Product</label>
+                <select name="product_id[]" onchange="loadVariants(this, ${i})">
+                    <option value="">Select product</option>
+                    {% for p in products %}
+                    <option value="{{ p.id }}" data-has-variants="{{ 'true' if p.has_variants else 'false' }}">{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Variant</label>
+                <select name="variant_id[]" id="variant-${i}">
+                    <option value="">No variant</option>
+                </select>
+            </div>
+            <div>
+                <label>Quantity</label>
+                <input type="number" name="quantity[]" min="1" value="1">
+            </div>
+            <div>
+                <label>Unit Cost (£)</label>
+                <input type="number" name="unit_cost[]" step="0.01" min="0" placeholder="0.00">
+            </div>
+            <div>
+                <label>&nbsp;</label>
+                <button type="button" class="btn btn-red" onclick="removeItem(${i})">✕</button>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    function removeItem(i) {
+        const el = document.getElementById(`item-${i}`);
+        if (el) el.remove();
+    }
+
+    async function loadVariants(select, i) {
+        const productId = select.value;
+        const variantSelect = document.getElementById(`variant-${i}`);
+        variantSelect.innerHTML = '<option value="">No variant</option>';
+
+        if (!productId) return;
+
+        const res = await fetch(`/admin/inventory/api/product-variants/${productId}`);
+        const data = await res.json();
+
+        if (data.has_variants && data.variants.length) {
+            data.variants.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.id;
+                opt.textContent = `${v.name} (${v.sku})`;
+                variantSelect.appendChild(opt);
+            });
+        }
+    }
+</script>
+{% endblock %}

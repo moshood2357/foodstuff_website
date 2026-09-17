@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .bins-page { padding: 90px 24px 40px; max-width: 700px; margin: auto; }
+    .card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,.05); margin-bottom: 20px; }
+    .card h2 { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 10px 12px; font-size: 11px; text-transform: uppercase; color: #94a3b8; background: #f8fafc; }
+    td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 2fr auto; gap: 10px; align-items: end; }
+    label { display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; }
+    input { width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; }
+    input:focus { border-color: #22c55e; }
+    .btn { padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
+    .btn-green { background: #22c55e; color: #fff; }
+    .back-link { color: #22c55e; text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 16px; }
+</style>
+
+<div class="bins-page">
+    <a href="{{ url_for('orders.order_list') }}" class="back-link">← Back to Orders</a>
+    <h1 style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:20px;">📍 Bin Locations</h1>
+
+    <!-- ADD BIN -->
+    <div class="card">
+        <h2>Add New Bin</h2>
+        <form method="POST" action="{{ url_for('orders.add_bin') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+                <div>
+                    <label>Bin Name *</label>
+                    <input type="text" name="name" placeholder="e.g. A1, SHELF-3" required>
+                </div>
+                <div>
+                    <label>Description (optional)</label>
+                    <input type="text" name="description" placeholder="e.g. Top shelf, aisle 2">
+                </div>
+                <div>
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-green">+ Add</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- BIN LIST -->
+    <div class="card">
+        <h2>All Bins ({{ bins|length }})</h2>
+        {% if bins %}
+        <table>
+            <thead><tr><th>Name</th><th>Description</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for bin in bins %}
+                <tr>
+                    <td><strong>{{ bin.name }}</strong></td>
+                    <td style="color:#64748b;">{{ bin.description or '—' }}</td>
+                    <td>
+                        <span style="font-size:11px;padding:2px 8px;border-radius:10px;
+                            background:{% if bin.is_active %}#dcfce7{% else %}#fee2e2{% endif %};
+                            color:{% if bin.is_active %}#166534{% else %}#991b1b{% endif %};font-weight:600;">
+                            {{ 'Active' if bin.is_active else 'Inactive' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:8px;align-items:center;">
+            
+                            <!-- EDIT FORM -->
+                            <button onclick="document.getElementById('edit-{{ bin.id }}').style.display='block'"
+                                style="background:#dbeafe;color:#1d4ed8;padding:5px 12px;font-size:12px;
+                                       border:none;border-radius:6px;cursor:pointer;font-weight:600;">
+                                Edit
+                            </button>
+            
+                            <!-- DELETE FORM -->
+                            <form method="POST" action="{{ url_for('orders.delete_bin', id=bin.id) }}"
+                                  onsubmit="return confirm('Delete bin {{ bin.name }}?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit"
+                                    style="background:#fee2e2;color:#991b1b;padding:5px 12px;font-size:12px;
+                                           border:none;border-radius:6px;cursor:pointer;font-weight:600;">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+            
+                        <!-- INLINE EDIT FORM -->
+                        <div id="edit-{{ bin.id }}" style="display:none;margin-top:10px;background:#f8fafc;
+                             padding:12px;border-radius:8px;border:1px solid #e2e8f0;">
+                            <form method="POST" action="{{ url_for('orders.edit_bin', id=bin.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+                                    <div>
+                                        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:4px;">Name</label>
+                                        <input type="text" name="name" value="{{ bin.name }}" required
+                                            style="padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;width:80px;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:4px;">Description</label>
+                                        <input type="text" name="description" value="{{ bin.description or '' }}"
+                                            style="padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;width:200px;">
+                                    </div>
+                                    <button type="submit"
+                                        style="background:#22c55e;color:#fff;padding:6px 14px;font-size:13px;
+                                               border:none;border-radius:6px;cursor:pointer;font-weight:600;">
+                                        Save
+                                    </button>
+                                    <button type="button"
+                                        onclick="document.getElementById('edit-{{ bin.id }}').style.display='none'"
+                                        style="background:#f1f5f9;color:#374151;padding:6px 14px;font-size:13px;
+                                               border:none;border-radius:6px;cursor:pointer;">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:#94a3b8;text-align:center;padding:20px;">No bin locations yet. Add one above.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

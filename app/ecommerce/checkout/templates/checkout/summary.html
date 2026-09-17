@@ -6,7 +6,7 @@
 
 <style>
     .summary-wrapper {
-        padding: 40px 15px;
+        padding: 120px 15px 60px;
         background: #f8fafc;
         min-height: 80vh;
     }
@@ -32,6 +32,7 @@
         color: #0f172a;
         display: flex;
         justify-content: space-between;
+        align-items: center;
     }
 
     .section-title a {
@@ -68,7 +69,6 @@
         padding-top: 10px;
     }
 
-    /* CTA */
     .btn-pay {
         width: 100%;
         background: #22c55e;
@@ -86,16 +86,69 @@
         background: #16a34a;
     }
 
+    .btn-pay:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
     .secure-note {
         text-align: center;
         font-size: 12px;
         color: gray;
         margin-top: 8px;
     }
+
+    .alert-warning {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412;
+        padding: 12px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+        margin-top: 10px;
+    }
+
+    .fulfillment-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .fulfillment-badge.pickup {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+    }
+
+    .fulfillment-badge.delivery {
+        background: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+
+    .pickup-info-box {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 16px;
+    }
+
+    .pickup-info-box p {
+        font-size: 13px;
+        color: #166534;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 </style>
 
 <div class="summary-wrapper">
-
     <div class="summary-container">
 
         <!-- CUSTOMER -->
@@ -104,22 +157,53 @@
                 Customer Details
                 <a href="{{ url_for('checkout.details') }}">Edit</a>
             </div>
-
             <div class="row"><span>Name</span><strong>{{ draft.full_name }}</strong></div>
             <div class="row"><span>Email</span><strong>{{ draft.email }}</strong></div>
             <div class="row"><span>Phone</span><strong>{{ draft.phone }}</strong></div>
         </div>
 
-        <!-- DELIVERY -->
+        <!-- FULFILLMENT DETAILS -->
+        {% if draft.fulfillment_type == 'pickup' %}
         <div class="summary-card">
             <div class="section-title">
-                Delivery Details
+                <span>🏪 Pick up in Store <span class="fulfillment-badge pickup">Free</span></span>
                 <a href="{{ url_for('checkout.details') }}">Edit</a>
             </div>
 
-            <div class="row">
-                <span>Method</span>
-                <strong>{{ draft.delivery_method|capitalize }}</strong>
+            <div class="pickup-info-box">
+                <p>🏠 311 High Street, Cheltenham GL50 3WS</p>
+                <p>🕐 Mon–Sun: 9:00 AM – 8:00 PM</p>
+                <p>📞 +44 7306 011093</p>
+            </div>
+
+            {% if draft.pickup_date or draft.pickup_time %}
+            <div style="margin-top: 12px;">
+                {% if draft.pickup_date %}
+                <div class="row">
+                    <span>Pickup Date</span>
+                    <strong>{{ draft.pickup_date }}</strong>
+                </div>
+                {% endif %}
+                {% if draft.pickup_time %}
+                <div class="row">
+                    <span>Pickup Time</span>
+                    <strong>{{ draft.pickup_time.replace('-', ' – ') }}</strong>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <p style="font-size:13px; color:#64748b; margin-top:12px;">
+                📋 Please bring your order confirmation email when collecting.
+            </p>
+        </div>
+
+        {% else %}
+        <!-- DELIVERY ADDRESS -->
+        <div class="summary-card">
+            <div class="section-title">
+                <span>📍 Delivery Address <span class="fulfillment-badge delivery">Delivery</span></span>
+                <a href="{{ url_for('checkout.details') }}">Edit</a>
             </div>
 
             <div class="row">
@@ -127,35 +211,51 @@
                 <strong>
                     {{ draft.address_line_1 }},
                     {% if draft.address_line_2 %}{{ draft.address_line_2 }}, {% endif %}
-                    {{ draft.city }}, {{ draft.state }},
-                    {{ draft.postal_code }}
+                    {{ draft.city }}, {{ draft.state }}, {{ draft.postal_code }}
                 </strong>
             </div>
+
+            {% if draft.delivery_miles %}
+            <div class="row">
+                <span>Distance</span>
+                <strong>{{ draft.delivery_miles }} miles from store</strong>
+            </div>
+            {% endif %}
         </div>
 
         <!-- BILLING -->
-        <div class="summary-card"  name="same_as_delivery">
+        <div class="summary-card">
             <div class="section-title">
                 Billing Details
                 <a href="{{ url_for('checkout.details') }}">Edit</a>
             </div>
 
             {% if draft.same_as_delivery %}
-            <p>Same as delivery address</p>
+            <p style="font-size:14px; color:#475569;">Same as delivery address</p>
             {% else %}
-            <p>
+            <p style="font-size:14px; color:#475569;">
                 {{ draft.billing_address_line_1 }},
                 {% if draft.billing_address_line_2 %}{{ draft.billing_address_line_2 }}, {% endif %}
-                {{ draft.billing_city }}, {{ draft.billing_state }},
-                {{ draft.billing_postcode }}
+                {{ draft.billing_city }}, {{ draft.billing_state }}, {{ draft.billing_postcode }}
             </p>
             {% endif %}
         </div>
+        {% endif %}
+
+        <!-- ORDER NOTE -->
+        {% if draft.note %}
+        <div class="summary-card">
+            <div class="section-title">
+                Order Note
+                <a href="{{ url_for('checkout.details') }}">Edit</a>
+            </div>
+            <p style="font-size:14px; color:#475569;">{{ draft.note }}</p>
+        </div>
+        {% endif %}
 
         <!-- ITEMS -->
         <div class="summary-card">
             <div class="section-title">Order Items</div>
-
             <div class="items">
                 {% for item in cart.items %}
                 <div class="item">
@@ -166,21 +266,54 @@
             </div>
         </div>
 
-        <!-- PAYMENT -->
+        <!-- PAYMENT SUMMARY -->
         <div class="summary-card">
             <div class="section-title">Payment Summary</div>
 
-            <div class="row"><span>Subtotal</span><strong>£{{ "%.2f"|format(draft.subtotal) }}</strong></div>
-            <div class="row"><span>Shipping</span><strong>£{{ "%.2f"|format(draft.shipping_fee) }}</strong></div>
-            <div class="row"><span>Tax</span><strong>£{{ "%.2f"|format(draft.tax) }}</strong></div>
+            <div class="row">
+                <span>Subtotal</span>
+                <strong>£{{ "%.2f"|format(draft.subtotal) }}</strong>
+            </div>
+
+            {% if draft.fulfillment_type == 'pickup' %}
+            <div class="row">
+                <span>🏪 Collection</span>
+                <strong style="color:#16a34a;">Free</strong>
+            </div>
+            {% else %}
+            <div class="row">
+                <span>
+                    🚚 Delivery Fee
+                    {% if draft.delivery_miles %}
+                    <small style="color:#64748b; font-weight:400;">({{ draft.delivery_miles }} miles)</small>
+                    {% endif %}
+                </span>
+                <strong>
+                    {% if draft.delivery_fee %}
+                    £{{ "%.2f"|format(draft.delivery_fee) }}
+                    {% else %}
+                    <span style="color:#ef4444;">Not calculated</span>
+                    {% endif %}
+                </strong>
+            </div>
+            {% endif %}
 
             <div class="total">
                 Total: £{{ "%.2f"|format(draft.total) }}
             </div>
 
+            {% if draft.fulfillment_type == 'delivery' and not draft.delivery_fee %}
+            <div class="alert-warning">
+                ⚠️ Delivery fee could not be calculated. Please
+                <a href="{{ url_for('checkout.details') }}" style="color:#9a3412; font-weight:600;">go back</a>
+                and use the postcode lookup to get your delivery fee.
+            </div>
+            {% endif %}
+
             <form method="POST" action="{{ url_for('checkout.pay') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn-pay">
+                <button type="submit" class="btn-pay" {% if draft.fulfillment_type=='delivery' and not
+                    draft.delivery_fee %}disabled{% endif %}>
                     Proceed to Payment →
                 </button>
             </form>
@@ -191,7 +324,6 @@
         </div>
 
     </div>
-
 </div>
 
 {% endblock %}

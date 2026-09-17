@@ -1,10 +1,11 @@
 <header class="fixed-top w-100 z-10 shadow-sm">
-    <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white py-1">
         <div class="container">
 
             <!-- BRAND -->
-            <a class="navbar-brand" href="{{ url_for('main.home') }}">
-                <img src="{{ url_for('static', filename='images/judith.png') }}" alt="Judith Kitchen logo" height="60" fetchpriority="high" loading="eager">        
+            <a class="navbar-brand" href="{{ url_for('main.home') }}" aria-label="Judith Ethnic Food Store — home">
+                <img src="{{ url_for('static', filename='images/judithstores.jpg') }}" alt="Judith Ethnic logo" height="100" width="120" 
+                    fetchpriority="high" loading="eager">
             </a>
 
 
@@ -20,7 +21,7 @@
                     style="max-width: 420px; width: 100%;">
 
                     <input type="search" name="q" id="searchInput" class="form-control rounded-pill me-2"
-                        placeholder="Search products..." autocomplete="off">
+                   placeholder="Search products or categories..." autocomplete="off">
 
                     <button type="submit" class="btn btn-outline-success rounded-pill px-4">
                         Search
@@ -41,13 +42,13 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.shop') }}">Menu</a>
+                        <a class="nav-link" href="{{ url_for('main.shop') }}">Shop</a>
                     </li>
 
                     <!-- WISHLIST -->
                     <li class="nav-item position-relative">
                         <a class="nav-link" href="{{ url_for('wishlist.view_wishlist') }}">
-                            ❤️ Cravings
+                            ❤️ Saved Items
                         </a>
                         <span id="wishlist-count"
                             class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -70,12 +71,12 @@
                     {% if current_user.is_authenticated %}
 
                     <!-- ADMIN -->
-                    {% if current_user.is_admin %}
+                    <!-- {% if current_user.is_admin %}
                     <li class="nav-item">
                         <a class="nav-link fw-semibold text-dark" href="{{ url_for('admin.dashboard') }}">
                             Admin
                         </a>
-                    </li>
+                    </li> -->
                     {% endif %}
 
                     <!-- USER DROPDOWN -->

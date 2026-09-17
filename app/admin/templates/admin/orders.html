@@ -3,10 +3,10 @@
 {% block content %}
 
 <style>
-    .dashboard {
-        padding: 20px;
-        margin: 70px;
-    }
+   .dashboard {
+    padding: 20px 20px 30px;
+    margin: 70px;
+}
 
     .section-title {
         margin: 25px 0 15px;
@@ -29,15 +29,22 @@
 
     /* stick scrollbar to viewport bottom */
     .sticky-scrollbar {
-        position: sticky;
-        bottom: 0;
-        overflow-x: auto;
-        overflow-y: hidden;
-        height: 12px;
-        background: #f1f5f9;
-        border-top: 1px solid #e2e8f0;
-        z-index: 10;
-    }
+    position: fixed;
+    bottom: 0;
+    left: 70px;
+    width: calc(100% - 190px);
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    height: 16px;
+    background: #f1f5f9;
+    border-top: 1px solid #e2e8f0;
+
+    z-index: 100;
+    box-sizing: border-box;
+}
+
 
     .sticky-scrollbar-inner {
         height: 1px;
@@ -120,50 +127,96 @@
         background: #d1fae5;
         color: #065f46;
     }
-
     .status-dropdown {
-        border: none;
-        border-radius: 6px;
-        padding: 4px 8px;
-        font-size: 0.85rem;
-        cursor: pointer;
-        font-weight: 500;
-    }
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-weight: 500;
+    max-width: 160px;
+    appearance: auto;
+}
 
-    .status-dropdown.processing {
-        background: #fff3cd;
-        color: #856404;
-    }
+.status-dropdown.new {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
 
-    .status-dropdown.shipped {
-        background: #cfe2ff;
-        color: #084298;
-    }
+.status-dropdown.payment_confirmed {
+    background: #d1fae5;
+    color: #065f46;
+}
 
-    .status-dropdown.delivered {
-        background: #d1e7dd;
-        color: #0a3622;
-    }
+.status-dropdown.processing {
+    background: #fef3c7;
+    color: #92400e;
+}
 
-    .status-dropdown.cancelled {
-        background: #f8d7da;
-        color: #842029;
-    }
+.status-dropdown.picking {
+    background: #e0e7ff;
+    color: #3730a3;
+}
 
-    .status-dropdown.accepted {
-        background: #d1fae5;
-        color: #065f46;
-    }
+.status-dropdown.picked {
+    background: #cffafe;
+    color: #0e7490;
+}
 
-    .status-dropdown.preparing {
-        background: #fef3c7;
-        color: #92400e;
-    }
+.status-dropdown.packed {
+    background: #fce7f3;
+    color: #9d174d;
+}
 
-    .status-dropdown.completed {
-        background: #d1fae5;
-        color: #065f46;
-    }
+.status-dropdown.ready_for_dispatch {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.status-dropdown.dispatched {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-dropdown.delivered {
+    background: #d1fae5;
+    color: #0a3622;
+}
+
+.status-dropdown.completed {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.status-dropdown.on_hold {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-dropdown.cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-dropdown.refunded {
+    background: #fce7f3;
+    color: #9d174d;
+}
+
+.status-dropdown.returned {
+    background: #fce7f3;
+    color: #9d174d;
+}
+
+.status-dropdown.payment_failed {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-dropdown.out_of_stock {
+    background: #fee2e2;
+    color: #991b1b;
+}
 
     .action-buttons {
         display: flex;
@@ -310,13 +363,16 @@
                         <th>Order #</th>
                         <th>Customer</th>
                         <th>Contact</th>
-                        <th>Delivery</th>
+                        <th>Fulfillment</th>
+                        <th>Miles</th>       
+                        <th>Del. Fee</th>
                         <th>Subtotal</th>
-                        <th>Shipping</th>
-                        <th>Tax</th>
+                        <!-- <th>Shipping</th> -->
+                        <!-- <th>Tax</th> -->
                         <th>Total</th>
                         <th>Payment</th>
                         <th>Status</th>
+                        <th>Note</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -332,12 +388,32 @@
                             <div>{{ order.user.email if order.user else (order.guest_email or '—') }}</div>
                             <small>{{ order.address.phone if order.address else '—' }}</small>
                         </td>
+                        <td>
+                            {% if order.fulfillment_type == 'pickup' %}
+                            <span
+                                style="background:#eff6ff; color:#1d4ed8; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:600;">
+                                🏪 Pickup
+                            </span>
+                            {% if order.pickup_date %}
+                            <div style="font-size:11px; color:#64748b; margin-top:3px;">
+                                {{ order.pickup_date }}
+                                {% if order.pickup_time %}· {{ order.pickup_time.replace('-', '–') }}{% endif %}
+                            </div>
+                            {% endif %}
+                            {% else %}
+                            <span
+                                style="background:#f0fdf4; color:#166534; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:600;">
+                                🚚 Delivery
+                            </span>
+                            {% endif %}                   
+                        </td>
 
-                        <td>{{ order.delivery_method or '—' }}</td>
+                        <td>{{ order.delivery_miles or '—' }}</td>
+                        <td>£{{ "{:,.2f}".format(order.delivery_fee or 0) }}</td>
 
                         <td>£{{ "{:,.2f}".format(order.subtotal or 0) }}</td>
-                        <td>£{{ "{:,.2f}".format(order.shipping_fee or 0) }}</td>
-                        <td>£{{ "{:,.2f}".format(order.tax or 0) }}</td>
+                        <!-- <td>£{{ "{:,.2f}".format(order.shipping_fee or 0) }}</td> -->
+                        <!-- <td>£{{ "{:,.2f}".format(order.tax or 0) }}</td> -->
 
                         <td>
                             <strong>£{{ "{:,.2f}".format(order.total_amount or 0) }}</strong>
@@ -354,23 +430,33 @@
                         </td>
 
                         <td>
-                            <select class="status-dropdown {{ order.status.value if order.status else 'processing' }}"
-                                data-order-id="{{ order.id }}" onchange="updateOrderStatus(this)">
-                                <option value="processing" {% if order.status.value=='processing' %}selected{% endif %}>
-                                    Processing</option>
-                                <option value="preparing" {% if order.status.value=='preparing' %}selected{% endif %}>
-                                    Preparing</option>
-                                <option value="completed" {% if order.status.value=='completed' %}selected{% endif %}>
-                                    Completed</option>
-                                <option value="shipped" {% if order.status.value=='shipped' %}selected{% endif %}>
-                                    Shipped</option>
-                                <option value="delivered" {% if order.status.value=='delivered' %}selected{% endif %}>
-                                    Delivered</option>
-                                <option value="accepted" {% if order.status.value=='accepted' %}selected{% endif %}>
-                                    Accepted</option>
-                                <option value="cancelled" {% if order.status.value=='cancelled' %}selected{% endif %}>
-                                    Cancelled</option>
+                            <select class="status-dropdown {{ order.status.value if order.status else 'new' }}"
+                                data-order-id="{{ order.id }}"
+                                data-previous-value="{{ order.status.value if order.status else 'new' }}" 
+                                onchange="updateOrderStatus(this)">
+                                    <option value="new" {% if order.status and order.status.value=='new' %}selected{% endif %}>New</option>
+                                    <option value="payment_confirmed" {% if order.status and order.status.value=='payment_confirmed' %}selected{% endif %}>Payment Confirmed</option>
+                                    <option value="processing" {% if order.status and order.status.value=='processing' %}selected{% endif %}>Processing</option>
+                                    <option value="picking" {% if order.status and order.status.value=='picking' %}selected{% endif %}>Picking</option>
+                                    <option value="picked" {% if order.status and order.status.value=='picked' %}selected{% endif %}>Picked</option>
+                                    <option value="packed" {% if order.status and order.status.value=='packed' %}selected{% endif %}>Packed</option>
+                                    <option value="ready_for_dispatch" {% if order.status and order.status.value=='ready_for_dispatch' %}selected{% endif %}>Ready for Dispatch</option>
+                                    <option value="dispatched" {% if order.status and order.status.value=='dispatched' %}selected{% endif %}>Dispatched</option>
+                                    <option value="delivered" {% if order.status and order.status.value=='delivered' %}selected{% endif %}>Delivered</option>
+                                    <option value="completed" {% if order.status and order.status.value=='completed' %}selected{% endif %}>Completed</option>
+                                    <option value="on_hold" {% if order.status and order.status.value=='on_hold' %}selected{% endif %}>On Hold</option>
+                                    <option value="cancelled" {% if order.status and order.status.value=='cancelled' %}selected{% endif %}>Cancelled</option>
+                                    <option value="refunded" {% if order.status and order.status.value=='refunded' %}selected{% endif %}>Refunded</option>
+                                    <option value="returned" {% if order.status and order.status.value=='returned' %}selected{% endif %}>Returned</option>
+                                    <option value="payment_failed" {% if order.status and order.status.value=='payment_failed' %}selected{% endif %}>Payment Failed</option>
+                                    <option value="out_of_stock" {% if order.status and order.status.value=='out_of_stock' %}selected{% endif %}>Out of Stock</option>
                             </select>
+                        </td>
+
+
+                        <td
+                            style="min-width:180px;max-width:220px;white-space:normal;word-break:break-word;font-size:0.82rem;color:#475569;line-height:1.4;">
+                            {{ order.note or '—' }}                   
                         </td>
 
                         <td>
@@ -523,8 +609,8 @@
     const stickyInner = document.getElementById("sticky-inner");
 
     function syncStickyWidth() {
-        stickyInner.style.width = tableScroll.scrollWidth + "px";
-    }
+        stickyInner.style.width = document.querySelector(".orders-table").scrollWidth + "px";
+        }
 
     syncStickyWidth();
     window.addEventListener("resize", syncStickyWidth);
@@ -625,7 +711,8 @@
                 }
             })
             .catch(err => {
-                alert("Something went wrong: " + err.message);
+                alert("Something went wr
+                ong: " + err.message);
             });
     }
 
@@ -633,37 +720,60 @@
     // UPDATE ORDER STATUS
     // =========================
     function updateOrderStatus(el, forcedStatus = null) {
-        const orderId = el.dataset.orderId;
-        const status = forcedStatus || el.value;
+    const orderId = el.dataset.orderId;
+    const status  = forcedStatus || el.value;
 
-        if (status === "accepted") {
-            openAcceptModal(el);
+    // statuses that need a reason
+    const needsReason = ['cancelled', 'on_hold', 'refunded', 'returned'];
+    let reason = '';
+
+    if (needsReason.includes(status)) {
+        reason = prompt(`Please enter a reason for marking this order as "${status.replace('_', ' ')}":`);
+        if (reason === null) {
+            // user cancelled prompt — reset dropdown
+            el.value = el.dataset.previousValue || 'new';
             return;
         }
-
-        fetch(`/admin/orders/update/${orderId}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: status })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    const row = el.closest("tr");
-                    const dropdown = row.querySelector(".status-dropdown");
-                    if (dropdown) {
-                        dropdown.value = status;
-                        dropdown.className = "status-dropdown " + status;
-                    }
-                } else {
-                    alert("Failed to update status.");
-                }
-            })
-            .catch(() => alert("Something went wrong."));
     }
 
+    // store previous value for rollback
+    el.dataset.previousValue = el.value;
 
-    
+    fetch(`/manage/orders/${orderId}/update-status`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ status: status, reason: reason })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const row      = el.closest('tr');
+            const dropdown = row.querySelector('.status-dropdown');
+            if (dropdown) {
+                dropdown.value     = status;
+                dropdown.className = 'status-dropdown ' + status;
+                dropdown.dataset.previousValue = status;
+            }
+            // update status badge if present
+            const badge = row.querySelector('.status-badge');
+            if (badge) {
+                badge.textContent  = status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                badge.className    = 'status-badge ' + status;
+            }
+        } else {
+            alert('Failed to update status: ' + (data.error || 'Unknown error'));
+            // rollback dropdown
+            el.value = el.dataset.previousValue || 'new';
+        }
+    })
+    .catch(() => {
+        alert('Network error. Please try again.');
+        el.value = el.dataset.previousValue || 'new';
+    });
+}
+
+
+
 
     let _rejectOrderId = null;
         let _rejectRowEl = null;

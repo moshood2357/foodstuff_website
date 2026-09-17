@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .inv-page {
+        padding: 90px 24px 40px;
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
+        margin-bottom: 20px;
+    }
+
+    .card h2 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #64748b;
+    }
+
+    .info-value {
+        font-weight: 600;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        text-align: left;
+        padding: 10px 12px;
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        background: #f8fafc;
+    }
+
+    td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 13px;
+    }
+
+    .badge {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .badge-green {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-yellow {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-blue {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .badge-gray {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .btn {
+        padding: 9px 18px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: #22c55e;
+        color: #fff;
+    }
+
+    .btn-blue {
+        background: #3b82f6;
+        color: #fff;
+    }
+
+    .btn-outline {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        color: #374151;
+    }
+
+    input[type="number"] {
+        width: 80px;
+        padding: 6px 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+</style>
+
+<div class="inv-page">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+            <h1 style="font-size:22px;font-weight:800;color:#0f172a;">{{ po.po_number }}</h1>
+            <span class="badge
+                {% if po.status.value == 'draft' %}badge-gray
+                {% elif po.status.value == 'sent' %}badge-blue
+                {% elif po.status.value == 'partial' %}badge-yellow
+                {% elif po.status.value == 'received' %}badge-green
+                {% else %}badge-gray{% endif %}">
+                {{ po.status.value | capitalize }}
+            </span>
+        </div>
+        <div style="display:flex;gap:10px;">
+            {% if po.status.value == 'draft' %}
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <form method="POST" action="{{ url_for('inventory.send_purchase_order', id=po.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="send_type" value="email">
+                    <button type="submit" class="btn btn-blue">📧 Email</button>
+                </form>
+                <form method="POST" action="{{ url_for('inventory.send_purchase_order', id=po.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="send_type" value="whatsapp">
+                    <button type="submit" class="btn" style="background:#25D366;color:#fff;">💬 WhatsApp</button>
+                </form>
+                <form method="POST" action="{{ url_for('inventory.send_purchase_order', id=po.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="send_type" value="sms">
+                    <button type="submit" class="btn" style="background:#f59e0b;color:#fff;">📱 SMS</button>
+                </form>
+                <form method="POST" action="{{ url_for('inventory.send_purchase_order', id=po.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="send_type" value="all">
+                    <button type="submit" class="btn btn-primary">📧💬📱 Send All</button>
+                </form>
+            </div>
+            {% endif %}
+            <a href="{{ url_for('inventory.purchase_orders') }}" class="btn btn-outline">← Back</a>
+        </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="card">
+            <h2>Order Info</h2>
+            <div class="info-row"><span class="info-label">Supplier</span><span class="info-value">{{ po.supplier.name
+                    }}</span></div>
+            <div class="info-row"><span class="info-label">Created By</span><span class="info-value">{{
+                    po.creator.first_name }} {{ po.creator.last_name }}</span></div>
+            <div class="info-row"><span class="info-label">Created</span><span class="info-value">{{
+                    po.created_at.strftime('%d/%m/%Y') }}</span></div>
+            <div class="info-row"><span class="info-label">Expected</span><span class="info-value">{{
+                    po.expected_date.strftime('%d/%m/%Y') if po.expected_date else '—' }}</span></div>
+            <div class="info-row"><span class="info-label">Received</span><span class="info-value">{{
+                    po.received_date.strftime('%d/%m/%Y') if po.received_date else '—' }}</span></div>
+            <div class="info-row"><span class="info-label">Total Cost</span><span class="info-value">£{{
+                    "%.2f"|format(po.total_cost or 0) }}</span></div>
+        </div>
+        <div class="card">
+            <h2>Supplier Contact</h2>
+            <div class="info-row"><span class="info-label">Contact</span><span class="info-value">{{
+                    po.supplier.contact_name or '—' }}</span></div>
+            <div class="info-row"><span class="info-label">Email</span><span class="info-value">{{ po.supplier.email or
+                    '—' }}</span></div>
+            <div class="info-row"><span class="info-label">Phone</span><span class="info-value">{{ po.supplier.phone or
+                    '—' }}</span></div>
+            <div class="info-row"><span class="info-label">Lead Time</span><span class="info-value">{{
+                    po.supplier.lead_time_days }} days</span></div>
+            {% if po.notes %}
+            <div class="info-row"><span class="info-label">Notes</span><span class="info-value">{{ po.notes }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ITEMS + RECEIVE -->
+    <div class="card">
+        <h2>Order Items</h2>
+        <form method="POST" action="{{ url_for('inventory.receive_purchase_order', id=po.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Variant</th>
+                        <th>Ordered</th>
+                        <th>Received</th>
+                        <th>Unit Cost</th>
+                        <th>Total</th>
+                        {% if po.status.value in ['sent', 'partial'] %}
+                        <th>Receive Now</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in po.items %}
+                    <tr>
+                        <td>{{ item.product_name }}</td>
+                        <td>{{ item.variant_name or '—' }}</td>
+                        <td>{{ item.quantity_ordered }}</td>
+                        <td>
+                            <span
+                                class="badge {% if item.quantity_received >= item.quantity_ordered %}badge-green{% elif item.quantity_received > 0 %}badge-yellow{% else %}badge-gray{% endif %}">
+                                {{ item.quantity_received }}
+                            </span>
+                        </td>
+                        <td>£{{ "%.2f"|format(item.unit_cost) }}</td>
+                        <td>£{{ "%.2f"|format(item.total_cost or 0) }}</td>
+                        {% if po.status.value in ['sent', 'partial'] %}
+                        <td>
+                            <input type="number" name="received_{{ item.id }}" min="0"
+                                max="{{ item.quantity_ordered - item.quantity_received }}" value="{{ item.quantity_ordered - item.quantity_received }}" placeholder="{{ item.quantity_ordered - item.quantity_received }}">
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if po.status.value in ['sent', 'partial'] %}
+            <button type="submit" class="btn btn-primary" style="margin-top:16px;">
+                ✓ Confirm Stock Received
+            </button>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Allergy Policy — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Judith Ethnic Food Store Ltd's allergy policy — how we manage allergen information, the 14 major allergens, cross-contamination, and what customers with allergies should know.{% endblock %}
+
+{% block content %}
+<section class="hero hero--sub mt-5" aria-labelledby="page-title">
+  <div style="position:relative;z-index:1;text-align:center;">
+    <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Legal &amp; Policies
+    </p>
+    <h1 class="hero__title" id="page-title">Allergy Policy</h1>
+    <p style="color:var(--green-100);margin-top:8px;font-size:0.9rem;">Effective Date: 1 August 2026</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:760px;margin:0 auto;">
+    <div class="policy-body">
+
+      <div class="policy-section" style="background:var(--amber-50,#fffbeb);border-left:4px solid var(--amber-400,#fbbf24);padding:16px 20px;border-radius:var(--radius);margin-bottom:32px;">
+        <p style="font-weight:600;margin-bottom:4px;"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Important</p>
+        <p>Customers with serious allergies should always check product packaging before consumption and contact us before purchasing if they need further information.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">1</span> Introduction</h2>
+        <p>At Judith Ethnic Food Store Ltd, we take food allergies and customer safety seriously. We sell a wide range of African and international food products. Some products may contain allergens or may be produced in environments where allergens are handled. This policy explains how we manage allergen information and how customers can make informed choices.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">2</span> Our Commitment</h2>
+        <p>We aim to:</p>
+        <ul>
+          <li>provide accurate product information where available;</li>
+          <li>display allergen information provided by manufacturers;</li>
+          <li>handle products responsibly;</li>
+          <li>support customers with dietary requirements.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">3</span> The 14 Major Allergens</h2>
+        <p>UK food regulations recognise the following 14 allergens:</p>
+        <ul>
+          <li>Cereals containing gluten (wheat, rye, barley, oats)</li>
+          <li>Crustaceans (prawns, crabs, lobsters)</li>
+          <li>Eggs</li>
+          <li>Fish</li>
+          <li>Peanuts</li>
+          <li>Soybeans</li>
+          <li>Milk</li>
+          <li>Nuts (almonds, hazelnuts, walnuts, cashews, pecans, Brazil nuts, pistachios, macadamia nuts)</li>
+          <li>Celery</li>
+          <li>Mustard</li>
+          <li>Sesame</li>
+          <li>Sulphur dioxide and sulphites</li>
+          <li>Lupin</li>
+          <li>Molluscs (mussels, oysters, squid)</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">4</span> Product Labelling</h2>
+        <p>Many of our products are supplied by manufacturers and importers. Product labels may include ingredients, allergen declarations, nutritional information, and storage instructions. Customers should always read the product label before eating or preparing food.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">5</span> Imported Products</h2>
+        <p>Some African and international products may have packaging from different countries. While we make reasonable efforts to ensure information is accurate, ingredients may change, packaging may be updated, translations may vary, and manufacturers may change recipes. Customers with allergies should check the latest product information before purchase.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">6</span> Cross-Contamination</h2>
+        <p>Some products may be prepared or manufactured in environments where allergens are present — including facilities handling nuts, gluten, dairy, sesame, and soy. We cannot guarantee that any product is completely free from traces of allergens unless specifically stated by the manufacturer.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">7</span> Online Orders and Allergies</h2>
+        <p>Customers ordering online should review product descriptions, check ingredient information, and <a href="{{ url_for('main.contact') }}">contact us</a> before ordering if they require clarification. If you have a severe allergy, please contact us before purchasing.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">8</span> Customer Responsibility</h2>
+        <p>Customers are responsible for checking ingredients, informing us of allergy concerns, following storage and preparation instructions, and seeking medical advice where necessary.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">9</span> Contacting Us About Allergies</h2>
+        <p>If you require allergen information, please <a href="{{ url_for('main.contact') }}">contact us</a> and provide: the product name, brand name, and your specific allergy concern.</p>
+        <address style="font-style:normal;line-height:2;margin-top:12px;">
+          <strong>Judith Ethnic Food Store Ltd</strong><br>
+          311 High Street, Cheltenham, England, GL50 3HW<br>
+          <a href="tel:07306011093">07306 011093</a><br>
+          <a href="mailto:info@judithethnicstore.co.uk">info@judithethnicstore.co.uk</a>
+        </address>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">10</span> Food Safety Concerns</h2>
+        <p>If you believe a product has caused an allergic reaction or may be unsafe, please <a href="{{ url_for('main.contact') }}">contact us immediately</a>. Please provide the product details, batch number (if available), purchase information, and details of the concern. We will investigate all food safety concerns seriously.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">11</span> Changes to This Policy</h2>
+        <p>We may update this Allergy Policy from time to time. The latest version will always be available on <a href="https://judithethnicstore.co.uk" target="_blank" rel="noopener">judithethnicstore.co.uk</a>.</p>
+      </div>
+
+    </div>
+    <div style="margin-top:48px;padding:32px 24px;background:var(--green-50);border-radius:var(--radius-lg);text-align:center;">
+      <p class="about-eyebrow" style="margin-bottom:8px;">Allergy concerns?</p>
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:20px;color:var(--green-800);">Contact us before purchasing</h2>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ url_for('main.contact') }}" class="btn btn--primary">Contact Us</a>
+        <a href="tel:07306011093" class="btn btn--outline"><i class="fa-solid fa-phone" aria-hidden="true"></i> 07306 011093</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Allergy Policy — Judith Ethnic Food Store Ltd","url":"{{ request.url }}","publisher":{"@type":"Organization","name":"Judith Ethnic Food Store Ltd","url":"https://judithethnicstore.co.uk"}}
+</script>
+{% endblock %}

@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+{% block title %}FAQs — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Find answers to frequently asked questions about Judith Ethnic Food Store Ltd — covering
+orders, delivery, Click & Collect, payments, returns, and more.{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="hero hero--sub mt-5" aria-labelledby="faq-title">
+    <div style="position:relative;z-index:1;text-align:center;">
+        <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+            <i class="fa-solid fa-circle-question" aria-hidden="true"></i> Help Centre
+        </p>
+        <h1 class="hero__title" id="faq-title">Frequently Asked Questions</h1>
+    </div>
+</section>
+
+<!-- FAQ Body -->
+<section class="section">
+    <div class="container" style="max-width:820px;margin:0 auto;">
+
+        <!-- ── General Questions ─────────────────────────────── -->
+        <div class="faq-group" style="margin-bottom:56px;">
+            <h2 class="faq-group__title">
+                <i class="fa-solid fa-store" aria-hidden="true"></i> General Questions
+            </h2>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Who is Judith Ethnic Food Store Ltd?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Judith Ethnic Food Store Ltd is an African and international grocery retailer based in
+                        the United Kingdom, providing customers with quality food products, traditional
+                        ingredients, and everyday grocery essentials.
+                    </p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">What products do you sell?</summary>
+                <div class="faq-item__a">
+                    <p>We sell a wide range of products, including:</p>
+                    <ul>
+                        <li>African food products</li>
+                        <li>International groceries</li>
+                        <li>Spices and seasonings</li>
+                        <li>Traditional ingredients</li>
+                        <li>Packaged foods</li>
+                        <li>Household essentials</li>
+                        <li>Other everyday grocery items</li>
+                    </ul>
+                    <p style="margin-top:12px;">Our product range changes regularly based on customer demand and
+                        availability.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Do you have a physical store?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Yes. Customers can visit our physical store to browse and purchase products in person.
+                    </p>
+                    <p style="margin-top:10px;">
+                        <strong>Address:</strong> 311 High Street, Cheltenham, England, GL50 3HW<br>
+                        <strong>Opening Hours:</strong> Monday – Saturday: 9:00 AM – 7:00 PM &nbsp;|&nbsp; Sunday:
+                        Closed
+                    </p>
+                </div>
+            </details>
+        </div>
+
+        <!-- ── Online Shopping ───────────────────────────────── -->
+        <div class="faq-group" style="margin-bottom:56px;">
+            <h2 class="faq-group__title">
+                <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i> Online Shopping
+            </h2>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Can I order products online?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Yes. You can browse products, place orders, and select available delivery or collection
+                        options through our website:
+                        <a href="https://judithethnicstore.co.uk" target="_blank"
+                            rel="noopener">judithethnicstore.co.uk</a>.
+                    </p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">How do I place an order?</summary>
+                <div class="faq-item__a">
+                    <ol>
+                        <li>Select your products and add them to your basket.</li>
+                        <li>Review your order.</li>
+                        <li>Enter your delivery or collection details.</li>
+                        <li>Complete payment.</li>
+                        <li>Receive your order confirmation.</li>
+                    </ol>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Can I change or cancel my order?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Please <a href="{{ url_for('main.contact') }}">contact us</a> as soon as possible if
+                        you need to change or cancel an order. Once an order has been prepared, changes or
+                        cancellations may not always be possible — particularly for fresh, chilled, or frozen
+                        products.
+                    </p>
+                </div>
+            </details>
+        </div>
+
+        <!-- ── Delivery ──────────────────────────────────────── -->
+        <div class="faq-group" style="margin-bottom:56px;">
+            <h2 class="faq-group__title">
+                <i class="fa-solid fa-truck-fast" aria-hidden="true"></i> Delivery
+            </h2>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Do you offer delivery?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Yes. Delivery options may be available depending on your location and the products
+                        ordered. Available delivery options and any charges will be shown during checkout.
+                    </p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">How long does delivery take?</summary>
+                <div class="faq-item__a">
+                    <p>Delivery times vary depending on your location, delivery method, order volume, and product
+                        availability. Estimated delivery information will be provided during checkout.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">What happens if my delivery arrives damaged?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Please <a href="{{ url_for('main.contact') }}">contact us</a> as soon as possible and
+                        provide:
+                    </p>
+                    <ul>
+                        <li>Your order number</li>
+                        <li>Details of the problem</li>
+                        <li>Photographs where possible</li>
+                    </ul>
+                    <p style="margin-top:10px;">We will investigate and provide an appropriate solution.</p>
+                </div>
+            </details>
+        </div>
+
+        <!-- ── Click & Collect ───────────────────────────────── -->
+        <div class="faq-group" style="margin-bottom:56px;">
+            <h2 class="faq-group__title">
+                <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> Click &amp; Collect
+            </h2>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Do you offer Click &amp; Collect?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Yes. Where available, you can order online and collect from our store. You will receive
+                        collection instructions after your order has been confirmed.
+                    </p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">What do I need when collecting my order?</summary>
+                <div class="faq-item__a">
+                    <p>When collecting, you may need:</p>
+                    <ul>
+                        <li>Your order confirmation</li>
+                        <li>Your order number</li>
+                        <li>The name used for the order</li>
+                        <li>Identification where required</li>
+                    </ul>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Can someone else collect my order?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Yes. Another person may collect your order if they have your permission and the required
+                        order details. Additional verification may be required for security purposes.
+                    </p>
+                </div>
+            </details>
+        </div>
+
+        <!-- ── Payment ───────────────────────────────────────── -->
+        <div class="faq-group" style="margin-bottom:56px;">
+            <h2 class="faq-group__title">
+                <i class="fa-solid fa-credit-card" aria-hidden="true"></i> Payment
+            </h2>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">What payment methods do you accept?</summary>
+                <div class="faq-item__a">
+                    <p>Available payment methods may include:</p>
+                    <ul>
+                        <li>Debit cards</li>
+                        <li>Credit cards</li>
+                        <li>Contactless payments</li>
+                        <li>Online payment services</li>
+                        <li>Cash payments in-store</li>
+                    </ul>
+                    <p style="margin-top:10px;">Payment options may vary.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Is my payment information secure?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Yes. Payments are processed through secure payment systems. We do not store complete
+                        payment card details.
+                    </p>
+                </div>
+            </details>
+        </div>
+
+        <!-- ── Products ──────────────────────────────────────── -->
+        <div class="faq-group" style="margin-bottom:56px;">
+            <h2 class="faq-group__title">
+                <i class="fa-solid fa-leaf" aria-hidden="true"></i> Products
+            </h2>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Do you provide allergy information?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Yes. We provide allergen information where available. Customers with allergies should
+                        always check product packaging and <a href="{{ url_for('main.contact') }}">contact us</a>
+                        before purchasing if they need further information.
+                    </p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Do you sell imported African products?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Yes. We stock African and international products sourced from trusted suppliers. Product
+                        availability may vary due to supplier availability and seasonal demand.
+                    </p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Can I request a product?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        We welcome customer suggestions. If there is a product you would like us to stock,
+                        please <a href="{{ url_for('main.contact') }}">contact us</a> and we will consider
+                        your request.
+                    </p>
+                </div>
+            </details>
+        </div>
+
+        <!-- ── Returns & Refunds ─────────────────────────────── -->
+        <div class="faq-group" style="margin-bottom:56px;">
+            <h2 class="faq-group__title">
+                <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Returns &amp; Refunds
+            </h2>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Can I return food products?</summary>
+                <div class="faq-item__a">
+                    <p>Due to food safety requirements, we cannot normally accept returns of:</p>
+                    <ul>
+                        <li>Fresh food</li>
+                        <li>Chilled goods</li>
+                        <li>Frozen goods</li>
+                        <li>Opened food products</li>
+                    </ul>
+                    <p style="margin-top:10px;">
+                        Please <a href="{{ url_for('main.contact') }}">contact us</a> if there is a problem
+                        with your order and we will do our best to help.
+                    </p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">What if I receive the wrong item?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Please <a href="{{ url_for('main.contact') }}">contact us</a> promptly with your order
+                        details, the product information, and details of the issue. We will investigate and
+                        provide a suitable solution.
+                    </p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">How long do refunds take?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Approved refunds are normally processed using the original payment method. The time
+                        taken for funds to appear depends on your bank or payment provider.
+                    </p>
+                </div>
+            </details>
+        </div>
+
+        <!-- ── Account ───────────────────────────────────────── -->
+        <div class="faq-group" style="margin-bottom:56px;">
+            <h2 class="faq-group__title">
+                <i class="fa-solid fa-user" aria-hidden="true"></i> Your Account
+            </h2>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">Do I need an account to shop online?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Not necessarily. Where guest checkout is available, you can place orders without
+                        creating an account.
+                    </p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-item__q">I forgot my password. What should I do?</summary>
+                <div class="faq-item__a">
+                    <p>
+                        Use the password reset option on the website, or
+                        <a href="{{ url_for('main.contact') }}">contact us</a> for assistance.
+                    </p>
+                </div>
+            </details>
+        </div>
+
+        <!-- Still have a question? CTA -->
+        <div style="text-align:center;padding:40px 24px;background:var(--green-50);border-radius:var(--radius-lg);">
+            <p class="about-eyebrow" style="margin-bottom:8px;">Still need help?</p>
+            <h2
+                style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;margin-bottom:12px;color:var(--green-800);">
+                We're happy to assist
+            </h2>
+            <p
+                style="color:var(--slate-600);margin-bottom:24px;line-height:1.7;max-width:480px;margin-left:auto;margin-right:auto;">
+                If your question isn't answered here, get in touch — we'll get back to you as soon as possible.
+            </p>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                <a href="{{ url_for('main.contact') }}" class="btn btn--primary">Contact Us</a>
+                <a href="mailto:info@judithethnicstore.co.uk" class="btn btn--outline">
+                    <i class="fa-solid fa-envelope" aria-hidden="true"></i> info@judithethnicstore.co.uk
+                </a>
+                <a href="tel:07306011093" class="btn btn--outline">
+                    <i class="fa-solid fa-phone" aria-hidden="true"></i> 07306 011093
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Who is Judith Ethnic Food Store Ltd?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Judith Ethnic Food Store Ltd is an African and international grocery retailer based in the United Kingdom, providing customers with quality food products, traditional ingredients, and everyday grocery essentials."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What products do you sell?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We sell African food products, international groceries, spices and seasonings, traditional ingredients, packaged foods, household essentials, and other everyday grocery items."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you have a physical store?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Our store is at 302 High Street, Cheltenham GL50 3JF. Open Monday to Saturday, 9:00 AM – 7:00 PM. Closed Sunday."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I order products online?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. You can browse and order products at judithethnicstore.co.uk."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you offer delivery?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Delivery options may be available depending on your location and the products ordered. Available delivery options and charges will be shown at checkout."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you offer Click & Collect?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Where available, you can order online and collect from our store. Collection instructions are provided after order confirmation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What payment methods do you accept?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We accept debit cards, credit cards, contactless payments, online payment services, and cash in-store. Payment options may vary."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I return food products?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Due to food safety requirements, we cannot normally accept returns of fresh, chilled, frozen, or opened food products. Please contact us if there is a problem with your order."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long do refunds take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Approved refunds are processed using the original payment method. The time for funds to appear depends on your bank or payment provider."
+      }
+    }
+  ]
+}
+</script>
+
+{% endblock %}

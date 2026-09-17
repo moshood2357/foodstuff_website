@@ -1,193 +1,192 @@
 {% extends "base.html" %}
-
-{% block title %}Contact Us | Judith Kitchen{% endblock %}
+{% block title %}Contact Us — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Get in touch with Judith Ethnic Food Store Ltd. Visit us at 311 High Street, Cheltenham, England, GL50 3HW, call 07306 011093, or email info@judithethnicstore.co.uk.{% endblock %}
 
 {% block content %}
 
-<section class="contact-hero py-5">
-    <div class="container text-center text-white">
-        <h1 class="fw-bold mb-2">We’d Love to Hear From You</h1>
-        <p class="opacity-75">
-            Questions, feedback, or cravings? Reach out anytime.
-        </p>
-    </div>
+<section class="hero hero--sub hero--contact mt-5" aria-labelledby="contact-title" style="background: linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.45)),
+           url('{{ url_for('static', filename='images/view.jpeg') }}') center/cover no-repeat;">
+  <div class="hero__content">
+    <p class="hero__eyebrow">
+      <i class="fa-solid fa-envelope" aria-hidden="true"></i> Get In Touch
+    </p>
+    <h1 class="hero__title" id="contact-title">Contact Us</h1>
+  </div>
 </section>
 
-<section class="py-5">
-    <div class="container">
+<section class="section">
+  <div class="container contact-grid">
 
-        <div class="row g-5">
+    <!-- Info -->
+    <div class="contact-info">
+      <h2>We'd love to hear from you</h2>
+      <p>
+        We are always happy to hear from our customers. Whether you have a question about a product,
+        an online order, delivery, allergies, or a general enquiry — our team is here to help.
+      </p>
 
-            <!-- =========================
-            FORM
-            ========================= -->
-            <div class="col-lg-7">
-
-                <div class="contact-card p-4 p-lg-5">
-
-                    <h4 class="fw-bold mb-3">Send a Message</h4>
-                    <p class="text-muted small mb-4">
-                        Fill the form and our team will get back to you shortly.
-                    </p>
-
-                    <form method="POST" action="{{ url_for('main.contact') }}">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                        <div class="row g-3">
-
-                            <div class="col-md-6">
-                                <input type="text" name="first_name" class="form-control form-control-lg"
-                                    placeholder="First Name" required>
-                            </div>
-
-                            <div class="col-md-6">
-                                <input type="text" name="last_name" class="form-control form-control-lg"
-                                    placeholder="Last Name" required>
-                            </div>
-
-                            <div class="col-12">
-                                <input type="email" name="email" class="form-control form-control-lg"
-                                    placeholder="Email Address" required>
-                            </div>
-
-                            <div class="col-12">
-                                <input type="tel" name="phone" class="form-control form-control-lg"
-                                    placeholder="Phone (optional)">
-                            </div>
-
-                            <div class="col-12">
-                                <select name="subject" class="form-select form-select-lg" required>
-                                    <option value="">Select Subject</option>
-                                    <option>Order enquiry</option>
-                                    <option>Delivery issue</option>
-                                    <option>General question</option>
-                                    <option>Business enquiry</option>
-                                </select>
-                            </div>
-
-                            <div class="col-12">
-                                <textarea name="message" rows="5" class="form-control form-control-lg"
-                                    placeholder="Write your message..." required></textarea>
-                            </div>
-
-                        </div>
-
-                        <button type="submit" class="btn btn-success w-100 mt-4 py-3 rounded-pill fw-semibold">
-                            Send Message
-                        </button>
-
-                        <small class="text-muted d-block mt-3 text-center">
-                            Your information is safe and only used to respond to your enquiry.
-                        </small>
-
-                    </form>
-                </div>
-            </div>
-
-            <!-- =========================
-            CONTACT INFO
-            ========================= -->
-            <div class="col-lg-5">
-
-                <div class="d-flex flex-column gap-4">
-
-                    <div class="info-card">
-                        <h6>📞 Call Us</h6>
-                        <p>+44 123 456 7890</p>
-                        <small>Available during opening hours</small>
-                    </div>
-
-                    <div class="info-card">
-                        <h6>📧 Email</h6>
-                        <p>support@judithkitchen.com</p>
-                        <small>Response within 24 hours</small>
-                    </div>
-
-                    <div class="info-card">
-                        <h6>📍 Address</h6>
-                        <p>
-                            24 High Street<br>
-                            Cheltenham<br>
-                            Gloucestershire<br>
-                            GL50 1AA<br>
-                            United Kingdom
-                        </p>
-                    </div>
-
-                    <div class="info-card">
-                        <h6>🕒 Opening Hours</h6>
-                        <p class="mb-1">Mon – Fri: 9:00 AM – 8:00 PM</p>
-                        <p class="mb-1">Saturday: 10:00 AM – 6:00 PM</p>
-                        <p class="mb-0">Sunday: Closed</p>
-                    </div>
-
-                </div>
-
-            </div>
-
+      <div class="contact-item">
+        <div class="contact-item__icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></div>
+        <div>
+          <p class="contact-item__label">Registered Office</p>
+          <p class="contact-item__val">311 High Street, Cheltenham, England, GL50 3HW</p>
         </div>
+      </div>
 
+      <div class="contact-item">
+        <div class="contact-item__icon"><i class="fa-solid fa-phone" aria-hidden="true"></i></div>
+        <div>
+          <p class="contact-item__label">Phone</p>
+          <p class="contact-item__val"><a href="tel:07306011093">07306 011093</a></p>
+        </div>
+      </div>
+
+      <div class="contact-item">
+        <div class="contact-item__icon"><i class="fa-solid fa-envelope" aria-hidden="true"></i></div>
+        <div>
+          <p class="contact-item__label">Email</p>
+          <p class="contact-item__val"><a href="mailto:info@judithethnicstore.co.uk">info@judithethnicstore.co.uk</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="contact-item">
+        <div class="contact-item__icon"><i class="fa-solid fa-globe" aria-hidden="true"></i></div>
+        <div>
+          <p class="contact-item__label">Website</p>
+          <p class="contact-item__val">
+            <a href="https://judithethnicstore.co.uk" target="_blank" rel="noopener">judithethnicstore.co.uk</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="contact-item">
+        <div class="contact-item__icon"><i class="fa-regular fa-clock" aria-hidden="true"></i></div>
+        <div>
+          <p class="contact-item__label">Opening Hours</p>
+          <p class="contact-item__val">
+            Monday – Saturday: 9:00 AM – 7:00 PM<br>
+            Sunday: Closed
+          </p>
+          <p style="font-size:0.85rem;color:var(--slate-500);margin-top:4px;">
+            Opening hours may vary. Please check our latest times before visiting.
+          </p>
+        </div>
+      </div>
+
+      <!-- Map embed -->
+      <div
+        style="margin-top:24px;border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:16/9;background:var(--slate-100);">
+        <iframe title="Judith Ethnic Food Store on Google Maps"
+          src="https://maps.google.com/maps?q=311+High+Street,+Cheltenham,+England,+GL50+3HW&output=embed" width="100%"
+          height="100%" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
     </div>
+
+    <!-- Form -->
+    <div>
+      <div class="contact-form-card">
+        <h2
+          style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:8px;color:var(--green-800);">
+          Send us a message
+        </h2>
+        <p style="font-size:0.9rem;color:var(--slate-600);margin-bottom:24px;line-height:1.6;">
+          We can assist with online orders, product availability, delivery enquiries,
+          Click &amp; Collect, returns and refunds, complaints, and allergy information.
+          Please provide accurate details so we can respond as quickly as possible.
+        </p>
+
+        <form method="POST" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contact-fname">First name</label>
+              <input class="form-control" type="text" id="contact-fname" name="first_name" placeholder="Jane"
+                autocomplete="given-name" required />
+            </div>
+            <div class="form-group">
+              <label for="contact-lname">Last name</label>
+              <input class="form-control" type="text" id="contact-lname" name="last_name" placeholder="Doe"
+                autocomplete="family-name" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="contact-email">Email address</label>
+            <input class="form-control" type="email" id="contact-email" name="email" placeholder="you@example.com"
+              autocomplete="email" required />
+          </div>
+
+          <div class="form-group">
+            <label for="contact-subject">Subject</label>
+            <select class="form-control" id="contact-subject" name="subject" required>
+              <option value="" disabled selected>Select a topic…</option>
+              <option value="Online Order">Online order</option>
+              <option value="Product Availability">Product availability</option>
+              <option value="Delivery Enquiry">Delivery enquiry</option>
+              <option value="Click and Collect">Click &amp; Collect</option>
+              <option value="Returns and Refunds">Returns &amp; refunds</option>
+              <option value="Allergy Information">Allergy information</option>
+              <option value="Complaint">Complaint or feedback</option>
+              <option value="General Enquiry">General enquiry</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="contact-order">Order number <span style="font-weight:400;color:var(--slate-500);">(if
+                applicable)</span></label>
+            <input class="form-control" type="text" id="contact-order" name="order_number" placeholder="e.g. JE-00123"
+              autocomplete="off" />
+          </div>
+
+          <div class="form-group">
+            <label for="contact-msg">Message</label>
+            <textarea class="form-control" id="contact-msg" name="message" placeholder="Tell us more…" rows="5"
+              required></textarea>
+          </div>
+
+          <p style="font-size:0.8rem;color:var(--slate-500);margin-bottom:16px;line-height:1.5;">
+            Any personal information you provide will be handled in accordance with our
+            Privacy Policy and UK data protection requirements.
+          </p>
+
+          <button type="submit" class="btn btn--primary btn--lg" style="width:100%;border-radius:var(--radius);">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+            Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
 </section>
 
-<style>
-    /* HERO */
-    .contact-hero {
-        background: linear-gradient(135deg, #117843, #1f7a4d);
-    }
-
-    /* FORM CARD */
-    .contact-card {
-        background: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    }
-
-    /* INPUTS */
-    .form-control,
-    .form-select {
-        border-radius: 12px;
-        border: 1px solid #eee;
-        padding: 12px 14px;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #117843;
-        box-shadow: 0 0 0 2px rgba(17, 120, 67, 0.1);
-    }
-
-    /* INFO CARDS */
-    .info-card {
-        background: #fff;
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-    }
-
-    .info-card h6 {
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-
-    .info-card p {
-        margin-bottom: 4px;
-        font-weight: 500;
-    }
-
-    .info-card small {
-        color: #6c757d;
-    }
-
-    /* BUTTON */
-    .btn-success {
-        background-color: #117843;
-        border: none;
-    }
-
-    .btn-success:hover {
-        background-color: #0f6a3b;
-    }
-</style>
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": "Contact Judith Ethnic Food Store Ltd",
+  "description": "Contact Judith Ethnic Food Store Ltd for product, order, delivery, and allergy enquiries.",
+  "url": "{{ request.url }}",
+  "mainEntity": {
+    "@type": "LocalBusiness",
+    "name": "Judith Ethnic Food Store Ltd",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "311 High Street",
+      "addressLocality": "Cheltenham",
+      "postalCode": "GL50 3HW",
+      "addressCountry": "GB"
+    },
+    "telephone": "07306011093",
+    "email": "info@judithethnicstore.co.uk",
+    "url": "https://judithethnicstore.co.uk",
+    "openingHours": ["Mo-Sa 09:00-19:00"]
+  }
+}
+</script>
 
 {% endblock %}

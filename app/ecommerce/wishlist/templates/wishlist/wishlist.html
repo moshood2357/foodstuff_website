@@ -6,7 +6,7 @@
 
 <div class="container py-5">
 
-    <h2 class="m-5">My Cravings ❤️</h2>
+    <h2 class="m-5">My Saved items ❤️</h2>
 
     {% if wishlist_items and wishlist_items|length > 0 %}
 
@@ -58,7 +58,7 @@
     {% else %}
 
     <div class="text-center py-5">
-        <h4>Your wishlist is empty 😢</h4>
+        <h4>Your saved items list is empty 😢</h4>
         <p>Start adding products you love!</p>
 
         <a href="{{ url_for('main.home') }}" class="btn btn-primary mt-3">

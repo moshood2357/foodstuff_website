@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5 text-center">
+
+    <h2>We're confirming your payment...</h2>
+
+    <p>
+        Your payment was received and we're finalising your order.
+        This usually takes just a few seconds.
+    </p>
+
+    <div class="spinner-border text-success my-4" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+
+</div>
+
+<script>
+    setTimeout(function () {
+        window.location.reload();
+    }, 3000);
+</script>
+{% endblock %}

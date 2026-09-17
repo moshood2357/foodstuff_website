@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .inv-page {
+        padding: 90px 24px 40px;
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .nav-link {
+        padding: 8px 16px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        color: #374151;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+        background: #22c55e;
+        color: #fff;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .stat {
+        background: #fff;
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: 6px;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
+        margin-bottom: 20px;
+    }
+
+    .card h2 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 16px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        text-align: left;
+        padding: 8px 12px;
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        background: #f8fafc;
+    }
+
+    td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 13px;
+    }
+
+    .badge {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .badge-red {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge-green {
+        background: #dcfce7;
+        color: #166534;
+    }
+</style>
+
+<div class="inv-page">
+    <h1 style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:20px;">📈 Inventory Reports</h1>
+
+    <div class="nav-links">
+        <a href="{{ url_for('inventory.dashboard') }}" class="nav-link">Dashboard</a>
+        <a href="{{ url_for('inventory.products') }}" class="nav-link">Products</a>
+        <a href="{{ url_for('inventory.suppliers') }}" class="nav-link">Suppliers</a>
+        <a href="{{ url_for('inventory.purchase_orders') }}" class="nav-link">Purchase Orders</a>
+        <a href="{{ url_for('inventory.movements') }}" class="nav-link">Stock Movements</a>
+        <a href="{{ url_for('inventory.reports') }}" class="nav-link active">Reports</a>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat">
+            <div class="stat-label">Total Stock Value</div>
+            <div class="stat-value" style="color:#16a34a;">£{{ "%.2f"|format(total_value) }}</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Low Stock Variants</div>
+            <div class="stat-value" style="color:#dc2626;">{{ low_stock_variants|length }}</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Low Stock Products</div>
+            <div class="stat-value" style="color:#dc2626;">{{ low_stock_products|length }}</div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h2>⚠️ Low Stock Items</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Variant</th>
+                        <th>Stock</th>
+                        <th>Threshold</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in low_stock_variants %}
+                    <tr>
+                        <td>{{ v.product.name }}</td>
+                        <td>{{ v.name }}</td>
+                        <td><span class="badge badge-red">{{ v.stock_quantity }}</span></td>
+                        <td>{{ v.low_stock_threshold or 10 }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% for p in low_stock_products %}
+                    <tr>
+                        <td>{{ p.name }}</td>
+                        <td>—</td>
+                        <td><span class="badge badge-red">{{ p.stock_quantity }}</span></td>
+                        <td>{{ p.low_stock_threshold or 10 }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if not low_stock_variants and not low_stock_products %}
+                    <tr>
+                        <td colspan="4" style="color:#64748b;text-align:center;padding:20px;">✅ All stock levels healthy
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>🏆 Top Selling (POS)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Units Sold</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in top_pos %}
+                    <tr>
+                        <td>{{ item.product_name }}</td>
+                        <td>{{ item.total_qty }}</td>
+                        <td>£{{ "%.2f"|format(item.total_revenue) }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if not top_pos %}
+                    <tr>
+                        <td colspan="3" style="color:#64748b;text-align:center;padding:20px;">No POS sales yet</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📊 Stock Movement Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Movement Type</th>
+                    <th>Count</th>
+                    <th>Total Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in movement_summary %}
+                <tr>
+                    <td>{{ m.movement_type.value | capitalize }}</td>
+                    <td>{{ m.count }}</td>
+                    <td style="font-weight:600;color:{% if m.total_qty > 0 %}#16a34a{% else %}#dc2626{% endif %};">
+                        {{ '+' if m.total_qty > 0 else '' }}{{ m.total_qty }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

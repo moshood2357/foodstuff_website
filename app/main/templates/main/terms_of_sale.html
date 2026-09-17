@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Terms of Sale — Judith Ethnic Food Store{% endblock %}
+{% block meta_description %}Judith Ethnic Food Store Ltd's Terms of Sale — ordering, pricing, payment, delivery, perishable goods, cancellation rights, and your statutory rights.{% endblock %}
+
+{% block content %}
+<section class="hero hero--sub mt-5" aria-labelledby="page-title">
+  <div style="position:relative;z-index:1;text-align:center;">
+    <p class="hero__eyebrow" style="margin:0 auto 16px;width:fit-content;">
+      <i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Legal &amp; Policies
+    </p>
+    <h1 class="hero__title" id="page-title">Terms of Sale</h1>
+    <p style="color:var(--green-100);margin-top:8px;font-size:0.9rem;">Effective Date: 1 August 2026</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:760px;margin:0 auto;">
+    <div class="policy-body">
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">1</span> Introduction</h2>
+        <p>These Terms of Sale apply to purchases made from Judith Ethnic Food Store Ltd through our website, online ordering system, or other approved sales channels. By placing an order with us, you agree to these Terms of Sale.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">2</span> About Us</h2>
+        <address style="font-style:normal;line-height:2;">
+          <strong>Judith Ethnic Food Store Ltd</strong><br>
+          Registered in England &amp; Wales<br>
+          Registered Office: 311 High Street, Cheltenham, England, GL50 3HW<br>
+          <a href="tel:07306011093">07306 011093</a><br>
+          <a href="mailto:info@judithethnicstore.co.uk">info@judithethnicstore.co.uk</a>
+        </address>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">3</span> Products We Sell</h2>
+        <p>We sell African and international food products, groceries, beverages, household items, and related products. We make reasonable efforts to ensure product information is accurate; however, manufacturers may change ingredients or packaging, images may differ slightly from the actual product, and availability may change without notice. Customers should always check product packaging before consumption, especially where allergies or dietary requirements apply.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">4</span> Ordering Products</h2>
+        <p>When you place an order, you submit a request to purchase products from us. We will acknowledge receipt, review availability and payment status, and your order is accepted when we confirm dispatch or collection availability. We reserve the right to refuse an order where products are unavailable, payment cannot be verified, incorrect pricing has occurred, fraudulent activity is suspected, or delivery restrictions apply.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">5</span> Product Availability</h2>
+        <p>We aim to keep stock information accurate. However, some items may become unavailable, seasonal products may have limited availability, and imported products may experience supply delays. If an item is unavailable after ordering, we may contact you regarding a replacement, remove the item and refund the amount paid, or offer an alternative product with your agreement.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">6</span> Pricing</h2>
+        <p>All prices are shown in Pounds Sterling (£). Prices include VAT where applicable. We reserve the right to update prices due to supplier price changes, currency fluctuations, market conditions, or promotional changes. The price charged will be the price displayed at checkout unless there is an obvious pricing error.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">7</span> Payment</h2>
+        <p>Payment must be completed before goods are dispatched or collected unless agreed otherwise. Accepted payment methods may include debit cards, credit cards, online payment services, and other methods displayed during checkout. Payment details are processed securely. We do not store complete payment card information.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">8</span> Delivery</h2>
+        <p>Delivery options, charges, and estimated times will be displayed during checkout. We aim to deliver orders within the estimated timeframe; however, delays may occur due to courier issues, traffic, weather conditions, public holidays, or circumstances outside our control. Customers should ensure delivery addresses are correct and someone is available to receive deliveries where required.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">9</span> Grocery and Perishable Products</h2>
+        <p>Due to food safety regulations, special rules apply to fresh food, frozen products, chilled products, opened food products, and products requiring controlled storage conditions. Customers should inspect deliveries promptly and store products according to instructions.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">10</span> Substitution Policy</h2>
+        <p>Where an ordered product is unavailable, we may offer a substitute only where you have agreed to substitutions or the substitution process was selected during checkout. If you do not accept a substitute, the unavailable item will be refunded.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">11</span> Cancellation Rights</h2>
+        <p>Under UK consumer law, some online purchases have cancellation rights. However, cancellation rights do not normally apply to perishable food products, fresh or chilled goods, frozen goods, or sealed goods unsuitable for return due to health protection reasons once opened. For eligible non-food items, customers may have the right to cancel within 14 days as provided by law.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">12</span> Damaged or Incorrect Orders</h2>
+        <p>If your order arrives damaged, incomplete, incorrect, or unsafe to consume, please <a href="{{ url_for('main.contact') }}">contact us</a> as soon as possible with your order number, a description of the issue, and photographs where applicable. We will investigate and may offer a replacement, refund, partial refund, or alternative resolution.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">13</span> Refunds</h2>
+        <p>Approved refunds will normally be issued using the original payment method. Refund processing times may depend on your bank or payment provider. We are not responsible for delays caused by third-party payment processors.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">14</span> Click &amp; Collect Orders</h2>
+        <p>Where available, orders must be collected within the stated collection period, customers should bring order confirmation, and identification may be requested for security purposes. Uncollected orders may be cancelled after a reasonable period.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">15</span> Customer Responsibilities</h2>
+        <p>Customers are responsible for providing accurate information, checking order details before payment, storing food products correctly after delivery or collection, and informing us of allergies or dietary requirements.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">16</span> Promotions and Discounts</h2>
+        <p>Promotional offers may have specific terms and expiry dates, cannot normally be exchanged for cash, and may be withdrawn at any time.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">17</span> Complaints</h2>
+        <p>We aim to resolve all complaints fairly. If you have a concern, please <a href="{{ url_for('main.contact') }}">contact us</a> with your name, order details, details of the issue, and your preferred resolution. We will investigate and respond as quickly as possible.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">18</span> Your Statutory Rights</h2>
+        <p>Nothing in these Terms affects your legal rights as a consumer under UK law, including protections relating to goods being of satisfactory quality, as described, and fit for purpose.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">19</span> Changes to Terms of Sale</h2>
+        <p>We may update these Terms from time to time. The version applicable to your order will be the version available at the time you purchase.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2 class="policy-section__title"><span class="policy-section__num">20</span> Governing Law</h2>
+        <p>These Terms of Sale are governed by the laws of England and Wales. Any disputes will be handled by the courts of England and Wales.</p>
+      </div>
+
+    </div>
+    <div style="margin-top:48px;padding:32px 24px;background:var(--green-50);border-radius:var(--radius-lg);text-align:center;">
+      <p class="about-eyebrow" style="margin-bottom:8px;">Questions about an order?</p>
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:20px;color:var(--green-800);">Get in touch</h2>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ url_for('main.contact') }}" class="btn btn--primary">Contact Us</a>
+        <a href="mailto:info@judithethnicstore.co.uk" class="btn btn--outline"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Email Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Terms of Sale — Judith Ethnic Food Store Ltd","url":"{{ request.url }}","publisher":{"@type":"Organization","name":"Judith Ethnic Food Store Ltd","url":"https://judithethnicstore.co.uk"}}
+</script>
+{% endblock %}
