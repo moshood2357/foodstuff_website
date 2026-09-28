@@ -10,185 +10,293 @@
         onerror="window.qz=null;console.warn('QZ Tray not available');">
     </script>
     <title>POS Till</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --green:        #1a7a3e;
+            --green-dark:   #15693a;
+            --green-deep:   #145c32;
+            --green-soft:   #e6f5eb;
+            --green-line:   #b9dcc5;
+            --red:          #dc2626;
+            --red-soft:     #fdecec;
+            --ink:          #1f2937;
+            --ink-2:        #374151;
+            --muted:        #6b7280;
+            --muted-2:      #9ca3af;
+            --field:        #f3f4f6;
+            --line:         #e5e7eb;
+            --bg:           #ffffff;
+            --panel-bg:     #f7f8f9;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; background: #0f172a; color: #f1f5f9; height: 100vh; overflow: hidden; }
-        .pos-layout { display: grid; grid-template-columns: 1fr 380px; height: 100vh; }
-        .pos-left { display: flex; flex-direction: column; padding: 16px; gap: 12px; overflow: hidden; }
-        .pos-header { display: flex; justify-content: space-between; align-items: center; }
-        .pos-header h1 { font-size: 18px; font-weight: 700; color: #22c55e; }
-        .staff-badge { background: #1e293b; padding: 6px 14px; border-radius: 20px; font-size: 13px; color: #94a3b8; }
-        .search-box { position: relative; }
-        .search-box input { width: 100%; padding: 14px 16px 14px 44px; background: #1e293b; border: 2px solid #334155; border-radius: 12px; color: #f1f5f9; font-size: 16px; outline: none; }
-        .search-box input:focus { border-color: #22c55e; }
-        .search-box .icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; }
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; overflow-y: auto; flex: 1; }
-        .product-tile { background: #1e293b; border-radius: 12px; padding: 14px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-        .product-tile:hover { border-color: #22c55e; background: #0f2d1a; }
-        .product-tile img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; margin-bottom: 8px; background: #334155; }
-        .product-tile .name { font-size: 13px; font-weight: 600; color: #f1f5f9; margin-bottom: 4px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .product-tile .price { font-size: 15px; font-weight: 800; color: #22c55e; }
-        .product-tile .stock { font-size: 11px; color: #64748b; margin-top: 2px; }
-        .product-tile .out-of-stock { font-size: 11px; color: #ef4444; }
-        .pos-right { background: #1e293b; display: flex; flex-direction: column; border-left: 1px solid #334155; min-height: 0; overflow: hidden; }
-        .basket-header { padding: 16px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        .basket-header h2 { font-size: 16px; font-weight: 700; }
+        body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--ink); height: 100vh; overflow: hidden; }
+        svg.ico { width: 16px; height: 16px; flex-shrink: 0; }
+
+        .pos-layout { display: grid; grid-template-columns: 1fr minmax(440px, 38vw); height: 100vh; }
+
+        /* ---------- LEFT ---------- */
+        .pos-left { display: flex; flex-direction: column; padding: 16px 36px 16px 44px; gap: 30px; overflow: hidden; }
+        .pos-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .pos-header h1 { font-family: 'Poppins', 'Inter', Arial, sans-serif; font-size: 22px; font-weight: 700; color: var(--green-deep); letter-spacing: -0.01em; padding-top: 6px; }
+        .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .staff-badge { background: var(--field); padding: 5px 12px; border-radius: 20px; font-size: 12px; color: var(--muted); font-weight: 500; }
+        .nav-btn {
+            background: var(--green-dark); color: #fff; border: none;
+            padding: 5px 9px; border-radius: 6px;
+            font-family: 'Poppins', 'Inter', Arial, sans-serif; font-size: 15px; font-weight: 700;
+            text-decoration: none; cursor: pointer; line-height: 1.3;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.18); transition: background .15s;
+        }
+        .nav-btn:hover { background: var(--green-deep); }
+        .header-actions { flex-wrap: nowrap; }
+        .nav-btn, .staff-badge { white-space: nowrap; flex-shrink: 0; }
+        #connectPrinterBtn { max-width: 190px; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
+        .nav-btn.connected { background: var(--green-soft); color: var(--green-deep); box-shadow: inset 0 0 0 2px var(--green-line); }
+
+        .search-box { position: relative; padding-right: 0; }
+        .search-box input {
+            width: 100%; height: 45px; padding: 0 16px;
+            background: #fff; border: 2px solid var(--green-dark); border-radius: 8px;
+            color: var(--ink); font-size: 16px; font-family: inherit; outline: none;
+        }
+        .search-box input::placeholder { color: var(--muted-2); }
+        .search-box input:focus { box-shadow: 0 0 0 3px rgba(26,122,62,0.15); }
+
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; overflow-y: auto; flex: 1; align-content: start; }
+        .product-tile { background: #fff; border-radius: 10px; padding: 12px; cursor: pointer; border: 1px solid var(--line); transition: border-color .15s, background .15s; }
+        .product-tile:hover { border-color: var(--green); background: #f4faf6; }
+        .product-tile img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; margin-bottom: 8px; background: var(--field); }
+        .product-tile .name { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-tile .price { font-size: 15px; font-weight: 800; color: var(--green-dark); }
+        .product-tile .stock { font-size: 11px; color: var(--muted); margin-top: 2px; }
+        .product-tile .out-of-stock { font-size: 11px; color: var(--red); margin-top: 2px; }
+        .grid-msg { grid-column: 1/-1; text-align: center; color: var(--muted-2); padding: 40px; font-size: 14px; }
+
+        /* ---------- RIGHT / BASKET ---------- */
+        .pos-right-wrap { background: var(--panel-bg); padding: 4px 4px 4px 4px; min-height: 0; display: flex; }
+        .pos-right {
+            flex: 1; background: #fff; display: flex; flex-direction: column;
+            border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03);
+            min-height: 0; overflow: hidden;
+        }
+        .basket-header { padding: 12px 18px 10px 20px; border-bottom: 1px solid #f0f1f3; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .basket-header h2 { font-size: 20px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 10px; }
+        .basket-header h2 svg { width: 24px; height: 24px; color: var(--green-deep); }
+        .clear-btn { background: var(--red-soft); color: var(--red); border: none; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; font-family: inherit; }
+        .clear-btn:hover { background: #fbdcdc; }
+
+        .customer-section { padding: 6px 18px 8px; border-bottom: 1px solid #f0f1f3; flex-shrink: 0; }
+        .customer-fields { padding-top: 6px; }
+        .customer-toggle { width: 100%; display: flex; align-items: center; gap: 14px; background: none; border: none; cursor: pointer; padding: 4px 8px; font-family: inherit; }
+        .customer-toggle .lbl { flex: 1; text-align: left; font-size: 13px; color: var(--ink-2); font-weight: 500; letter-spacing: .01em; }
+        .customer-toggle .chev { width: 16px; height: 16px; color: var(--ink); transition: transform .2s; }
+        .customer-section.collapsed .chev { transform: rotate(180deg); }
+        .customer-section.collapsed .customer-fields { display: none; }
+        .field { position: relative; margin-bottom: 7px; }
+        .field svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--ink-2); width: 15px; height: 15px; }
+        .field input { width: 100%; height: 34px; padding: 0 12px 0 46px; background: var(--field); border: 1px solid var(--line); border-radius: 7px; color: var(--ink); font-size: 13px; font-family: inherit; outline: none; }
+        .field input::placeholder { color: var(--muted); }
+        .field input:focus { border-color: var(--green); background: #fff; }
+
+        .basket-items { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 10px 16px; }
         .basket-items::-webkit-scrollbar { width: 6px; }
         .basket-items::-webkit-scrollbar-track { background: transparent; }
-        .basket-items::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-        .basket-items::-webkit-scrollbar-thumb:hover { background: #64748b; }
-        .clear-btn { background: #ef444420; color: #ef4444; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-        .basket-items { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 12px; }
-        .basket-item { background: #0f172a; border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; gap: 10px; align-items: center; }
-        .basket-item .item-name { flex: 1; font-size: 13px; font-weight: 600; color: #f1f5f9; }
-        .basket-item .item-sku { font-size: 11px; color: #64748b; }
-        .basket-item .item-price { font-size: 13px; color: #22c55e; font-weight: 700; white-space: nowrap; }
+        .basket-items::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .basket-items::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        .basket-item { background: #fafafa; border: 1px solid #eef0f2; border-radius: 8px; padding: 9px 10px; margin-bottom: 6px; display: flex; gap: 10px; align-items: center; }
+        .basket-item .item-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--ink); }
+        .basket-item .item-sku { font-size: 11px; color: var(--muted-2); }
+        .basket-item .item-price { font-size: 13px; color: var(--green-dark); font-weight: 700; white-space: nowrap; }
         .qty-controls { display: flex; align-items: center; gap: 6px; }
-        .qty-btn { width: 26px; height: 26px; border-radius: 6px; border: none; background: #334155; color: #f1f5f9; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .qty-btn:hover { background: #475569; }
+        .qty-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .qty-btn:hover { border-color: var(--green); color: var(--green-dark); }
         .qty-num { font-size: 14px; font-weight: 700; min-width: 20px; text-align: center; }
-        .remove-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 16px; padding: 0 4px; }
-        .basket-footer { padding: 16px; border-top: 1px solid #334155; flex-shrink: 0; }
-        .discount-row { display: flex; gap: 8px; margin-bottom: 12px; }
-        .discount-row input { flex: 1; padding: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #f1f5f9; font-size: 14px; outline: none; }
-        .discount-row input:focus { border-color: #22c55e; }
-        .discount-row button { padding: 10px 14px; background: #334155; border: none; border-radius: 8px; color: #f1f5f9; cursor: pointer; font-size: 13px; }
-        .totals { margin-bottom: 14px; }
-        .total-row { display: flex; justify-content: space-between; font-size: 14px; color: #94a3b8; padding: 4px 0; }
-        .total-row.grand { font-size: 20px; font-weight: 800; color: #22c55e; border-top: 1px solid #334155; padding-top: 10px; margin-top: 6px; }
+        .remove-btn { background: none; border: none; color: var(--red); cursor: pointer; font-size: 16px; padding: 0 4px; }
+
+        .empty-basket { text-align: center; padding: 14px 20px 10px; }
+        .empty-basket .icon-circle { width: 72px; height: 72px; border-radius: 50%; background: #f1f2f4; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; }
+        .empty-basket .icon-circle svg { width: 40px; height: 40px; color: #6b7280; }
+        .empty-basket p { font-size: 16px; color: #4b5563; font-weight: 500; }
+        .empty-basket small { display: block; font-size: 13px; color: var(--muted-2); margin-top: 4px; }
+
+        .basket-footer { padding: 10px 14px 12px; border-top: 1px solid #eceef0; flex-shrink: 0; }
+        .discount-row { display: flex; gap: 8px; margin-bottom: 8px; padding: 0 4px; }
+        .discount-row .field { flex: 1; margin: 0; }
+        .discount-row .field input { height: 36px; font-size: 14px; }
+        .discount-row button { padding: 0 22px; height: 36px; background: var(--green-soft); border: 2px solid var(--green-line); border-radius: 7px; color: var(--green-deep); cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit; }
+        .discount-row button:hover { border-color: var(--green); }
+
+        .totals { margin-bottom: 8px; }
+        .total-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--ink-2); padding: 2px 8px; }
+        .total-row span:last-child { color: var(--ink); font-weight: 500; }
+        .total-row .neg { color: var(--red) !important; }
+        .total-row.grand { font-size: 20px; font-weight: 800; color: var(--green-deep); background: var(--green-soft); border-radius: 8px; padding: 8px 10px; margin-top: 6px; letter-spacing: .01em; }
+        .total-row.grand span:last-child { color: var(--green-deep); font-weight: 800; }
+
         .payment-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .pay-btn { padding: 14px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
-        .pay-cash { background: #22c55e; color: #fff; }
-        .pay-cash:hover { background: #16a34a; }
-        .pay-card { background: #3b82f6; color: #fff; }
-        .pay-card:hover { background: #2563eb; }
-        .empty-basket { text-align: center; padding: 40px 20px; color: #475569; }
-        .empty-basket .icon { font-size: 48px; margin-bottom: 12px; }
-        .empty-basket p { font-size: 14px; }
-        .customer-section { padding: 12px 16px; border-bottom: 1px solid #334155; flex-shrink: 0; }
-        .customer-section input { width: 100%; padding: 8px 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #f1f5f9; font-size: 13px; outline: none; margin-bottom: 6px; }
-        .customer-section input:focus { border-color: #22c55e; }
-        .customer-section label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 6px; }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; align-items: center; justify-content: center; }
+        .pay-btn { height: 48px; border-radius: 7px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background .15s; }
+        .pay-btn svg { width: 22px; height: 22px; }
+        .pay-cash { background: var(--green); color: #fff; border: none; box-shadow: 0 2px 6px rgba(26,122,62,0.3); }
+        .pay-cash:hover { background: var(--green-deep); }
+        .pay-card { background: #fff; color: var(--green-deep); border: 2px solid var(--green-line); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+        .pay-card:hover { background: #f4faf6; border-color: var(--green); }
+
+        /* ---------- MODALS ---------- */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(17,24,39,0.45); z-index: 999; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
-        .modal { background: #1e293b; border-radius: 16px; padding: 32px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
-        .modal h3 { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #f1f5f9; }
-        .modal label { display: block; font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
-        .modal input { width: 100%; padding: 14px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: #f1f5f9; font-size: 18px; outline: none; margin-bottom: 16px; }
-        .modal input:focus { border-color: #22c55e; }
+        .modal { background: #fff; border-radius: 14px; padding: 28px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); color: var(--ink); }
+        .modal h3 { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--ink); }
+        .modal label { display: block; font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 6px; }
+        .modal input { width: 100%; padding: 13px; background: var(--field); border: 1px solid var(--line); border-radius: 8px; color: var(--ink); font-size: 18px; font-family: inherit; outline: none; margin-bottom: 16px; }
+        .modal input:focus { border-color: var(--green); background: #fff; }
+        .modal select { width: 100%; padding: 11px; background: var(--field); border: 1px solid var(--line); border-radius: 8px; color: var(--ink); font-size: 14px; font-family: inherit; outline: none; }
+        .modal select:focus { border-color: var(--green); }
         .quick-cash { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
-        .quick-cash button { padding: 10px 6px; background: #334155; border: none; border-radius: 8px; color: #f1f5f9; font-size: 13px; font-weight: 600; cursor: pointer; }
-        .quick-cash button:hover { background: #475569; }
+        .quick-cash button { padding: 10px 6px; background: #fff; border: 1px solid var(--line); border-radius: 7px; color: var(--ink); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .quick-cash button:hover { border-color: var(--green); background: var(--green-soft); color: var(--green-deep); }
         .change-display { border-radius: 10px; padding: 16px; text-align: center; margin-bottom: 16px; }
-        .change-display.positive { background: #0f2d1a; border: 1px solid #22c55e; }
-        .change-display.negative { background: #2d0f0f; border: 1px solid #ef4444; }
-        .change-display .label { font-size: 12px; margin-bottom: 4px; }
-        .change-display.positive .label { color: #22c55e; }
-        .change-display.negative .label { color: #ef4444; }
+        .change-display.positive { background: var(--green-soft); border: 1px solid var(--green-line); }
+        .change-display.negative { background: var(--red-soft); border: 1px solid #f5b5b5; }
+        .change-display .label { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+        .change-display.positive .label { color: var(--green-deep); }
+        .change-display.negative .label { color: var(--red); }
         .change-display .amount { font-size: 36px; font-weight: 800; }
-        .change-display.positive .amount { color: #22c55e; }
-        .change-display.negative .amount { color: #ef4444; }
+        .change-display.positive .amount { color: var(--green-deep); }
+        .change-display.negative .amount { color: var(--red); }
         .modal-btns { display: flex; gap: 10px; }
-        .modal-btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
-        .modal-confirm { background: #22c55e; color: #fff; }
-        .modal-confirm:hover { background: #16a34a; }
-        .modal-confirm:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
-        .modal-cancel { background: #334155; color: #f1f5f9; }
+        .modal-btn { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .modal-confirm { background: var(--green); color: #fff; }
+        .modal-confirm:hover { background: var(--green-deep); }
+        .modal-confirm:disabled { background: var(--line); color: var(--muted-2); cursor: not-allowed; }
+        .modal-cancel { background: #fff; color: var(--ink-2); border: 1px solid var(--line); }
+        .modal-cancel:hover { background: var(--field); }
         .sale-complete { text-align: center; padding: 20px 0; }
         .sale-complete .tick { font-size: 64px; margin-bottom: 16px; }
-        .sale-complete .amount { font-size: 32px; font-weight: 800; color: #22c55e; margin-bottom: 8px; }
-        .sale-complete .change-due { font-size: 18px; color: #f1f5f9; margin-bottom: 24px; }
-        .session-btn { background: #334155; color: #94a3b8; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .sale-complete .amount { font-size: 32px; font-weight: 800; color: var(--green-deep); margin-bottom: 8px; }
+        .sale-complete .change-due { font-size: 18px; color: var(--ink-2); margin-bottom: 24px; }
+        .info-box { background: var(--field); border-radius: 10px; padding: 16px; }
     </style>
 </head>
 
 <body>
+
+<!-- icon sprites -->
+<svg width="0" height="0" style="position:absolute">
+    <symbol id="i-cart" viewBox="0 0 24 24"><path fill="currentColor" d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM1 2h3.3l.95 2H21a1 1 0 0 1 .96 1.28l-2.7 9A1 1 0 0 1 18.3 15H8.1l-1.1 2H19v2H5.3a1 1 0 0 1-.87-1.5L6.2 14.3 3 4H1V2z"/></symbol>
+    <symbol id="i-cart-outline" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h2.5l2.6 11.2a1 1 0 0 0 1 .8h9.6a1 1 0 0 0 1-.76L20.5 7H5.4"/><path d="M9 7v8M13 7v8M17 7v8M6.2 11h13.3"/><circle cx="9" cy="19.5" r="1.5"/><circle cx="17" cy="19.5" r="1.5"/></g></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path fill="currentColor" d="M9 2h6l1 2h4v2H4V4h4l1-2zM5 8h14l-1 13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 8zm4 3v8h2v-8H9zm4 0v8h2v-8h-2z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-5.3 0-9 2.7-9 6v2h18v-2c0-3.3-3.7-6-9-6z"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1l-2.2 2.2z"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5h18a1 1 0 0 1 1 1v.6l-10 6.2L2 6.6V6a1 1 0 0 1 1-1zm-1 3.95V18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V8.95l-10 6.2-10-6.2z"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path fill="currentColor" d="M2 3a1 1 0 0 1 1-1h8.2a1 1 0 0 1 .7.3l9.8 9.8a1 1 0 0 1 0 1.4l-8.2 8.2a1 1 0 0 1-1.4 0L2.3 11.9a1 1 0 0 1-.3-.7V3zm5 2.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M6 15l6-6 6 6"/></symbol>
+    <symbol id="i-cash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 9.5v5M18 9.5v5" stroke-linecap="round"/></g></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 10h19M6 15h4"/></g></symbol>
+</svg>
 
 <div class="pos-layout">
 
     <!-- LEFT: PRODUCT SEARCH -->
     <div class="pos-left">
         <div class="pos-header">
-            <h1>&#127978; Judith Ethnic Store - POS</h1>
-            <div style="display:flex; gap:8px; align-items:center;">
-                <span class="staff-badge">&#128100; {{ current_user.first_name }}</span>
+            <h1>Judith Ethnic Store - POS</h1>
+            <div class="header-actions">
+                <span class="staff-badge">{{ current_user.first_name }}</span>
 
                 {% if current_user.pos_role == 'manager' or current_user.is_admin %}
-                <a href="{{ url_for('pos.reports') }}"
-                    style="background:#1e293b; color:#94a3b8; border:none; padding:6px 12px; border-radius:6px; font-size:12px; text-decoration:none;">
-                    Reports
-                </a>
-                <a href="{{ url_for('inventory.dashboard') }}"
-                    style="background:#1e293b; color:#94a3b8; border:none; padding:6px 12px; border-radius:6px; font-size:12px; text-decoration:none;">
-                    Inventory
-                </a>
-                <button onclick="openReturnsModal()"
-                    style="background:#1e293b; color:#94a3b8; border:none; padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer;">
-                    Returns
-                </button>
+                <a href="{{ url_for('pos.reports') }}" class="nav-btn">Reports</a>
+                <a href="{{ url_for('inventory.dashboard') }}" class="nav-btn">Inventory</a>
+                <button class="nav-btn" onclick="openReturnsModal()">Returns</button>
                 {% endif %}
 
-                <button class="session-btn"
+                <button class="nav-btn session-btn"
                     onclick="document.getElementById('close-modal').classList.add('active')">
                     Close Session
                 </button>
 
-                <button id="connectPrinterBtn" onclick="connectPrinter()"
-                    style="background:#1e293b;color:#94a3b8;border:none;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;">
-                    Connect Printer
+                <button id="connectPrinterBtn" class="nav-btn" onclick="connectPrinter()">
+                    Connect to Printer
                 </button>
             </div>
         </div>
 
         <div class="search-box">
-            <span class="icon">&#128269;</span>
             <input type="text" id="searchInput" placeholder="Scan barcode or search product..." autofocus
                 oninput="searchProducts(this.value)">
         </div>
 
         <div class="products-grid" id="productsGrid">
-            <div style="grid-column:1/-1;text-align:center;color:#475569;padding:40px;">
-                Scan a barcode or type to search products
-            </div>
+            <div class="grid-msg">Scan a barcode or type to search products</div>
         </div>
     </div>
 
     <!-- RIGHT: BASKET -->
+    <div class="pos-right-wrap">
     <div class="pos-right">
         <div class="basket-header">
-            <h2>Basket</h2>
-            <button class="clear-btn" onclick="clearBasket()">Clear All</button>
+            <h2><svg class="ico"><use href="#i-cart"/></svg>Basket</h2>
+            <button class="clear-btn" onclick="clearBasket()">
+                <svg class="ico" style="width:14px;height:14px;"><use href="#i-trash"/></svg>Clear All
+            </button>
         </div>
 
-        <div class="customer-section">
-            <label>Customer (optional)</label>
-            <input type="text" id="customerName" placeholder="Name">
-            <input type="tel" id="customerPhone" placeholder="Phone">
-            <input type="email" id="customerEmail" placeholder="Email (for receipt)">
+        <div class="customer-section collapsed" id="customerSection">
+            <button type="button" class="customer-toggle" onclick="document.getElementById('customerSection').classList.toggle('collapsed')">
+                <svg class="ico" style="color:var(--ink);"><use href="#i-user"/></svg>
+                <span class="lbl">CUSTOMER (OPTIONAL)</span>
+                <svg class="chev"><use href="#i-chev"/></svg>
+            </button>
+            <div class="customer-fields">
+                <div class="field">
+                    <svg><use href="#i-user"/></svg>
+                    <input type="text" id="customerName" placeholder="Name">
+                </div>
+                <div class="field">
+                    <svg><use href="#i-phone"/></svg>
+                    <input type="tel" id="customerPhone" placeholder="Phone">
+                </div>
+                <div class="field">
+                    <svg><use href="#i-mail"/></svg>
+                    <input type="email" id="customerEmail" placeholder="Email (for receipt)">
+                </div>
+            </div>
         </div>
 
         <div class="basket-items" id="basketItems">
             <div class="empty-basket">
-                <div class="icon">&#128722;</div>
+                <div class="icon-circle"><svg><use href="#i-cart-outline"/></svg></div>
                 <p>Basket is empty</p>
+                <small>Add products to get started</small>
             </div>
         </div>
 
         <div class="basket-footer">
             <div class="discount-row">
-                <input type="number" id="discountInput" placeholder="Discount" min="0" step="0.01">
+                <div class="field">
+                    <svg><use href="#i-tag"/></svg>
+                    <input type="number" id="discountInput" placeholder="Discount" min="0" step="0.01">
+                </div>
                 <button onclick="applyDiscount()">Apply</button>
             </div>
             <div class="totals">
                 <div class="total-row"><span>Subtotal</span><span id="subtotalDisplay">£0.00</span></div>
-                <div class="total-row"><span>Discount</span><span id="discountDisplay" style="color:#ef4444;">-£0.00</span></div>
+                <div class="total-row"><span>Discount</span><span id="discountDisplay" class="neg">-£0.00</span></div>
                 <div class="total-row grand"><span>TOTAL</span><span id="totalDisplay">£0.00</span></div>
             </div>
             <div class="payment-btns">
-                <button class="pay-btn pay-cash" onclick="openPayment('cash')">Cash</button>
-                <button class="pay-btn pay-card" onclick="openPayment('card')">Card</button>
+                <button class="pay-btn pay-cash" onclick="openPayment('cash')">
+                    <svg><use href="#i-cash"/></svg>Cash
+                </button>
+                <button class="pay-btn pay-card" onclick="openPayment('card')">
+                    <svg><use href="#i-card"/></svg>Card
+                </button>
             </div>
         </div>
+    </div>
     </div>
 
 </div>
@@ -199,8 +307,8 @@
     <div class="modal">
         <h3>Cash Payment</h3>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <span style="font-size:14px;color:#94a3b8;">Total due:</span>
-            <span id="cash-total-display" style="font-size:24px;font-weight:800;color:#22c55e;">£0.00</span>
+            <span style="font-size:14px;color:var(--muted);">Total due:</span>
+            <span id="cash-total-display" style="font-size:24px;font-weight:800;color:var(--green-deep);">£0.00</span>
         </div>
         <label>Quick amount</label>
         <div class="quick-cash" id="quickCashBtns"></div>
@@ -225,18 +333,18 @@
     <div class="modal">
         <h3>Card Payment</h3>
         <div style="text-align:center;padding:20px 0;">
-            <div style="font-size:14px;color:#94a3b8;margin-bottom:8px;">Amount to charge</div>
-            <div id="card-total-display" style="font-size:36px;font-weight:800;color:#3b82f6;">£0.00</div>
+            <div style="font-size:14px;color:var(--muted);margin-bottom:8px;">Amount to charge</div>
+            <div id="card-total-display" style="font-size:36px;font-weight:800;color:var(--green-deep);">£0.00</div>
         </div>
-        <div style="background:#0f172a;border-radius:10px;padding:16px;margin-bottom:20px;text-align:center;">
-            <p style="font-size:14px;color:#94a3b8;margin-bottom:8px;">
-                1. Enter <strong style="color:#f1f5f9;">£<span id="card-amount-hint">0.00</span></strong> on the card reader
+        <div class="info-box" style="margin-bottom:20px;text-align:center;">
+            <p style="font-size:14px;color:var(--muted);margin-bottom:8px;">
+                1. Enter <strong style="color:var(--ink);">£<span id="card-amount-hint">0.00</span></strong> on the card reader
             </p>
-            <p style="font-size:14px;color:#94a3b8;margin-bottom:8px;">
+            <p style="font-size:14px;color:var(--muted);margin-bottom:8px;">
                 2. Ask customer to tap or insert card
             </p>
-            <p style="font-size:14px;color:#94a3b8;">
-                3. Once approved, click <strong style="color:#22c55e;">Confirm Payment</strong>
+            <p style="font-size:14px;color:var(--muted);">
+                3. Once approved, click <strong style="color:var(--green-deep);">Confirm Payment</strong>
             </p>
         </div>
         <div class="modal-btns">
@@ -275,14 +383,13 @@
                 oninput="lookupReturnOrder()">
         </div>
         <div id="returnOrderDetails" style="display:none;">
-            <div style="background:#0f172a;border-radius:10px;padding:14px;margin-bottom:16px;">
-                <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">Order Items</div>
+            <div class="info-box" style="padding:14px;margin-bottom:16px;">
+                <div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Order Items</div>
                 <div id="returnItemsList"></div>
             </div>
             <div style="margin-bottom:16px;">
                 <label>Reason for Return</label>
-                <select id="returnReason"
-                    style="width:100%;padding:11px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#f1f5f9;font-size:14px;outline:none;">
+                <select id="returnReason">
                     <option value="">Select reason</option>
                     <option value="damaged">Damaged / Defective</option>
                     <option value="wrong_item">Wrong Item Received</option>
@@ -293,8 +400,7 @@
             </div>
             <div style="margin-bottom:16px;">
                 <label>Refund Method</label>
-                <select id="refundMethod"
-                    style="width:100%;padding:11px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#f1f5f9;font-size:14px;outline:none;">
+                <select id="refundMethod">
                     <option value="cash">Cash Refund</option>
                     <option value="store_credit">Store Credit</option>
                     <option value="exchange">Exchange</option>
@@ -305,7 +411,7 @@
                 <input type="number" id="refundAmount" step="0.01" min="0" placeholder="0.00" style="font-size:18px;">
             </div>
         </div>
-        <div id="returnNotFound" style="display:none;text-align:center;padding:20px;color:#64748b;">
+        <div id="returnNotFound" style="display:none;text-align:center;padding:20px;color:var(--muted);">
             Order not found. Check the order number and try again.
         </div>
         <div class="modal-btns">
@@ -328,7 +434,7 @@
             <input type="number" name="closing_float" step="0.01" min="0" placeholder="0.00">
             <div class="modal-btns">
                 <button type="button" class="modal-btn modal-cancel" onclick="closeModal('close-modal')">Cancel</button>
-                <button type="submit" class="modal-btn" style="background:#ef4444;color:#fff;">Close Session</button>
+                <button type="submit" class="modal-btn" style="background:var(--red);color:#fff;">Close Session</button>
             </div>
         </form>
     </div>
@@ -338,6 +444,16 @@
     let basket      = [];
     let discount    = 0;
     let lastOrderId = null;
+
+    // UI-only markup constants
+    const GRID_PROMPT_HTML   = '<div class="grid-msg">Scan a barcode or type to search products</div>';
+    const EMPTY_BASKET_HTML  = '<div class="empty-basket"><div class="icon-circle"><svg><use href="#i-cart-outline"/></svg></div><p>Basket is empty</p><small>Add products to get started</small></div>';
+
+    function markPrinterConnected(label) {
+        const btn = document.getElementById('connectPrinterBtn');
+        btn.textContent = label;
+        btn.classList.add('connected');
+    }
 
     function getCsrf() {
         return document.querySelector('meta[name="csrf-token"]').content;
@@ -350,7 +466,7 @@
     function searchProducts(q) {
         clearTimeout(searchTimeout);
         if (!q.trim()) {
-            document.getElementById('productsGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#475569;padding:40px;">Scan a barcode or type to search products</div>';
+            document.getElementById('productsGrid').innerHTML = GRID_PROMPT_HTML;
             return;
         }
         searchTimeout = setTimeout(async () => {
@@ -360,36 +476,36 @@
             if (data.length === 1 && q.length > 5) {
                 addToBasket(data[0]);
                 document.getElementById('searchInput').value = '';
-                document.getElementById('productsGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#475569;padding:40px;">Scan a barcode or type to search products</div>';
+                document.getElementById('productsGrid').innerHTML = GRID_PROMPT_HTML;
             }
         }, 200);
     }
 
     function renderProducts(products) {
-    const grid = document.getElementById('productsGrid');
-    if (!products.length) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#475569;padding:40px;">No products found</div>';
-        return;
-    }
+        const grid = document.getElementById('productsGrid');
+        if (!products.length) {
+            grid.innerHTML = '<div class="grid-msg">No products found</div>';
+            return;
+        }
 
-    // store products in a map instead of inline onclick
-    window._productMap = {};
-    grid.innerHTML = products.map(p => {
-        window._productMap[p.id] = p;
-        const img = p.image
-            ? '<img src="/static/uploads/' + p.image + '" alt="" loading="eager" fetchpriority="high">'
-            : '<div style="width:100%;aspect-ratio:1;background:#334155;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;font-size:32px;">&#128717;</div>';
-        const stock = p.stock > 0
-            ? '<div class="stock">' + p.stock + ' in stock</div>'
-            : '<div class="out-of-stock">Out of stock</div>';
-        return '<div class="product-tile" onclick="addToBasket(window._productMap[' + p.id + '])">'
-            + img
-            + '<div class="name">' + p.name + '</div>'
-            + '<div class="price">\xA3' + p.price.toFixed(2) + '</div>'
-            + stock
-            + '</div>';
-    }).join('');
-}
+        // store products in a map instead of inline onclick
+        window._productMap = {};
+        grid.innerHTML = products.map(p => {
+            window._productMap[p.id] = p;
+            const img = p.image
+                ? '<img src="/static/uploads/' + p.image + '" alt="" loading="eager" fetchpriority="high">'
+                : '<div style="width:100%;aspect-ratio:1;background:#f3f4f6;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;font-size:32px;">&#128717;</div>';
+            const stock = p.stock > 0
+                ? '<div class="stock">' + p.stock + ' in stock</div>'
+                : '<div class="out-of-stock">Out of stock</div>';
+            return '<div class="product-tile" onclick="addToBasket(window._productMap[' + p.id + '])">'
+                + img
+                + '<div class="name">' + p.name + '</div>'
+                + '<div class="price">\xA3' + p.price.toFixed(2) + '</div>'
+                + stock
+                + '</div>';
+        }).join('');
+    }
 
     // =========================
     // BASKET
@@ -428,7 +544,7 @@
     function renderBasket() {
         const container = document.getElementById('basketItems');
         if (!basket.length) {
-            container.innerHTML = '<div class="empty-basket"><div class="icon">&#128722;</div><p>Basket is empty</p></div>';
+            container.innerHTML = EMPTY_BASKET_HTML;
             updateTotals(0, 0);
             return;
         }
@@ -436,7 +552,7 @@
             '<div class="basket-item">' +
             '<div style="flex:1;"><div class="item-name">' + item.name + '</div>' +
             '<div class="item-sku">' + item.sku + '</div>' +
-            '<div style="font-size:12px;color:#64748b;">\xA3' + item.price.toFixed(2) + ' each</div></div>' +
+            '<div style="font-size:12px;color:#6b7280;">\xA3' + item.price.toFixed(2) + ' each</div></div>' +
             '<div class="qty-controls">' +
             '<button class="qty-btn" onclick="updateQty(' + i + ', -1)">&#8722;</button>' +
             '<span class="qty-num">' + item.quantity + '</span>' +
@@ -672,10 +788,10 @@
                 document.getElementById('confirmReturnBtn').style.display   = 'block';
                 document.getElementById('refundAmount').value = data.total.toFixed(2);
                 document.getElementById('returnItemsList').innerHTML = data.items.map((item, i) =>
-                    '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1e293b;">' +
-                    '<input type="checkbox" id="ri-' + i + '" checked onchange="updateRefundAmount()" data-price="' + item.total_price + '" style="width:auto;cursor:pointer;">' +
-                    '<label for="ri-' + i + '" style="flex:1;font-size:13px;color:#f1f5f9;cursor:pointer;">' + item.name + ' x ' + item.quantity + '</label>' +
-                    '<span style="font-size:13px;color:#22c55e;font-weight:700;">\xA3' + parseFloat(item.total_price).toFixed(2) + '</span></div>'
+                    '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #e5e7eb;">' +
+                    '<input type="checkbox" id="ri-' + i + '" checked onchange="updateRefundAmount()" data-price="' + item.total_price + '" style="width:auto;margin:0;cursor:pointer;accent-color:#1a7a3e;">' +
+                    '<label for="ri-' + i + '" style="flex:1;font-size:13px;color:#1f2937;cursor:pointer;margin:0;">' + item.name + ' x ' + item.quantity + '</label>' +
+                    '<span style="font-size:13px;color:#15693a;font-weight:700;">\xA3' + parseFloat(item.total_price).toFixed(2) + '</span></div>'
                 ).join('');
             } catch (e) {
                 document.getElementById('returnNotFound').style.display = 'block';
@@ -741,10 +857,7 @@
 
         if (qz.websocket.isActive()) {
             printerConnected = true;
-            const btn = document.getElementById('connectPrinterBtn');
-            btn.textContent      = 'Printer Connected';
-            btn.style.color      = '#22c55e';
-            btn.style.background = '#0f2d1a';
+            markPrinterConnected('Printer Connected');
             return;
         }
 
@@ -766,10 +879,7 @@
             console.log('Selected printer:', window.posPrinter);
 
             printerConnected = true;
-            const btn = document.getElementById('connectPrinterBtn');
-            btn.textContent      = window.posPrinter ? 'Printer: ' + window.posPrinter.substring(0, 15) : 'Printer Connected';
-            btn.style.color      = '#22c55e';
-            btn.style.background = '#0f2d1a';
+            markPrinterConnected(window.posPrinter ? 'Printer: ' + window.posPrinter.substring(0, 15) : 'Printer Connected');
 
         } catch (e) {
             console.error('Connection error:', e.message);
@@ -777,10 +887,7 @@
                 alert('Please click Allow in the QZ Tray dialog to connect.');
             } else if (e.message && e.message.includes('already exists')) {
                 printerConnected = true;
-                const btn = document.getElementById('connectPrinterBtn');
-                btn.textContent      = 'Printer Connected';
-                btn.style.color      = '#22c55e';
-                btn.style.background = '#0f2d1a';
+                markPrinterConnected('Printer Connected');
             } else {
                 alert('Could not connect. Make sure QZ Tray is running.');
             }
@@ -933,7 +1040,7 @@
 
         closeModal('complete-modal');
         document.getElementById('searchInput').focus();
-        
+
     }
 
     window.addEventListener('load', async () => {
@@ -950,12 +1057,9 @@
                     p.toLowerCase().includes('epson')
                 ) || printers[0] || null;
                 printerConnected = true;
-                const btn = document.getElementById('connectPrinterBtn');
-                btn.textContent      = window.posPrinter ? 'Printer: ' + window.posPrinter.substring(0, 15) : 'Printer Connected';
-                btn.style.color      = '#22c55e';
-                btn.style.background = '#0f2d1a';
+                markPrinterConnected(window.posPrinter ? 'Printer: ' + window.posPrinter.substring(0, 15) : 'Printer Connected');
             } catch (e) {
-                console.log('Auto-connect failed — click Connect Printer manually');
+                console.log('Auto-connect failed — click Connect to Printer manually');
             }
         }
     });

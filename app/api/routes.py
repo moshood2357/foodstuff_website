@@ -3,7 +3,7 @@ from flask import request, jsonify, current_app
 from . import api_bp
 
 
-RESTAURANT_POSTCODE  = "311+High+Street+Cheltenham+GL50+3WS+UK"
+RESTAURANT_POSTCODE  = "311+High+Street+Cheltenham+GL50+3HW+UK"
 
 
 def get_delivery_fee(miles):
